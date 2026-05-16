@@ -10,7 +10,7 @@
   <title>Reloj Auditivo — KinesisLab</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .clock-answers { display: flex; gap: 24px; justify-content: center; margin-top: var(--space-4); width: 100%; padding: 0 var(--space-2); }
     .clock-answer-btn {
@@ -56,8 +56,7 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Modo:</span>
+      <div class="control-group" data-prefix="Modo">
         <select aria-label="Variante" name="variant" class="speed-select" onchange="tool.changeVariant(this.value)">
           <option value="lr-text">Texto &#x2194;</option>
           <option value="tb-text">Texto &#x2195;</option>
@@ -65,12 +64,11 @@
           <option value="tb-24h">24h &#x2195;</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="5000">Lenta (5s)</option>
-          <option value="4000" selected>Media (4s)</option>
-          <option value="3000">R&aacute;pida (3s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="5000">5s</option>
+          <option value="4000" selected>4s</option>
+          <option value="3000">3s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">

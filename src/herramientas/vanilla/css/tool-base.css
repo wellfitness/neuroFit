@@ -246,76 +246,9 @@ h1 {
   flex-shrink: 0;
 }
 
-@media (max-width: 600px) {
-  .exec-header-logo {
-    display: none;
-  }
-  .exec-header h2 {
-    font-size: 1rem !important;
-    white-space: nowrap;
-  }
-  .exec-header {
-    padding: var(--space-1) var(--space-2);
-  }
-  .exec-toolbar {
-    padding: 6px var(--space-2);
-    gap: 6px;
-    flex-wrap: nowrap;
-    align-items: stretch;
-  }
-  .control-group {
-    padding: 4px 8px;
-    min-height: auto;
-    flex: 1 1 0;
-    min-width: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 2px;
-  }
-  .control-label {
-    font-size: 0.6rem;
-    margin-right: 0;
-    white-space: nowrap;
-    text-align: center;
-  }
-  .speed-select {
-    font-size: 0.8rem;
-    padding: 2px 0;
-    min-height: 28px;
-    min-width: 0;
-    width: 100%;
-  }
-}
-@media (max-width: 420px) {
-  .speed-select {
-    font-size: 0.72rem;
-  }
-  .btn-primary,
-  .btn-critical {
-    padding: 8px;
-    font-size: 0;
-    min-height: 44px;
-    min-width: 44px;
-    justify-content: center;
-    flex: 0 0 auto;
-  }
-  .btn-primary .material-symbols-sharp,
-  .btn-critical .material-symbols-sharp {
-    font-size: 1.5rem;
-  }
-  .exec-toolbar .btn-primary > span:not(.material-symbols-sharp),
-  .exec-toolbar .btn-critical > span:not(.material-symbols-sharp) {
-    display: none;
-  }
-  .stimulus-area {
-    padding: 0;
-  }
-  .stimulus-instruction {
-    margin-bottom: var(--space-1);
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-}
+/* Reglas mobile movidas al final del archivo para ganar la cascada
+   sobre las reglas base de .exec-toolbar, .control-group, .btn-* que las
+   sobrescribían. Ver bloque "MOBILE — header+toolbar ultra-compactos". */
 
 .btn-secondary {
   background: transparent;
@@ -362,12 +295,17 @@ h1 {
   min-height: 44px;
 }
 
-.control-label {
+.control-group[data-prefix]::before {
+  content: attr(data-prefix) ":";
   color: var(--gris-400);
-  font-size: 0.875rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-right: 8px;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-right: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .speed-select {
@@ -1342,16 +1280,7 @@ h1 {
 .btn-jitter .material-symbols-sharp {
   font-size: 18px;
 }
-@media (max-width: 600px) {
-  .btn-jitter {
-    padding: 6px;
-    font-size: 0;
-    min-width: 44px;
-    justify-content: center;
-  }
-  .btn-jitter .material-symbols-sharp { font-size: 1.3rem; }
-  .btn-jitter > span:not(.material-symbols-sharp) { display: none; }
-}
+/* Reglas mobile de btn-jitter consolidadas en el bloque "MOBILE" al final */
 
 /* Botón finalizar (parar sesión) en la toolbar */
 .btn-finalize {
@@ -1371,14 +1300,145 @@ h1 {
 }
 .btn-finalize.visible { display: flex; }
 .btn-finalize:hover { background: var(--rosa-700); transform: translateY(-2px); }
-@media (max-width: 600px) {
-  .btn-finalize {
-    padding: 8px;
-    font-size: 0;
-    min-height: 44px;
-    min-width: 44px;
-    justify-content: center;
+/* Reglas mobile de btn-finalize consolidadas en el bloque "MOBILE" al final */
+
+/* ============================================================
+   MOBILE — header + toolbar ultra-compactos (~90px total)
+   Objetivo: máximo espacio vertical para el área de estímulos.
+   Estas reglas van al final para ganar la cascada CSS sobre las
+   reglas base de .exec-toolbar, .control-group, .btn-* que las
+   sobrescribirían si estuvieran antes.
+
+   Se aplican tanto en mobile portrait (width <= 600) como en
+   cualquier viewport con poca altura (height <= 500) — esto
+   incluye mobile/tablet landscape donde el ancho es grande pero
+   la altura es escasa y necesitamos maximizar el área útil.
+   ============================================================ */
+@media (max-width: 600px), (max-height: 500px) {
+  /* --- Header ~40px --- */
+  .exec-header {
+    padding: 4px 8px;
   }
-  .btn-finalize .material-symbols-sharp { font-size: 1.5rem; }
-  .btn-finalize > span:not(.material-symbols-sharp) { display: none; }
+  .exec-header-logo {
+    display: none;
+  }
+  .exec-header h2 {
+    font-size: 1rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .exec-header-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .btn-info,
+  .exec-header .btn-secondary {
+    min-width: 40px;
+    min-height: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 6px;
+  }
+  .user-badge {
+    min-height: 32px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+  .user-badge .material-symbols-sharp {
+    font-size: 16px;
+  }
+
+  /* --- Toolbar ~50px en una sola fila --- */
+  .exec-toolbar {
+    padding: 4px 8px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    justify-content: flex-start;
+    align-items: stretch;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .exec-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .control-group {
+    padding: 0 8px;
+    min-height: 40px;
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+  /* En móvil ocultamos el label "Modo:" / "Nivel:" / "Tiempo:".
+     El propio valor del select es autoexplicativo (Táctil, Básico, 2s).
+     aria-label se conserva para lectores de pantalla. */
+  .control-group[data-prefix]::before {
+    display: none;
+  }
+  .speed-select {
+    font-size: 0.8rem;
+    padding: 0 2px;
+    min-height: 36px;
+    min-width: 0;
+    flex: 1;
+    width: 100%;
+  }
+
+  /* --- Botones de acción: icono puro 40×40 --- */
+  .btn-primary,
+  .btn-critical,
+  .btn-jitter,
+  .btn-finalize {
+    padding: 0;
+    font-size: 0;
+    min-height: 40px;
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
+    border-width: 1px;
+    gap: 0;
+  }
+  .btn-primary .material-symbols-sharp,
+  .btn-critical .material-symbols-sharp,
+  .btn-jitter .material-symbols-sharp,
+  .btn-finalize .material-symbols-sharp {
+    font-size: 1.4rem;
+    margin: 0;
+  }
+  .exec-toolbar .btn-primary > span:not(.material-symbols-sharp),
+  .exec-toolbar .btn-critical > span:not(.material-symbols-sharp),
+  .btn-jitter > span:not(.material-symbols-sharp),
+  .btn-finalize > span:not(.material-symbols-sharp) {
+    display: none;
+  }
+
+  /* --- Stimulus instruction y área --- */
+  .stimulus-area {
+    padding: 0;
+  }
+  .stimulus-instruction {
+    font-size: 1rem;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .control-group[data-prefix]::before {
+    font-size: 0.72rem;
+  }
+  .speed-select {
+    font-size: 0.72rem;
+  }
 }

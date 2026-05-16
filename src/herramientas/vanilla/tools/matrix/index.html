@@ -10,7 +10,7 @@
   <title>Matriz Visoespacial — KinesisLab</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .matrix-grid {
       display: grid;
@@ -94,20 +94,18 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Cuadr&iacute;cula:</span>
+      <div class="control-group" data-prefix="Cuadr&iacute;cula">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="3" selected>3&times;3</option>
           <option value="4">4&times;4</option>
           <option value="5">5&times;5</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="8000">Lenta (8s)</option>
-          <option value="6000" selected>Media (6s)</option>
-          <option value="4000">R&aacute;pida (4s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="8000">8s</option>
+          <option value="6000" selected>6s</option>
+          <option value="4000">4s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">

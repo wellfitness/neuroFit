@@ -10,7 +10,7 @@
   <title>Flechas Reactivas — KinesisLab</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .arrow-display {
       font-size: clamp(12rem, 40vw, 22rem);
@@ -76,26 +76,23 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Modo:</span>
+      <div class="control-group" data-prefix="Modo">
         <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
           <option value="visual" selected>Visual</option>
           <option value="voice">Visual + Voz</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="normal" selected>Normal</option>
           <option value="conflicto">Conflicto</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Velocidad:</span>
-        <select aria-label="Cadencia" id="speedSelect" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="3000">Lenta 3s</option>
-          <option value="2000" selected>Media 2s</option>
-          <option value="1500">R&aacute;pida 1.5s</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" id="speedSelect" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">3s</option>
+          <option value="2000" selected>2s</option>
+          <option value="1500">1.5s</option>
         </select>
       </div>
       <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">

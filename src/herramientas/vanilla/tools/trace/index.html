@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
   <title>Trazado Alfanumérico — KinesisLab</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .trace-display {
       width: 100%;
@@ -49,20 +49,18 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Modo:</span>
+      <div class="control-group" data-prefix="Modo">
         <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
           <option value="random" selected>Libre</option>
           <option value="tmtA">N&uacute;meros</option>
           <option value="tmtB">Alterna n&ordm;/letra</option>
         </select>
       </div>
-      <div id="cadenceGroup" class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="10000">Lenta 10s</option>
-          <option value="8000" selected>Media 8s</option>
-          <option value="6000">R&aacute;pida 6s</option>
+      <div id="cadenceGroup" class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="10000">10s</option>
+          <option value="8000" selected>8s</option>
+          <option value="6000">6s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">

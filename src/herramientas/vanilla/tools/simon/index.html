@@ -10,7 +10,7 @@
   <title>Simon — KinesisLab</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .simon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 90vw; max-width: 400px; }
     @media (min-width: 600px) { .simon-grid { width: 80vw; max-width: 700px; gap: 24px; } }
@@ -54,8 +54,7 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Sentido:</span>
+      <div class="control-group" data-prefix="Sentido">
         <select aria-label="Sentido" id="directionSelect" class="speed-select" onchange="tool.changeDirection(this.value)">
           <option value="forward" selected>Adelante</option>
           <option value="reverse">Atr&aacute;s</option>
