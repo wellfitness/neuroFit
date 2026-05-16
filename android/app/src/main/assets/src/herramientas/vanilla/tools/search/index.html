@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>B&uacute;squeda Visual — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+      gap: 6px;
+      width: 100%;
+      padding: var(--space-2);
+      background: var(--gris-800);
+      border-radius: 12px;
+      text-align: center;
+    }
+    @media (min-width: 768px) {
+      .search-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+      }
+    }
+    .search-item {
+      padding: 4px;
+      font-size: clamp(2.2rem, 7vw, 3.6rem);
+      font-weight: bold;
+      color: var(--gris-400);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 150ms;
+      user-select: none;
+      min-width: 56px;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .search-item:active { background: rgba(255,255,255,0.1); }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: auto; flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    .search-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+    }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+
+    @media (min-width: 1280px) {
+      .search-main { max-width: 1100px; margin: 0 auto; }
+      .search-grid { grid-template-columns: repeat(9, 1fr); gap: 10px; padding: var(--space-3); }
+      .search-item { font-size: clamp(2.6rem, 4.5vw, 4rem); min-width: 72px; min-height: 72px; }
+      .stat-value { font-size: 2rem; }
+      .stat-label { font-size: 0.9rem; }
+      .stimulus-instruction { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">B&uacute;squeda Visual</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="6000">Lenta (6s)</option>
+          <option value="4500" selected>Media (4.5s)</option>
+          <option value="3000">R&aacute;pida (3s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column; align-items: center;">
+      <p class="stimulus-instruction" id="searchTargetText">Busca la letra distinta</p>
+      <div class="search-main">
+        <div id="searchGrid" class="search-grid"></div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+        <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Errores</span></div>
+        <div class="stat-item"><span id="statTotal" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+        <div class="stat-item"><span id="statRT" class="stat-value" style="color: var(--tulip-tree-400);">--</span><span class="stat-label">TR medio</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>B&uacute;squeda Visual</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>atenci&oacute;n visual</strong>. Tienes que encontrar una letra diferente escondida entre muchas letras parecidas. Entrena tu velocidad de rastreo visual y tu capacidad de filtrar distracciones.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Aparece una cuadr&iacute;cula llena de letras.</li>
+            <li>Encuentra la letra diferente y t&oacute;cala lo m&aacute;s r&aacute;pido posible.</li>
+            <li>Arriba te dice cu&aacute;l es la letra que buscas.</li>
+            <li>Si no la encuentras a tiempo, cuenta como error.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>No escanees letra por letra &mdash; intenta ver la cuadr&iacute;cula entera.</li>
+            <li>Empieza en cadencia lenta para coger el truco.</li>
+            <li>Combina con ejercicio: busca la letra mientras caminas o pedaleas.</li>
+            <li>Si los errores suben, tu vista o tu cerebro est&aacute;n cansados.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>En deportes con alta demanda visual (raqueta, porter&iacute;a).</li>
+            <li>Como doble tarea: buscar mientras haces ejercicio.</li>
+            <li>Para medir fatiga visual durante sesiones largas.</li>
+            <li>Como calentamiento cognitivo antes de actividades de precisi&oacute;n.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="search.js?v=2.0.5"></script>
+</body>
+</html>

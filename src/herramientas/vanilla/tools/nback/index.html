@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>N-Back — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .nback-stimulus {
+      width: clamp(160px, 35vmin, 280px);
+      height: clamp(160px, 35vmin, 280px);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gris-700);
+      transition: all 200ms ease-out;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .nback-stimulus .shape {
+      width: 70%;
+      height: 70%;
+      transition: all 200ms;
+    }
+    .nback-history {
+      display: flex;
+      gap: 8px;
+      margin-top: var(--space-3);
+      align-items: center;
+    }
+    .history-dot {
+      width: clamp(44px, 8vw, 56px);
+      height: clamp(44px, 8vw, 56px);
+      border-radius: 8px;
+      border: 2px solid var(--gris-600);
+      background: var(--gris-800);
+      transition: all 200ms;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .history-dot svg {
+      width: 32px;
+      height: 32px;
+    }
+    .history-dot.current {
+      border-color: white;
+      transform: scale(1.15);
+      background: var(--gris-700);
+    }
+    .match-btn {
+      margin-top: var(--space-3);
+      padding: 16px 48px;
+      border-radius: 12px;
+      border: 3px solid var(--turquesa-400);
+      background: transparent;
+      color: var(--turquesa-400);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 150ms;
+      min-height: 60px;
+      min-width: 220px;
+      text-transform: uppercase;
+    }
+    .match-btn:active, .match-btn.pressed {
+      background: var(--turquesa-600);
+      color: white;
+      transform: scale(0.95);
+    }
+    .match-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+    .stats-bar {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2);
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-top: auto;
+      flex-shrink: 0;
+      width: 100%;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+      flex: 1;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      font-family: var(--font-display);
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--gris-400);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .n-indicator {
+      background: var(--gris-800);
+      border: 1px solid var(--gris-600);
+      border-radius: 8px;
+      padding: 4px 12px;
+      color: var(--turquesa-400);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+    }
+    .feedback-flash {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+    .feedback-flash.show { opacity: 1; }
+
+    @media (max-width: 600px) {
+      .stats-bar {
+        gap: 4px;
+        padding: var(--space-1) 6px;
+        max-width: 100%;
+      }
+      .stat-value {
+        font-size: 1.1rem;
+      }
+      .stat-label {
+        font-size: 0.55rem;
+        letter-spacing: 0.3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">N-Back Visual</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" id="nbackLevel" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="easy" selected>F&aacute;cil</option>
+          <option value="medium">Medio</option>
+          <option value="hard">Dif&iacute;cil 2-Back</option>
+          <option value="adaptive">Adaptativo</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">Lenta 4s</option>
+          <option value="3000" selected>Media 3s</option>
+          <option value="2000">R&aacute;pida 2s</option>
+        </select>
+      </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <p id="nbackInstruction" class="stimulus-instruction" style="line-height: 1.6;">Si la forma y color son IGUALES a la de hace <span class="n-indicator" id="nLabel">1</span> turnos<br>Pulsa COINCIDE</p>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 0;">
+        <div id="nbackStimulus" class="nback-stimulus">
+          <div class="shape" id="shapeDisplay"></div>
+        </div>
+        <div class="nback-history" id="historyBar"></div>
+        <button id="matchBtn" class="match-btn" onclick="tool.handleMatch()" disabled>
+          <span class="material-symbols-sharp" style="vertical-align: middle; margin-right: 4px;">check_circle</span> COINCIDE
+        </button>
+        <div id="feedbackFlash" class="feedback-flash"></div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+        <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--tulip-tree-400);">0</span><span class="stat-label">Omisiones</span></div>
+        <div class="stat-item"><span id="statFalse" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Falsos</span></div>
+        <div class="stat-item"><span id="statTotal" class="stat-value" style="color: white;">0</span><span class="stat-label">Ronda</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>N-Back Visual</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Uno de los mejores ejercicios para entrenar la <strong>memoria de trabajo</strong>. Van apareciendo formas y tienes que detectar cu&aacute;ndo la actual es igual a la de hace N turnos.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
+          <ul>
+            <li><strong>F&aacute;cil:</strong> 1-Back, solo forma. &iquest;Es igual a la anterior?</li>
+            <li><strong>Medio:</strong> 1-Back, forma + color. Dos cosas que recordar.</li>
+            <li><strong>Dif&iacute;cil:</strong> 2-Back. &iquest;Es igual a la de hace 2 turnos? Muy exigente.</li>
+            <li><strong>Adaptativo:</strong> empieza en 1-back. Cada 20 estímulos, sube a N+1 si aciertas &ge;90%, baja a N&minus;1 si fallas mucho (&le;70%). Te mantiene siempre en tu l&iacute;mite. Incluye <strong>lures</strong> (est&iacute;mulos que aparecieron hace N&plusmn;1 turnos pero no en la posici&oacute;n N) para que no respondas s&oacute;lo por familiaridad.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Van apareciendo formas de colores.</li>
+            <li>Si la forma actual es igual a la de hace N turnos, pulsa <strong>COINCIDE</strong>.</li>
+            <li>Si no coincide, no toques nada &mdash; espera a la siguiente.</li>
+            <li>El historial de abajo te ayuda a recordar la secuencia.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza en F&aacute;cil para entender la mec&aacute;nica.</li>
+            <li>Combina con caminata, bici est&aacute;tica o equilibrio para m&aacute;s dificultad.</li>
+            <li>El 2-Back es muy dif&iacute;cil &mdash; es normal fallar mucho al principio.</li>
+            <li>Si las omisiones suben, tu memoria est&aacute; cansada.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar espec&iacute;ficamente la memoria de trabajo.</li>
+            <li>Como doble tarea cognitivo-motora de alta demanda.</li>
+            <li>Para medir tu capacidad cognitiva antes y despu&eacute;s de entrenar.</li>
+            <li>Para mantener la mente activa (especialmente con la edad).</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Bici est&aacute;tica:</strong> pedalea a intensidad moderada. Mira la pantalla y pulsa COINCIDE cuando toque. La carga aerobia + la WM trabajan juntas.</li>
+            <li><strong>Sentadilla isom&eacute;trica:</strong> mant&eacute;n la sentadilla baja. La pantalla est&aacute; al alcance del brazo. Trabaja WM bajo esfuerzo muscular sostenido.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna mientras juegas. La doble tarea reta al sistema vestibular.</li>
+            <li><strong>Plancha frontal:</strong> mant&eacute;n la plancha con un brazo libre para tocar la pantalla. Trabaja core en fatiga + memoria de trabajo.</li>
+            <li><strong>Caminata en sitio:</strong> marcha lenta continua. Para sesiones largas y modo Adaptativo &mdash; el cuerpo entra en zona aerobia c&oacute;moda mientras el cerebro se exige.</li>
+            <li><strong>Antes y despu&eacute;s de entrenar:</strong> 5 min de Adaptativo al inicio y al final del entrenamiento. Compara el N alcanzado: la fatiga cognitiva se ve clara.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="nback.js?v=2.0.7"></script>
+</body>
+</html>

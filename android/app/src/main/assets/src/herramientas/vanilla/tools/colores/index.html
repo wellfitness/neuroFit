@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Colores — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .color-action {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 14vw, 5rem);
+      line-height: 1.05;
+      letter-spacing: 4px;
+      color: white;
+      text-shadow: 2px 4px 8px rgba(0,0,0,0.6);
+      margin-top: 1rem;
+      opacity: 0;
+      transition: opacity 300ms ease;
+      padding: 0 var(--space-2);
+      max-width: 100%;
+      word-break: normal;
+      overflow-wrap: normal;
+      text-align: center;
+    }
+    .color-action.visible { opacity: 1; }
+    .legend-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: var(--space-2);
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      max-width: 320px;
+      position: absolute;
+      bottom: var(--space-2);
+      left: var(--space-2);
+      z-index: 2;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+    .legend-signal {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      min-width: 80px;
+      text-align: right;
+    }
+    .legend-arrow { color: var(--gris-500); font-size: 1.1rem; }
+    .legend-action {
+      background: var(--gris-800);
+      border: 1px solid var(--gris-600);
+      border-radius: 6px;
+      color: var(--tulip-tree-400);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      width: 132px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .legend-action:focus { border-color: var(--turquesa-400); outline: none; }
+    .stats-bar {
+      display: flex; flex-direction: column; gap: var(--space-2); align-items: center;
+      padding: var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      position: absolute; bottom: var(--space-2); right: var(--space-2); z-index: 2;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; }
+    @media (max-width: 480px) {
+      .color-action { font-size: clamp(1.75rem, 11vw, 3.5rem); letter-spacing: 0.03em; }
+      .legend-panel { max-width: 260px; padding: var(--space-2); gap: 6px; }
+      .legend-action { width: 108px; font-size: 0.8rem; padding: 5px 6px; }
+      .legend-signal { font-size: 0.8rem; min-width: 60px; }
+      .stats-bar { max-width: 80px; text-align: center; }
+      .stat-value { font-size: 1rem; }
+      .stat-label { font-size: 0.6rem; }
+    }
+
+    @media (min-width: 1280px) {
+      .color-action { font-size: clamp(5rem, 8vw, 7rem); letter-spacing: 6px; }
+      .legend-panel { max-width: 400px; padding: var(--space-3); gap: 12px; }
+      .legend-signal { font-size: 1.1rem; min-width: 110px; }
+      .legend-action { font-size: 1.05rem; width: 170px; padding: 8px 12px; }
+      .legend-arrow { font-size: 1.4rem; }
+      .stat-value { font-size: 2.2rem; }
+      .stat-label { font-size: 0.95rem; }
+      .stats-bar { padding: var(--space-3); }
+      .stimulus-instruction { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Colores Reactivos</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="1">Stroop</option>
+          <option value="2" selected>Color + Acci&oacute;n</option>
+          <option value="3">Stroop + Acci&oacute;n</option>
+        </select>
+      </div>
+      <div id="cadenceGroup" class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">Lenta (4s)</option>
+          <option value="3000" selected>Media (3s)</option>
+          <option value="2000">R&aacute;pida (2s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="padding:0; position: relative;">
+      <div id="stimulus-colores" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; transition: background-color 0.1s; padding: 0 var(--space-2);">
+         <p id="coloresIntro" class="stimulus-instruction" style="flex-shrink: 0;">Elige nivel y configura acciones<br>Pulsa INICIAR</p>
+         <div id="coloresTextWrap" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0; padding-bottom: min(22vh, 180px);">
+           <div id="coloresText" style="font-size: clamp(3rem, 13vw, 14rem); font-weight: bold; color: white; text-shadow: 0px 4px 10px rgba(0,0,0,0.5); line-height: 1.1; text-align: center; max-width: 100%; overflow-wrap: normal;">Color</div>
+           <div id="coloresAction" class="color-action"></div>
+         </div>
+      </div>
+      <div id="coloresLegend" class="legend-panel">
+        <div class="legend-item"><span class="legend-signal" style="color:#e11d48;">ROJO</span><span class="legend-arrow">&rarr;</span><input name="action-rojo" class="legend-action" value="SENTADILLA" onchange="tool.updateAction(0, this.value)" maxlength="20"></div>
+        <div class="legend-item"><span class="legend-signal" style="color:#3b82f6;">AZUL</span><span class="legend-arrow">&rarr;</span><input name="action-azul" class="legend-action" value="SALTO" onchange="tool.updateAction(1, this.value)" maxlength="20"></div>
+        <div class="legend-item"><span class="legend-signal" style="color:#10b981;">VERDE</span><span class="legend-arrow">&rarr;</span><input name="action-verde" class="legend-action" value="DERECHA" onchange="tool.updateAction(2, this.value)" maxlength="20"></div>
+        <div class="legend-item"><span class="legend-signal" style="color:#eab308;">AMARILLO</span><span class="legend-arrow">&rarr;</span><input name="action-amarillo" class="legend-action" value="IZQUIERDA" onchange="tool.updateAction(3, this.value)" maxlength="20"></div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Colores Reactivos</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>reacci&oacute;n por colores</strong> con 3 niveles. Tienes que responder r&aacute;pido al color que ves en pantalla, ignorando las trampas que intenta ponerte tu cerebro.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
+          <ul>
+            <li><strong>Stroop:</strong> La pantalla cambia de color pero la palabra dice OTRO color. Di en voz alta el color del fondo, no lo que lees.</li>
+            <li><strong>Color + Acci&oacute;n:</strong> Cada color tiene un movimiento asignado. Cuando veas el color, haz el movimiento.</li>
+            <li><strong>Stroop + Acci&oacute;n:</strong> Igual que Stroop, pero adem&aacute;s tienes que hacer el movimiento del color del fondo. El m&aacute;s dif&iacute;cil.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige el nivel. En Color + Acci&oacute;n y Stroop + Acci&oacute;n, puedes personalizar los movimientos.</li>
+            <li>Pulsa <strong>INICIAR</strong>. La pantalla ir&aacute; cambiando de color.</li>
+            <li>Las primeras rondas te muestran qu&eacute; hacer como ayuda. Despu&eacute;s, tendr&aacute;s que recordarlo.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza en Stroop para calentar.</li>
+            <li>No te agobies si fallas en Stroop + Acci&oacute;n &mdash; es dif&iacute;cil para todo el mundo.</li>
+            <li>Si no recuerdas un movimiento, mira la leyenda de colores abajo a la izquierda.</li>
+            <li>Intenta no pensar demasiado: reacciona con el instinto.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como calentamiento cognitivo antes de entrenar.</li>
+            <li>Para trabajar doble tarea (pensar + moverse a la vez).</li>
+            <li>En grupo: todos reaccionan al mismo color.</li>
+            <li>Si quieres medir c&oacute;mo te afecta el cansancio a la concentraci&oacute;n.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="colores.js?v=2.0.6"></script>
+</body>
+</html>

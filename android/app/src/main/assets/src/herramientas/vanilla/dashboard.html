@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Dashboard — KinesisLab</title>
+  <link rel="stylesheet" href="./css/dashboard.css?v=2.0.5">
+</head>
+<body>
+
+  <main id="view-menu" class="app-container">
+
+    <header class="dashboard-header">
+      <img src="../../../assets/logo-negro.webp" alt="" class="dashboard-logo" width="80" height="80">
+      <div>
+        <img src="../../../assets/logo-kinesislab-negro-texto.webp" alt="KinesisLab" class="dashboard-brand">
+        <h1 class="sr-only">Herramientas</h1>
+      </div>
+    </header>
+
+    <!-- FILTROS -->
+    <p class="dashboard-filters-hint">
+      <span class="material-symbols-sharp">tune</span>
+      Elige por categor&iacute;a o busca directamente la herramienta que necesitas para entrenar el cerebro mientras te mueves
+    </p>
+    <div class="dashboard-filters">
+      <div class="filter-categories">
+        <button class="filter-btn filter-btn--active" data-filter="all">Todas</button>
+        <button class="filter-btn" data-filter="atencion" style="--filter-color: var(--tulip-tree-400);">Atenci&oacute;n</button>
+        <button class="filter-btn" data-filter="memoria" style="--filter-color: var(--turquesa-400);">Memoria</button>
+        <button class="filter-btn" data-filter="razonamiento" style="--filter-color: var(--turquesa-400);">Razonamiento</button>
+        <button class="filter-btn" data-filter="soporte" style="--filter-color: #ff2d78;">Recursos</button>
+      </div>
+      <div class="filter-search">
+        <span class="material-symbols-sharp" style="color: var(--gris-400);">search</span>
+        <input type="text" id="searchInput" placeholder="Buscar herramienta..." class="filter-search__input">
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- ATENCI&Oacute;N Y VELOCIDAD DE PROCESAMIENTO              -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="category-section" data-category="atencion">
+      <header class="category-header">
+        <span class="material-symbols-sharp" style="color: var(--tulip-tree-400);">bolt</span>
+        <h2 style="color: var(--tulip-tree-400);">ATENCI&Oacute;N Y VELOCIDAD DE PROCESAMIENTO</h2>
+      </header>
+      <p class="category-desc">Reaccionar r&aacute;pido ante est&iacute;mulos cambiantes. Entrena la capacidad de dividir atenci&oacute;n entre tarea f&iacute;sica y cognitiva.</p>
+
+      <div class="tools-grid">
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/go-nogo/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">do_not_touch</span></div>
+          <h3 class="tool-title">Go / No-Go</h3>
+          <p class="tool-desc">Toca en verde, frena en rojo. Mide tiempo de reacci&oacute;n y falsos positivos.</p>
+        </article>
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/flechas/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">directions</span></div>
+          <h3 class="tool-title">Flechas Reactivas</h3>
+          <p class="tool-desc">Cambios de direcci&oacute;n aleatorios en 8 ejes. Mueve tu cuerpo hacia donde apunta.</p>
+        </article>
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/colores/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">palette</span></div>
+          <h3 class="tool-title">Colores Reactivos</h3>
+          <p class="tool-desc">Reacciona al color que cambia. Toma de decisiones r&aacute;pida bajo presi&oacute;n visual.</p>
+        </article>
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/sonidos/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">hearing</span></div>
+          <h3 class="tool-title">Sonidos Audiomotores</h3>
+          <p class="tool-desc">Reacci&oacute;n auditiva pura. Discrimina frecuencias y ejecuta el movimiento asignado.</p>
+        </article>
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/reactive/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">flash_on</span></div>
+          <h3 class="tool-title">Se&ntilde;ales Reactivas</h3>
+          <p class="tool-desc">Agilidad multimodal. Se&ntilde;ales visuales y auditivas aleatorias exigen reacci&oacute;n inmediata.</p>
+        </article>
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/arrows/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">surround_sound</span></div>
+          <h3 class="tool-title">Conflicto Audiovisual</h3>
+          <p class="tool-desc">Est&iacute;mulos visuales y auditivos incongruentes. Inhibe la respuesta autom&aacute;tica.</p>
+        </article> 
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/tracking/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">visibility</span></div>
+          <h3 class="tool-title">Seguimiento Continuo</h3>
+          <p class="tool-desc">Sigue el objetivo en movimiento con giros cervicales y estabilidad axial.</p>
+        </article> 
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/search/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">travel_explore</span></div>
+          <h3 class="tool-title">B&uacute;squeda Visual</h3>
+          <p class="tool-desc">Localiza el intruso entre distractores. Atenci&oacute;n selectiva visuoespacial.</p>
+        </article>                      
+
+        <article class="tool-card card-amarillo" onclick="window.location.href='./tools/trace/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">draw</span></div>
+          <h3 class="tool-title">Trazado Alfanum&eacute;rico</h3>
+          <p class="tool-desc">Traza letras y n&uacute;meros en el aire. Coordinaci&oacute;n visomotora y planificaci&oacute;n motora.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- MEMORIA DE TRABAJO                                 -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="category-section" data-category="memoria">
+      <header class="category-header">
+        <span class="material-symbols-sharp" style="color: var(--turquesa-400);">memory</span>
+        <h2 style="color: var(--turquesa-400);">MEMORIA DE TRABAJO</h2>
+      </header>
+      <p class="category-desc">Retener y manipular informaci&oacute;n mientras el cuerpo est&aacute; en movimiento. Clave para la autonom&iacute;a funcional.</p>
+
+      <div class="tools-grid">
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/sort/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">format_list_numbered</span></div>
+          <h3 class="tool-title">De Menor a Mayor</h3>
+          <p class="tool-desc">Memoriza los n&uacute;meros y decide si estaban ordenados de menor a mayor.</p>
+        </article>
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/list-sorting/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">format_list_bulleted</span></div>
+          <h3 class="tool-title">Listas de Objetos</h3>
+          <p class="tool-desc">Memoriza objetos y ord&eacute;nalos por tama&ntilde;o. Adaptaci&oacute;n del NIH Toolbox List Sorting.</p>
+        </article>
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/nback/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">replay</span></div>
+          <h3 class="tool-title">N-Back Visual</h3>
+          <p class="tool-desc">Detecta cu&aacute;ndo el est&iacute;mulo coincide con el de N posiciones atr&aacute;s.</p>
+        </article>
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/simon/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">psychology</span></div>
+          <h3 class="tool-title">Secuencias (Simon)</h3>
+          <p class="tool-desc">Memoriza y replica el orden exacto de los destellos visual-sonoros.</p>
+        </article>
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/matrix/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">grid_view</span></div>
+          <h3 class="tool-title">Matriz Visoespacial</h3>
+          <p class="tool-desc">Memoriza las posiciones iluminadas moment&aacute;neamente en la cuadr&iacute;cula.</p>
+        </article>        
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/memoria/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">grid_on</span></div>
+          <h3 class="tool-title">Memoria Visual</h3>
+          <p class="tool-desc">Encuentra parejas ocultas volteando cartas. Ideal para trabajar en parejas.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- RAZONAMIENTO Y C&Aacute;LCULO                             -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="category-section" data-category="razonamiento">
+      <header class="category-header">
+        <span class="material-symbols-sharp" style="color: var(--turquesa-400);">calculate</span>
+        <h2 style="color: var(--turquesa-400);">RAZONAMIENTO Y C&Aacute;LCULO</h2>
+      </header>
+      <p class="category-desc">Procesar informaci&oacute;n compleja bajo carga motora. Aritm&eacute;tica, razonamiento espacial y recuperaci&oacute;n l&eacute;xica.</p>
+
+      <div class="tools-grid">
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/d50/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">calculate</span></div>
+          <h3 class="tool-title">Decisi&oacute;n D50</h3>
+          <p class="tool-desc">Suma dos n&uacute;meros e indica si el total es mayor o menor que 50.</p>
+        </article>
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/fluency/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">record_voice_over</span></div>
+          <h3 class="tool-title">Fluencia Verbal</h3>
+          <p class="tool-desc">Nombra elementos de categor&iacute;as sem&aacute;nticas y fon&eacute;micas sin perder el patr&oacute;n motor.</p>
+        </article>
+
+        <article class="tool-card card-turquesa" onclick="window.location.href='./tools/clock/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">schedule</span></div>
+          <h3 class="tool-title">Reloj Auditivo (ACT)</h3>
+          <p class="tool-desc">Escucha una hora y decide si las agujas est&aacute;n del mismo lado o en lados opuestos.</p>
+        </article>        
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- HERRAMIENTAS DE SOPORTE                            -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="category-section" data-category="soporte">
+      <header class="category-header">
+        <span class="material-symbols-sharp" style="color: #ff2d78;">sports_martial_arts</span>
+        <h2 style="color: #ff2d78;">RECURSOS DE ENTRENAMIENTO</h2>
+      </header>
+      <p class="category-desc">Temporizadores, combos de boxeo y salto a la comba guiado por voz para tus sesiones.</p>
+
+      <div class="tools-grid">       
+        <article class="tool-card card-rosa" onclick="window.location.href='./tools/comba/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">fitness_center</span></div>
+          <h3 class="tool-title">Comba Reactiva</h3>
+          <p class="tool-desc">Salto guiado por voz. Cambia pies o t&eacute;cnica seg&uacute;n &oacute;rdenes a ritmo exigente.</p>
+        </article>
+
+        <article class="tool-card card-rosa" onclick="window.location.href='./tools/boxing/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">sports_mma</span></div>
+          <h3 class="tool-title">Boxeo Reactivo</h3>
+          <p class="tool-desc">Combos ca&oacute;ticos de golpes y esquivas bajo estr&eacute;s verbal r&iacute;tmico.</p>
+        </article>
+
+        <article class="tool-card card-rosa" onclick="window.location.href='./tools/timers/index.html'">
+          <div class="tool-icon-container"><span class="material-symbols-sharp">hourglass_empty</span></div>
+          <h3 class="tool-title">Temporizador</h3>
+          <p class="tool-desc">Reloj en alto contraste para rutinas AMRAP, EMOM y pausas medidas.</p>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="dashboard-footer">
+    <p>
+      <a href="./acerca.html">Acerca de KinesisLab</a>
+      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      by <a href="https://movimientofuncional.app" target="_blank" rel="noopener">Movimiento Funcional</a>
+      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      &copy; 2026
+    </p>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.tool-card[onclick]').forEach(card => {
+      card.setAttribute('role', 'link');
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    // Filtros
+    let activeFilter = 'all';
+    const sections = document.querySelectorAll('.category-section');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const searchInput = document.getElementById('searchInput');
+
+    function applyFilters() {
+      const query = searchInput.value.toLowerCase().trim();
+
+      sections.forEach(section => {
+        const cat = section.dataset.category;
+        const catVisible = activeFilter === 'all' || activeFilter === cat;
+
+        if (!catVisible) {
+          section.style.display = 'none';
+          return;
+        }
+
+        section.style.display = '';
+        const cards = section.querySelectorAll('.tool-card');
+        let anyVisible = false;
+
+        cards.forEach(card => {
+          const title = card.querySelector('.tool-title').textContent.toLowerCase();
+          const desc = card.querySelector('.tool-desc').textContent.toLowerCase();
+          const matches = !query || title.includes(query) || desc.includes(query);
+          card.style.display = matches ? '' : 'none';
+          if (matches) anyVisible = true;
+        });
+
+        section.style.display = anyVisible ? '' : 'none';
+      });
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('filter-btn--active'));
+        btn.classList.add('filter-btn--active');
+        activeFilter = btn.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+  </script>
+
+</body>
+</html>

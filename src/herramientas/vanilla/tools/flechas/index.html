@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Flechas Reactivas — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .arrow-display {
+      font-size: clamp(12rem, 40vw, 22rem);
+      line-height: 1;
+      transition: all 250ms ease-out;
+      filter: drop-shadow(0 0 60px currentColor);
+    }
+    .arrow-display.flash {
+      transform: scale(1.1);
+    }
+    .conflict-instruction {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 14vw, 8rem);
+      color: var(--rosa-400);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      text-shadow: 0 0 30px rgba(225, 29, 72, 0.5);
+      margin-bottom: var(--space-1);
+      min-height: 1em;
+      width: 100%;
+      text-align: center;
+    }
+    .fullscreen-btn {
+      background: transparent;
+      color: var(--gris-400);
+      border: 1px solid var(--gris-700);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 200ms;
+    }
+    .fullscreen-btn:hover { color: white; background: var(--gris-800); }
+    @media (max-width: 480px) {
+      .fullscreen-btn { display: none; }
+    }
+
+    @media (min-width: 1280px) {
+      .arrow-display {
+        font-size: clamp(24rem, 55vmin, 34rem);
+      }
+      .conflict-instruction {
+        font-size: clamp(8rem, 14vw, 11rem);
+      }
+      .stimulus-instruction {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Flechas Reactivas</h2>
+      <div class="exec-header-actions">
+        <button class="fullscreen-btn" onclick="tool.toggleFullscreen()">
+          <span id="fullscreenIcon" class="material-symbols-sharp">fullscreen</span>
+        </button>
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Modo:</span>
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="visual" selected>Visual</option>
+          <option value="voice">Visual + Voz</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="normal" selected>Normal</option>
+          <option value="conflicto">Conflicto</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Velocidad:</span>
+        <select aria-label="Cadencia" id="speedSelect" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">Lenta 3s</option>
+          <option value="2000" selected>Media 2s</option>
+          <option value="1500">R&aacute;pida 1.5s</option>
+        </select>
+      </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <p id="flechasInstruction" class="stimulus-instruction">Mueve tu cuerpo en la direcci&oacute;n de la flecha</p>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0;">
+        <div id="conflictText" class="conflict-instruction" style="display: none;"></div>
+        <span id="arrowIcon" class="material-symbols-sharp arrow-display" style="color: var(--tulip-tree-400);">directions</span>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Flechas Reactivas</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>agilidad reactiva</strong>. Aparecen flechas y t&uacute; tienes que moverte en la direcci&oacute;n que te indican. Entrena tu velocidad de reacci&oacute;n y tus cambios de direcci&oacute;n.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
+          <ul>
+            <li><strong>Normal:</strong> sigue la direcci&oacute;n de la flecha. Simple y directo.</li>
+            <li><strong>Conflicto:</strong> aparece una flecha Y una palabra con otra direcci&oacute;n. Sigue la <strong>palabra</strong>, ignora la flecha. Tu cerebro querr&aacute; seguir la flecha &mdash; res&iacute;stelo.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige el nivel y la velocidad.</li>
+            <li>Pulsa <strong>INICIAR</strong>. Las flechas ir&aacute;n cambiando.</li>
+            <li>Mu&eacute;vete en la direcci&oacute;n correcta: despl&aacute;zate, gira o se&ntilde;ala.</li>
+            <li>Sonar&aacute; un pitido con cada cambio.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza en Normal para coger el ritmo.</li>
+            <li>Combina con desplazamientos laterales, shuffles o sentadillas.</li>
+            <li>Conflicto es muy exigente &mdash; empieza en velocidad lenta.</li>
+            <li>Si te cansas, no pares &mdash; baja la velocidad y sigue.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como calentamiento din&aacute;mico antes de entrenar.</li>
+            <li>Para trabajar agilidad y cambios de direcci&oacute;n.</li>
+            <li>En rehabilitaci&oacute;n de rodilla o tobillo (cambios controlados).</li>
+            <li>En grupo: todos siguen las flechas a la vez.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Desplazamientos laterales:</strong> en la direcci&oacute;n de la flecha. Con 8 direcciones se trabajan cambios de direcci&oacute;n a alta intensidad cardiovascular.</li>
+            <li><strong>Zancada direccional:</strong> en cada flecha hace una zancada amplia (lunge) en esa direcci&oacute;n + vuelve al centro. Trabajo de cadera + control exc&eacute;ntrico.</li>
+            <li><strong>Salto unipodal:</strong> bota con una sola pierna en la direcci&oacute;n indicada. Pliom&eacute;trico + propiocepci&oacute;n.</li>
+            <li><strong>Conos en estrella:</strong> 4 conos alrededor. La flecha indica cu&aacute;l tocar; vuelve corriendo al centro entre toques.</li>
+            <li><strong>Pareja con pelota:</strong> 4 personas alrededor del cliente. La flecha le indica a qui&eacute;n pasar la pelota. Coordinaci&oacute;n grupal.</li>
+            <li><strong>Sentadilla + paso:</strong> sentadilla isom&eacute;trica abajo. Al ver la flecha sube y da un paso amplio en esa direcci&oacute;n. Vuelve a la isom&eacute;trica.</li>
+            <li><strong>Modo conflicto en circuito de conos:</strong> el cliente se mueve seg&uacute;n la PALABRA del centro, ignorando la flecha. Trabaja inhibici&oacute;n + agilidad.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="flechas.js?v=2.0.7"></script>
+</body>
+</html>

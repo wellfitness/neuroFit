@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Seguimiento Continuo — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    #tracking-dot {
+      position: absolute; width: 60px; height: 60px;
+      background-color: var(--rosa-600); border-radius: 50%;
+      box-shadow: 0 0 30px var(--rosa-400);
+      transition: all 1s ease-in-out;
+    }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      position: absolute; bottom: var(--space-3); left: 50%; transform: translateX(-50%);
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; }
+
+    @media (min-width: 1280px) {
+      #tracking-dot { width: 100px; height: 100px; box-shadow: 0 0 60px var(--rosa-400); }
+      .stat-value { font-size: 2.2rem; }
+      .stat-label { font-size: 0.95rem; }
+      .stats-bar { padding: var(--space-2) var(--space-4); }
+      .stimulus-instruction { font-size: 1.8rem !important; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Seguimiento Continuo</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Velocidad:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="1500">Lenta (1.5s)</option>
+          <option value="1000" selected>Media (1s)</option>
+          <option value="600">R&aacute;pida (0.6s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="position: relative;">
+        <p class="stimulus-instruction" style="position: absolute; top: 20px; left: 0; right: 0; z-index: 5; margin: 0; pointer-events: none;">Sigue el punto con la vista</p>
+        <div id="tracking-dot" style="left: 50%; top: 50%;"></div>
+        <div class="stats-bar" aria-live="polite" role="status">
+          <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Movimientos</span></div>
+        </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Seguimiento Continuo</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>seguimiento ocular</strong>. Un punto se mueve por la pantalla y t&uacute; lo sigues con la mirada. Entrena la coordinaci&oacute;n de tus ojos y la estabilidad de tu cabeza.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige la velocidad del punto.</li>
+            <li>Pulsa <strong>INICIAR</strong>. El punto se mover&aacute; por la pantalla.</li>
+            <li>S&iacute;guelo con la mirada sin perderlo de vista.</li>
+            <li>Si la pantalla est&aacute; lejos, gira la cabeza para seguirlo.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Pon la pantalla a 1-2 metros para que tengas que mover la cabeza de verdad.</li>
+            <li>Combina con equilibrio sobre una pierna o superficie inestable.</li>
+            <li>En velocidad lenta, intenta ser preciso. En r&aacute;pida, solo s&iacute;guelo como puedas.</li>
+            <li>Si te mareas, baja la velocidad o para &mdash; es normal al principio.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>En rehabilitaci&oacute;n cervical o vestibular (v&eacute;rtigo, conmoci&oacute;n).</li>
+            <li>Para trabajar equilibrio con foco visual externo.</li>
+            <li>En deportes: seguimiento de bal&oacute;n u oponente.</li>
+            <li>Para adultos mayores: prevenci&oacute;n de ca&iacute;das.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Ojos siguen, cabeza quieta:</strong> el cliente fija la cabeza y solo mueve los ojos para seguir el punto. Trabaja oculomotricidad pura. Esencial en rehabilitaci&oacute;n vestibular.</li>
+            <li><strong>Cabeza sigue, ojos pegados:</strong> al rev&eacute;s, gira la cabeza siguiendo el punto y mantiene los ojos en el centro de la pantalla. Reta el reflejo vestibulo-ocular.</li>
+            <li><strong>Equilibrio unipodal + seguimiento:</strong> de pie en una pierna mirando el punto. Suelo firme primero, luego superficie inestable (colchoneta). Propiocepci&oacute;n + ocular.</li>
+            <li><strong>Marcha tand&eacute;m + seguimiento:</strong> caminata tal&oacute;n-punta en l&iacute;nea, siguiendo el punto con la mirada. Reta equilibrio din&aacute;mico + ocular.</li>
+            <li><strong>Sentadilla isom&eacute;trica + seguimiento:</strong> aguanta abajo en la sentadilla mientras los ojos siguen el punto. Combina fuerza + control ocular.</li>
+            <li><strong>Tras 3 giros sobre s&iacute; mismo:</strong> gira 3 veces (induce desorientaci&oacute;n leve), detente y sigue el punto inmediatamente. Trabajo vestibular adaptativo.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="tracking.js?v=2.0.5"></script>
+</body>
+</html>

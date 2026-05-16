@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# No indexar archivos internos ni artefactos de desarrollo
+Disallow: /android-twa/
+Disallow: /design-system/
+Disallow: /docs/
+Disallow: /.well-known/
+Disallow: /.claude/
+Disallow: /generate-icons.html
+
+Sitemap: https://kinesislab.movimientofuncional.app/sitemap.xml

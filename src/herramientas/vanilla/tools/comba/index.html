@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Comba Reactiva — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .status-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 40vh;
+      width: 100%;
+    }
+
+    .countdown-circle {
+      width: clamp(160px, 30vw, 240px);
+      height: clamp(160px, 30vw, 240px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto;
+      border: 8px solid var(--gris-700);
+      position: relative;
+    }
+
+    .pulsing {
+      animation: pulseAlert 1s infinite;
+      border-color: var(--rosa-600) !important;
+      color: var(--rosa-600) !important;
+    }
+
+    @keyframes pulseAlert {
+      0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+      70% { box-shadow: 0 0 0 20px rgba(225, 29, 72, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+    }
+
+    .seq-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      background: var(--gris-800);
+      color: var(--gris-400);
+    }
+    .seq-badge.active {
+      background: var(--turquesa-600);
+      color: white;
+    }
+
+    /* === CONFIG BAR: layout stacked === */
+    .config-panel__controls--stacked {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      width: 100%;
+    }
+    .config-panel__row {
+      display: flex;
+      flex-direction: row;
+      gap: var(--space-3);
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .config-panel__row .config-panel__slider-group {
+      flex: 1 1 140px;
+      min-width: 0;
+    }
+    .config-panel__row .config-panel__checkbox {
+      flex: 0 0 auto;
+    }
+    .btn-primary--full {
+      width: 100%;
+      min-height: 52px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary--full .material-symbols-sharp {
+      font-size: 1.5rem;
+    }
+    /* Forzar visibilidad del texto en móvil (base oculta los labels en <600px) */
+    .exec-toolbar .btn-primary--full > span:not(.material-symbols-sharp) {
+      display: inline !important;
+      font-size: inherit !important;
+    }
+    @media (max-width: 600px) {
+      .config-panel__row { gap: var(--space-2); }
+      .config-panel__row .config-panel__slider-group { flex: 1 1 110px; }
+    }
+  </style>
+</head>
+<body style="background-color: var(--gris-900); color: white;">
+
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 1px;">
+        Comba Reactiva
+      </h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button id="btnVolver" class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver">
+          <span class="material-symbols-sharp">arrow_back</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="exec-toolbar config-panel" id="configPanel">
+      <div class="config-panel__controls config-panel__controls--stacked">
+        <div class="config-panel__row">
+          <div class="config-panel__slider-group">
+            <label for="exerciseCount">Ejercicios: <span id="lblExCount">4</span></label>
+            <input type="range" id="exerciseCount" min="2" max="10" value="4">
+          </div>
+          <div class="config-panel__slider-group">
+            <label for="exerciseDuration">Duracion: <span id="lblExDur">10s</span></label>
+            <input type="range" id="exerciseDuration" min="10" max="40" step="5" value="10">
+          </div>
+          <div class="config-panel__checkbox">
+            <input type="checkbox" id="includeAdvanced">
+            <label for="includeAdvanced">Avanzados</label>
+          </div>
+        </div>
+
+        <button id="btnPlayPause" class="btn-primary btn-primary--full" onclick="tool.handleStartStop()">
+          <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">EMPEZAR</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL DE ENTRENAMIENTO -->
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+
+      <!-- ESTADO: IDLE -->
+      <div id="stateIdle" class="idle-cta">
+        <p class="stimulus-instruction">Ajusta la configuraci&oacute;n<br>Pulsa EMPEZAR</p>
+      </div>
+
+      <!-- ESTADO: PREPARING -->
+      <div id="statePreparing" class="status-panel" style="display: none;">
+        <span class="material-symbols-sharp" style="font-size: 5rem; color: #facc15; margin-bottom: 1rem;">timer</span>
+        <h2 style="font-family: var(--font-display); font-size: 3rem;">Prepárate...</h2>
+        <p id="lblSequenceCount" style="color: var(--gris-400); font-size: 1.2rem; margin-top: 1rem;">Secuencia #1</p>
+      </div>
+
+      <!-- ESTADO: EXERCISING -->
+      <div id="stateExercising" class="status-panel" style="display: none;">
+        <p id="lblExerciseIndex" style="color: var(--gris-400); font-size: clamp(0.9rem, 2.5vw, 1.2rem); margin-bottom: 0.25rem;">Ejercicio 1 de 4</p>
+        <h2 id="lblCurrentExercise" style="font-family: var(--font-display); font-size: clamp(3rem, 10vw, 5.5rem); color: white; line-height: 1.1; text-align: center;">Salto B&aacute;sico</h2>
+
+        <div id="countdownCircle" class="countdown-circle">
+          <span id="lblCountdown" style="font-family: var(--font-display); font-size: clamp(5rem, 14vw, 8rem); color: white;">10</span>
+        </div>
+
+        <div id="sequenceList" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; max-width: 90vw; font-size: clamp(0.9rem, 2.5vw, 1.2rem);">
+          <!-- sequence badges inyectadas vi JS -->
+        </div>
+      </div>
+
+      <!-- ESTADO: RESTING -->
+      <div id="stateResting" class="status-panel" style="display: none;">
+        <span class="material-symbols-sharp" style="font-size: 5rem; color: #facc15; margin-bottom: 1rem;">swap_horiz</span>
+        <h2 style="font-family: var(--font-display); font-size: 3rem; color: #facc15;">¡Cambio!</h2>
+        <p style="color: var(--gris-400); font-size: 1.2rem; margin-top: 1rem;">Prepárate para el siguiente ejercicio</p>
+      </div>
+
+      <!-- ESTADO: COMPLETED (Fin de bloque) -->
+      <div id="stateCompleted" class="status-panel" style="display: none;">
+        <span class="material-symbols-sharp" style="font-size: 5rem; color: var(--turquesa-400); margin-bottom: 1rem;">check_circle</span>
+        <h2 style="font-family: var(--font-display); font-size: 3rem; color: white;">Secuencia completada</h2>
+        <p style="color: var(--gris-400); font-size: 1.2rem; margin-top: 1rem;">Respirando...</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Comba Reactiva</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">record_voice_over</span> Audio por voz</h4>
+          <p>Esta herramienta usa la <strong>voz del sistema</strong>. Si no oyes nada:</p>
+          <ol>
+            <li>Ve a <strong>Ajustes &rarr; Accesibilidad &rarr; Texto a voz</strong>.</li>
+            <li>Instala o activa un motor en <strong>espa&ntilde;ol</strong> (recomendado: &laquo;Motor de texto a voz de Google&raquo;).</li>
+            <li>Sube el volumen de medios.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un generador de <strong>secuencias de salto a la comba</strong> con indicaciones por voz. Te va diciendo qu&eacute; tipo de salto hacer (pies juntos, alternos, cruces, dobles) para que no tengas que mirar la pantalla.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Configura cu&aacute;ntos ejercicios y la duraci&oacute;n de cada uno.</li>
+            <li>Activa &ldquo;ejercicios avanzados&rdquo; si quieres cruces y dobles.</li>
+            <li>Pulsa <strong>EMPEZAR</strong>. La voz dice qu&eacute; ejercicio toca; los cambios y la cuenta atr&aacute;s suenan como pitidos.</li>
+            <li>Solo tienes que escuchar y saltar &mdash; no mires la pantalla.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Sin avanzados es perfecto para empezar (salto b&aacute;sico, pies alternos, rodillas).</li>
+            <li>Con avanzados: cruces y doble salto &mdash; cuidado, son dif&iacute;ciles.</li>
+            <li>En grupo: todos saltan a la vez siguiendo la misma voz.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como calentamiento cardiovascular din&aacute;mico.</li>
+            <li>Para trabajar coordinaci&oacute;n y ritmo (escuchar + ejecutar).</li>
+            <li>Como entrenamiento interv&aacute;lico de alta intensidad con comba.</li>
+            <li>En grupo: todos cambian de ejercicio sincronizados.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Comba b&aacute;sica con cambios:</strong> salto continuo. La voz indica el tipo (pies juntos, pies alternos, dobles, cruzados). Trabaja coordinaci&oacute;n + cardio + reactividad.</li>
+            <li><strong>Sin comba (saltos en sitio):</strong> si no hay cuerda, mismo ritmo con saltos verticales pliom&eacute;tricos. Cambio de patr&oacute;n seg&uacute;n la voz.</li>
+            <li><strong>Comba con pesa rusa:</strong> sujeta una pesa rusa ligera en una mano mientras saltas. Trabaja equilibrio + carga unilateral.</li>
+            <li><strong>Pareja con cuerda larga:</strong> dos personas mueven la cuerda; un tercero salta dentro reaccionando al cambio anunciado.</li>
+            <li><strong>Estaci&oacute;n en circuito:</strong> 30&minus;45 s de comba reactiva entre estaciones de fuerza. Sirve como descanso activo + componente cognitivo.</li>
+            <li><strong>Comba isom&eacute;trica intermitente:</strong> cuando dice &laquo;cambio&raquo;, deja la comba y aguanta sentadilla isom&eacute;trica 10 s antes de continuar.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
+  <script src="comba.js?v=2.0.5"></script>
+</body>
+</html>

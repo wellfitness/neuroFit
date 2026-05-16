@@ -1,0 +1,19 @@
+# Secrets and agent configs
+.claude/
+.agent/
+.env*
+deploy.sh
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Android build artifacts and secrets
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/gradle.properties
+*.keystore
+*.jks
+android/app/build.gradle

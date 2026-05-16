@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Listas de Objetos — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    /* === LAYOUT === */
+    #stimulusContainer.stimulus-area {
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: 0;
+    }
+
+    .ls-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      padding: var(--space-2);
+    }
+
+    .ls-instruction {
+      flex-shrink: 0;
+      padding: var(--space-1) 0;
+    }
+
+    .ls-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+      gap: var(--space-3);
+      position: relative;
+    }
+
+    #presentZone,
+    #questionPhase,
+    #feedbackPhase {
+      width: 100%;
+    }
+
+    /* === FASE PRESENTACIÓN: un ítem a la vez === */
+    .present-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+    .present-item {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 12vw, 7rem);
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 4px 8px rgba(0,0,0,0.5);
+      letter-spacing: 2px;
+      opacity: 0;
+      transition: opacity 250ms ease;
+      line-height: 1.1;
+    }
+    .present-item.fade-in { opacity: 1; }
+    .present-cat {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: var(--space-1);
+      opacity: 0.8;
+    }
+    .present-counter {
+      font-size: 0.85rem;
+      color: var(--gris-400);
+      margin-top: var(--space-2);
+    }
+    .cat-animal { color: var(--turquesa-400); }
+    .cat-food { color: var(--tulip-tree-400); }
+
+    /* === FASE PREGUNTA: icono interrogación === */
+    .question-prompt {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .question-icon {
+      font-size: clamp(4rem, 12vw, 8rem);
+      color: var(--tulip-tree-400);
+      text-shadow: 0 0 40px rgba(234, 179, 8, 0.3);
+    }
+
+    /* === FASE FEEDBACK: orden correcto === */
+    .correct-items {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      text-align: center;
+      max-width: 100%;
+      padding: 0 var(--space-1);
+    }
+    .correct-name {
+      font-family: var(--font-display);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .correct-name.cat-animal { color: var(--turquesa-400); }
+    .correct-name.cat-food { color: var(--tulip-tree-400); }
+    .correct-arrow {
+      color: var(--gris-500);
+      font-size: 0.5em;
+      flex-shrink: 0;
+    }
+
+    /* === BOTONES VERDADERO / FALSO === */
+    .answer-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      width: 100%;
+      padding: 0 var(--space-2);
+    }
+    .answer-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 28px;
+      border-radius: 14px;
+      border: 3px solid;
+      background: var(--gris-800);
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      flex: 1;
+      max-width: 220px;
+      min-height: 56px;
+      justify-content: center;
+      transition: all 150ms;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .answer-btn:active { transform: scale(0.95); }
+    .answer-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+    .answer-btn:focus-visible {
+      outline: 3px solid var(--turquesa-400);
+      outline-offset: 2px;
+    }
+    .btn-true {
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #10b981;
+    }
+    .btn-true:not(:disabled):hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+    .btn-false {
+      border-color: rgba(225, 29, 72, 0.5);
+      color: var(--rosa-400);
+    }
+    .btn-false:not(:disabled):hover {
+      background: rgba(225, 29, 72, 0.1);
+      border-color: var(--rosa-400);
+    }
+
+    /* === FEEDBACK ICON === */
+    .feedback-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 5rem;
+      z-index: 5;
+      pointer-events: none;
+      text-shadow: 0 0 40px currentColor;
+    }
+
+    /* === STATS BAR === */
+    .stats-bar {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: var(--space-1) var(--space-2);
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-top: auto;
+      flex-shrink: 0;
+      width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 56px; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* === MOBILE (<480px) === */
+    @media (max-width: 480px) {
+      .correct-items { font-size: clamp(1.4rem, 6vw, 2.2rem); gap: var(--space-1); }
+      .answer-btn { padding: 14px 16px; font-size: 1rem; min-height: 52px; }
+      .answer-btns { gap: 12px; }
+      .feedback-icon { font-size: 4rem; }
+      .stat-value { font-size: 1.1rem; }
+      .ls-content { padding: var(--space-1); }
+      .present-item { font-size: clamp(3rem, 14vw, 5rem); }
+    }
+
+    /* === TABLET (768px+) === */
+    @media (min-width: 768px) {
+      .answer-btn {
+        max-width: 300px;
+        min-height: 72px;
+        padding: 20px 40px;
+        font-size: 1.6rem;
+        border-radius: 16px;
+      }
+      .answer-btns { gap: 28px; }
+      .correct-items { font-size: clamp(3rem, 6vw, 4rem); }
+      .feedback-icon { font-size: 6rem; }
+      .present-item { font-size: clamp(6rem, 12vw, 9rem); }
+      .present-cat { font-size: 1.3rem; }
+    }
+
+    /* === DESKTOP (1024px+) === */
+    @media (min-width: 1024px) {
+      .answer-btn { max-width: 260px; min-height: 72px; font-size: 1.6rem; }
+      .correct-items { font-size: clamp(3rem, 4vw, 4rem); }
+    }
+
+    /* === LANDSCAPE COMPACTO === */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .ls-content { padding: 0 var(--space-2); }
+      .ls-instruction { padding: 2px 0; }
+      .ls-main { gap: var(--space-1); }
+      .correct-items { font-size: clamp(1.2rem, 4vw, 2rem); }
+      .answer-btn { min-height: 44px; padding: 8px 20px; font-size: 1rem; }
+      .answer-btns { gap: 12px; }
+      .feedback-icon { font-size: 2.5rem; }
+      .stats-bar { padding: 4px var(--space-1); margin-top: var(--space-1); }
+      .stat-value { font-size: 1rem; }
+      .present-item { font-size: clamp(2rem, 8vw, 3.5rem); }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Listas de Objetos</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="1" selected>1 Lista</option>
+          <option value="2">2 Listas</option>
+          <option value="3">Inverso</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">&Iacute;tems:</span>
+        <select aria-label="Ítems" name="count" class="speed-select" onchange="tool.changeCount(this.value)">
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">Lenta (3s)</option>
+          <option value="2000" selected>Media (2s)</option>
+          <option value="1500">R&aacute;pida (1.5s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area">
+      <div class="ls-content">
+        <p id="instruction" class="stimulus-instruction ls-instruction">Memoriza los objetos</p>
+
+        <div class="ls-main">
+          <!-- Fase 1: Presentación uno a uno -->
+          <div id="presentZone" class="present-zone">
+            <div id="presentItem" class="present-item" style="display:none;"></div>
+            <div id="presentCat" class="present-cat" style="display:none;"></div>
+            <div id="presentCounter" class="present-counter" style="display:none;"></div>
+          </div>
+
+          <!-- Fase 2: Pregunta — solo icono ? -->
+          <div id="questionPhase" style="display:none;">
+            <div class="question-prompt">
+              <span class="material-symbols-sharp question-icon">help</span>
+            </div>
+          </div>
+
+          <!-- Fase 3: Feedback error — orden correcto -->
+          <div id="feedbackPhase" style="display:none;">
+            <div id="correctItems" class="correct-items"></div>
+          </div>
+
+          <span id="feedbackIcon" class="material-symbols-sharp feedback-icon" style="display:none;"></span>
+
+          <div id="answerBtns" class="answer-btns" style="display:none">
+            <button id="btnTrue" class="answer-btn btn-true" onclick="tool.handleAnswer('true')" disabled>
+              <span class="material-symbols-sharp">check</span> VERDADERO
+            </button>
+            <button id="btnFalse" class="answer-btn btn-false" onclick="tool.handleAnswer('false')" disabled>
+              <span class="material-symbols-sharp">close</span> FALSO
+            </button>
+          </div>
+
+        </div>
+        <div class="stats-bar" aria-live="polite" role="status">
+          <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+          <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Errores</span></div>
+          <div class="stat-item"><span id="statTotal" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+          <div class="stat-item"><span id="statRT" class="stat-value" style="color: var(--tulip-tree-400);">--</span><span class="stat-label">TR medio</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Listas de Objetos</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>memoria de trabajo</strong>. Van apareciendo objetos (animales o alimentos) uno a uno. Cuando desaparecen, tienes que recordar si estaban ordenados por tama&ntilde;o.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
+          <ul>
+            <li><strong>1 Lista:</strong> objetos de una sola categor&iacute;a. &iquest;Iban de menor a mayor tama&ntilde;o?</li>
+            <li><strong>2 Listas:</strong> objetos mezclados de dos categor&iacute;as. &iquest;Iban primero los alimentos y luego los animales, ambos de menor a mayor?</li>
+            <li><strong>Inverso:</strong> como 2 Listas, pero el orden va de mayor a menor. El m&aacute;s dif&iacute;cil.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige nivel, cantidad de objetos (3-5) y cadencia.</li>
+            <li>Pulsa <strong>INICIAR</strong>. Los objetos aparecen uno a uno &mdash; mem&oacute;rizalos.</li>
+            <li>Desaparecen. &iquest;Estaban en el orden correcto?</li>
+            <li>Pulsa <strong>VERDADERO</strong> o <strong>FALSO</strong>.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza con 1 Lista y 3 objetos para coger el ritmo.</li>
+            <li>2 Listas es mucho m&aacute;s dif&iacute;cil &mdash; tienes que clasificar y ordenar a la vez.</li>
+            <li>Combina con marcha, equilibrio o sentadillas durante la memorizaci&oacute;n.</li>
+            <li>Mira tu tiempo de reacci&oacute;n medio para ver si mejoras.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar memoria de trabajo y capacidad de ordenaci&oacute;n mental.</li>
+            <li>Como doble tarea: memoriza mientras haces ejercicio aer&oacute;bico.</li>
+            <li>Para mantener la memoria activa (especialmente en adultos mayores).</li>
+            <li>En rehabilitaci&oacute;n cognitiva: retenci&oacute;n y categorizaci&oacute;n.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Marcha lenta + clasificar:</strong> marcha a ritmo c&oacute;modo. Mira la lista, clasifica mentalmente, responde. Doble tarea ligera ideal para mayores.</li>
+            <li><strong>Equilibrio bipodal con base reducida:</strong> de pie con pies juntos o tand&eacute;m. Mira y responde. Reta el equilibrio mientras categorizas.</li>
+            <li><strong>Pesa rusa en una mano:</strong> caminata cargando una pesa rusa unilateral. La carga as&iacute;mietrica + la categorizaci&oacute;n mental crean exigencia integral.</li>
+            <li><strong>Sentadilla baja con apoyo:</strong> aguanta agachado con la espalda en la pared. Mira la lista, responde. Resistencia muscular + WM categorial.</li>
+            <li><strong>Vuelta a la calma:</strong> sentado en colchoneta, respiraci&oacute;n profunda + lista de objetos. Acabar la sesi&oacute;n bajando activaci&oacute;n con tarea cognitiva ligera.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="list-sorting.js?v=2.0.5"></script>
+</body>
+</html>

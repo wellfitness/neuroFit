@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png?v=5">
+  <title>Aviso Legal y Privacidad — KinesisLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Righteous&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/design-tokens.css?v=2.0.5">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--gris-900);
+      color: var(--gris-50);
+      font-family: 'ABeeZee', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    .legal-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .legal-header h1 {
+      font-family: 'Righteous', Arial, sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 400;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+
+    .legal-header h1 span { color: var(--turquesa-600); }
+
+    .legal-nav {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .legal-nav a {
+      color: var(--turquesa-600);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(0,190,200,0.3);
+      border-radius: 50px;
+      transition: all 0.2s;
+    }
+
+    .legal-nav a:hover {
+      background: rgba(0,190,200,0.1);
+      border-color: var(--turquesa-600);
+    }
+
+    .legal-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+    }
+
+    .legal-section {
+      margin-bottom: 4rem;
+      padding-top: 2rem;
+    }
+
+    .legal-section h2 {
+      font-family: 'Righteous', Arial, sans-serif;
+      font-size: 1.8rem;
+      font-weight: 400;
+      color: var(--turquesa-600);
+      margin-bottom: 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid rgba(0,190,200,0.2);
+      letter-spacing: 1px;
+    }
+
+    .legal-section h3 {
+      font-size: 1.1rem;
+      color: var(--gris-50);
+      margin: 2rem 0 0.75rem;
+      font-weight: 600;
+    }
+
+    .legal-section p,
+    .legal-section li {
+      color: var(--gris-400);
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .legal-section ul,
+    .legal-section ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .legal-section li { margin-bottom: 0.5rem; }
+
+    .legal-section a {
+      color: var(--turquesa-600);
+      text-decoration: none;
+    }
+
+    .legal-section a:hover { text-decoration: underline; }
+
+    .legal-section strong { color: var(--gris-200); }
+
+    .data-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .data-table th {
+      color: var(--gris-300);
+      font-weight: 600;
+      width: 35%;
+    }
+
+    .data-table td { color: var(--gris-400); }
+
+    .disclaimer-box {
+      background: rgba(225, 29, 72, 0.08);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .disclaimer-box h3 {
+      color: var(--rosa-600);
+      margin-top: 0;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-color: var(--gris-800);
+      border: 1px solid var(--gris-700);
+      color: var(--gris-300);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: all 200ms;
+    }
+
+    .back-link:hover {
+      background-color: var(--gris-700);
+      color: white;
+    }
+
+    .site-footer {
+      background: var(--gris-900);
+      color: var(--gris-300);
+      padding: 3rem 1.5rem 2rem;
+      margin-top: 3rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) {
+      .footer-grid { grid-template-columns: 1fr 1.2fr 0.6fr; }
+    }
+    .footer-elena-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--turquesa-700);
+      border-top: 3px solid var(--turquesa-400);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .footer-elena-header { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .footer-elena-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--turquesa-600); flex-shrink: 0; }
+    .footer-elena-header h4 { color: var(--turquesa-400); font-family: 'Righteous', sans-serif; margin-bottom: 4px; font-size: 1.1rem; }
+    .footer-elena-title { font-size: 0.85rem; color: var(--gris-300); margin: 0; line-height: 1.4; }
+    .footer-elena-location { font-size: 0.75rem; color: var(--gris-400); margin: 4px 0 8px; }
+    .footer-elena-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,190,200,0.15); border: 1px solid var(--turquesa-700); color: var(--turquesa-400); font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; }
+    .footer-elena-badge .material-symbols-sharp { font-size: 12px; color: var(--tulip-tree-400); }
+    .footer-elena-bio { font-size: 0.85rem; color: var(--gris-300); line-height: 1.6; margin-bottom: 1rem; }
+    .footer-elena-bio strong { color: white; }
+    .footer-social { display: flex; gap: 8px; }
+    .footer-social a { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--gris-700); border-radius: 50%; color: var(--turquesa-400); transition: all 0.2s; text-decoration: none; }
+    .footer-social a:hover { background: rgba(255,255,255,0.1); border-color: var(--turquesa-600); }
+    .footer-social a .material-symbols-sharp { font-size: 18px; }
+    .footer-links h4 { display: flex; align-items: center; gap: 8px; color: white; font-family: 'ABeeZee', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+    .footer-links h4 .material-symbols-sharp { font-size: 18px; color: var(--turquesa-400); }
+    .footer-nav-cards { display: flex; flex-direction: column; gap: 8px; }
+    .footer-nav-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--gris-700); border-left: 3px solid var(--turquesa-600); border-radius: 8px; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .footer-nav-card:hover { background: rgba(255,255,255,0.05); border-color: var(--turquesa-500); }
+    .footer-nav-card--principal { border: 1px solid var(--turquesa-700); border-left: 3px solid var(--turquesa-400); }
+    .footer-nav-card .material-symbols-sharp:first-child { font-size: 22px; flex-shrink: 0; }
+    .footer-nav-card div { flex: 1; }
+    .footer-nav-card strong { display: block; color: var(--gris-200); font-size: 0.95rem; }
+    .footer-nav-card--principal strong { color: white; }
+    .footer-nav-card span:not(.material-symbols-sharp):not(.footer-nav-badge) { font-size: 0.75rem; color: var(--gris-400); }
+    .footer-nav-card:nth-child(1) .material-symbols-sharp:first-child { color: var(--turquesa-400); }
+    .footer-nav-card:nth-child(2) { border-left-color: var(--rosa-400); }
+    .footer-nav-card:nth-child(2) .material-symbols-sharp:first-child { color: var(--rosa-400); }
+    .footer-nav-card:nth-child(3) { border-left-color: var(--turquesa-600); }
+    .footer-nav-card:nth-child(3) .material-symbols-sharp:first-child { color: var(--turquesa-400); }
+    .footer-nav-card:nth-child(4) { border-left-color: var(--tulip-tree-500); }
+    .footer-nav-card:nth-child(4) .material-symbols-sharp:first-child { color: var(--tulip-tree-400); }
+    .footer-nav-arrow { font-size: 18px; color: var(--turquesa-400); }
+    .footer-nav-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+    .footer-nav-badge--rosa { color: var(--rosa-400); background: rgba(219,39,119,0.15); }
+    .footer-nav-badge--turquesa { color: var(--turquesa-400); background: rgba(0,190,200,0.15); }
+    .footer-nav-badge--dorado { color: var(--gris-900); background: linear-gradient(135deg, var(--tulip-tree-400) 0%, var(--tulip-tree-500) 100%); font-weight: 600; }
+    .footer-legal a { display: block; color: var(--gris-400); font-size: 0.9rem; padding: 10px 0; min-height: 44px; transition: color 0.2s; text-decoration: none; }
+    .footer-legal a:hover { color: var(--turquesa-400); }
+    .footer-bottom { border-top: 1px solid var(--turquesa-400); padding-top: 1.5rem; margin-top: 1.5rem; text-align: center; max-width: 1200px; margin-left: auto; margin-right: auto; }
+    .footer-bottom p { color: white; font-size: 0.85rem; }
+
+    @media (max-width: 600px) {
+      .legal-container { padding: 2rem 1.25rem; }
+      .data-table th { width: 40%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="legal-header">
+    <a href="index.html" class="back-link" aria-label="Volver a KinesisLab"><span class="material-symbols-sharp">arrow_back</span></a>
+    <h1>Aviso Legal <span>&</span> Privacidad</h1>
+    <nav class="legal-nav">
+      <a href="#aviso-legal">Aviso Legal</a>
+      <a href="#privacidad">Privacidad</a>
+      <a href="#disclaimer">Descargo Cl&iacute;nico</a>
+      <a href="#licencia">Licencia</a>
+    </nav>
+  </header>
+
+  <main class="legal-container">
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- AVISO LEGAL (LSSI)                     -->
+    <!-- ══════════════════════════════════════ -->
+    <section id="aviso-legal" class="legal-section">
+      <h2>Aviso Legal</h2>
+
+      <p>En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Informaci&oacute;n y de Comercio Electr&oacute;nico (LSSI-CE), se facilitan los siguientes datos identificativos del titular de este sitio web:</p>
+
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <tr><th>Titular</th><td>Elena C. D. (MOVIMIENTO FUNCIONAL)</td></tr>
+          <tr><th>Domicilio</th><td>36210 &mdash; Vigo, Pontevedra</td></tr>
+          <tr><th>Actividad</th><td>Entrenamiento personal, consultor&iacute;a y herramientas digitales de entrenamiento cognitivo-motor</td></tr>
+          <tr><th>Email</th><td><a href="mailto:info@movimientofuncional.com">info@movimientofuncional.com</a></td></tr>
+          <tr><th>Sitio web</th><td><a href="https://kinesislab.movimientofuncional.app">kinesislab.movimientofuncional.app</a></td></tr>
+        </table>
+      </div>
+
+      <h3>Objeto del sitio</h3>
+      <p><strong>KinesisLab</strong> es una herramienta digital gratuita y de c&oacute;digo abierto que ofrece ejercicios interactivos de entrenamiento cognitivo-motor. Est&aacute; dise&ntilde;ada como recurso complementario para profesionales del entrenamiento y la rehabilitaci&oacute;n.</p>
+
+      <h3>Propiedad intelectual e industrial</h3>
+      <p>El c&oacute;digo fuente, dise&ntilde;o, textos, im&aacute;genes y dem&aacute;s contenidos de este sitio son propiedad de su titular, salvo que se indique lo contrario, y se distribuyen bajo la <strong>Licencia MIT</strong> (ver secci&oacute;n <a href="#licencia">Licencia</a>).</p>
+
+      <h3>Responsabilidad</h3>
+      <p>El titular no se hace responsable de los da&ntilde;os o perjuicios que pudieran derivarse del uso de esta herramienta. En particular, KinesisLab no constituye un producto sanitario ni un dispositivo m&eacute;dico (ver secci&oacute;n <a href="#disclaimer">Descargo Cl&iacute;nico</a>).</p>
+
+      <h3>Legislaci&oacute;n aplicable</h3>
+      <p>Las presentes condiciones se rigen por la legislaci&oacute;n espa&ntilde;ola. Para cualquier controversia, las partes se someten a los juzgados y tribunales de Vigo (Pontevedra).</p>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- POL&Iacute;TICA DE PRIVACIDAD (RGPD)             -->
+    <!-- ══════════════════════════════════════ -->
+    <section id="privacidad" class="legal-section">
+      <h2>Pol&iacute;tica de Privacidad</h2>
+
+      <p>En cumplimiento del Reglamento (UE) 2016/679 (RGPD) y la Ley Org&aacute;nica 3/2018 (LOPDGDD), te informamos sobre el tratamiento de datos personales en este sitio.</p>
+
+      <h3>Responsable del tratamiento</h3>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <tr><th>Responsable</th><td>Elena C. D. (MOVIMIENTO FUNCIONAL)</td></tr>
+          <tr><th>Domicilio</th><td>36210 &mdash; Vigo, Pontevedra</td></tr>
+          <tr><th>Email</th><td><a href="mailto:info@movimientofuncional.com">info@movimientofuncional.com</a></td></tr>
+        </table>
+      </div>
+
+      <h3>Datos que NO recogemos</h3>
+      <p>KinesisLab <strong>no recoge, almacena ni transmite ning&uacute;n dato personal</strong>. Espec&iacute;ficamente:</p>
+      <ul>
+        <li>No hay formularios de registro ni de contacto.</li>
+        <li>No hay sistema de cuentas de usuario ni login.</li>
+        <li>No se utilizan cookies propias ni de terceros.</li>
+        <li>No hay anal&iacute;ticas web (Google Analytics, Plausible, etc.).</li>
+        <li>No hay backend ni base de datos. Todo funciona localmente en tu dispositivo.</li>
+        <li>Los resultados de los ejercicios se procesan exclusivamente en tu navegador y no se env&iacute;an a ning&uacute;n servidor.</li>
+      </ul>
+
+      <h3>Servicios de terceros</h3>
+      <p>KinesisLab utiliza los siguientes recursos externos:</p>
+      <ul>
+        <li><strong>Google Fonts</strong> (fonts.googleapis.com / fonts.gstatic.com): para cargar las tipograf&iacute;as Righteous, ABeeZee y Material Symbols Sharp. Al cargar estas fuentes, tu navegador realiza una petici&oacute;n a los servidores de Google, que pueden registrar tu direcci&oacute;n IP conforme a su propia <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">pol&iacute;tica de privacidad</a>. Google Fonts no establece cookies en tu navegador.</li>
+      </ul>
+      <p>Cuando la aplicaci&oacute;n se usa en <strong>modo offline</strong> (PWA instalada), las fuentes se sirven desde la cach&eacute; local del Service Worker y no se realiza ninguna conexi&oacute;n externa.</p>
+
+      <h3>Cookies</h3>
+      <p>Este sitio web <strong>no utiliza cookies</strong>. El almacenamiento local se limita a la cach&eacute; del Service Worker (Cache API), que es un mecanismo t&eacute;cnico del navegador para permitir el funcionamiento offline y no constituye una cookie seg&uacute;n la Directiva 2002/58/CE.</p>
+
+      <h3>Derechos del usuario</h3>
+      <p>Aunque no tratamos datos personales, si consideras que alguno de tus derechos ha sido vulnerado, puedes contactarnos en <a href="mailto:info@movimientofuncional.com">info@movimientofuncional.com</a> o presentar una reclamaci&oacute;n ante la <strong>Agencia Espa&ntilde;ola de Protecci&oacute;n de Datos</strong> (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- DISCLAIMER CL&Iacute;NICO                        -->
+    <!-- ══════════════════════════════════════ -->
+    <section id="disclaimer" class="legal-section">
+      <h2>Descargo Cl&iacute;nico</h2>
+
+      <div class="disclaimer-box">
+        <h3>Aviso importante sobre el uso de KinesisLab</h3>
+        <p>KinesisLab es una <strong>herramienta complementaria de entrenamiento</strong>, no un producto sanitario, dispositivo m&eacute;dico ni software de diagn&oacute;stico cl&iacute;nico. No est&aacute; clasificada bajo el Reglamento (UE) 2017/745 de productos sanitarios.</p>
+      </div>
+
+      <h3>Uso previsto</h3>
+      <p>Las herramientas incluidas en KinesisLab est&aacute;n dise&ntilde;adas para ser utilizadas como <strong>recurso de apoyo al entrenamiento cognitivo-motor</strong> bajo la supervisi&oacute;n de un profesional cualificado (entrenador personal, fisioterapeuta, terapeuta ocupacional o profesional de la salud).</p>
+
+      <h3>Limitaciones</h3>
+      <ul>
+        <li>KinesisLab <strong>no diagnostica, trata ni previene</strong> ninguna enfermedad o condici&oacute;n m&eacute;dica.</li>
+        <li>Los ejercicios no sustituyen la prescripci&oacute;n m&eacute;dica, el diagn&oacute;stico profesional ni el tratamiento de rehabilitaci&oacute;n.</li>
+        <li>Las m&eacute;tricas mostradas (tiempos de reacci&oacute;n, aciertos, etc.) son orientativas y <strong>no tienen validez cl&iacute;nica ni diagn&oacute;stica</strong>.</li>
+        <li>Las referencias cient&iacute;ficas citadas en la landing page respaldan la evidencia general del entrenamiento cognitivo-motor dual-task, no la eficacia espec&iacute;fica de esta herramienta.</li>
+      </ul>
+
+      <h3>Responsabilidad del profesional</h3>
+      <p>El profesional que utilice KinesisLab en sus sesiones es responsable de:</p>
+      <ul>
+        <li>Evaluar la idoneidad de cada ejercicio para su paciente o cliente.</li>
+        <li>Supervisar la ejecuci&oacute;n y adaptar la dificultad al nivel del usuario.</li>
+        <li>Garantizar un entorno seguro (superficie estable, espacio libre de obst&aacute;culos).</li>
+        <li>Interrumpir el ejercicio ante cualquier signo de mareo, dolor o inestabilidad.</li>
+      </ul>
+
+      <h3>Uso sin supervisi&oacute;n</h3>
+      <p>Si decides utilizar KinesisLab de forma aut&oacute;noma, sin supervisi&oacute;n profesional, lo haces <strong>bajo tu propia responsabilidad</strong>. Es especialmente importante consultar con un profesional de la salud antes de realizar ejercicios de equilibrio o doble tarea si:</p>
+      <ul>
+        <li>Tienes antecedentes de ca&iacute;das o problemas de equilibrio.</li>
+        <li>Padeces v&eacute;rtigo, trastornos vestibulares o problemas cervicales.</li>
+        <li>Est&aacute;s en tratamiento farmacol&oacute;gico que afecte a la coordinaci&oacute;n o el equilibrio.</li>
+        <li>Tienes m&aacute;s de 65 a&ntilde;os y no realizas actividad f&iacute;sica regular.</li>
+      </ul>
+
+      <h3>Exenci&oacute;n de responsabilidad</h3>
+      <p>El titular de KinesisLab <strong>no se hace responsable</strong> de lesiones, ca&iacute;das, da&ntilde;os f&iacute;sicos o cualquier perjuicio derivado del uso de esta herramienta, ya sea con o sin supervisi&oacute;n profesional. El uso de la aplicaci&oacute;n implica la aceptaci&oacute;n de este descargo de responsabilidad.</p>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- LICENCIA                               -->
+    <!-- ══════════════════════════════════════ -->
+    <section id="licencia" class="legal-section">
+      <h2>Licencia</h2>
+
+      <p>KinesisLab se distribuye bajo la <strong>Licencia MIT</strong>, una de las licencias de c&oacute;digo abierto m&aacute;s permisivas.</p>
+
+      <h3>Esto significa que puedes:</h3>
+      <ul>
+        <li><strong>Usar</strong> &mdash; utilizar el software para cualquier prop&oacute;sito, incluyendo uso comercial.</li>
+        <li><strong>Copiar</strong> &mdash; copiar y redistribuir el c&oacute;digo en cualquier medio o formato.</li>
+        <li><strong>Modificar</strong> &mdash; adaptar, transformar y crear a partir del c&oacute;digo.</li>
+        <li><strong>Distribuir</strong> &mdash; publicar, sublicenciar y vender copias del software.</li>
+      </ul>
+
+      <h3>Con una &uacute;nica condici&oacute;n:</h3>
+      <ul>
+        <li><strong>Atribuci&oacute;n</strong> &mdash; debes incluir la nota de copyright y la licencia en todas las copias o partes sustanciales del software.</li>
+      </ul>
+
+      <h3>Sin garant&iacute;a</h3>
+      <p>El software se proporciona &laquo;tal cual&raquo;, sin garant&iacute;a de ning&uacute;n tipo, expresa o impl&iacute;cita, incluyendo pero no limitada a garant&iacute;as de comercializaci&oacute;n, idoneidad para un fin determinado y no infracci&oacute;n.</p>
+
+      <p>Texto completo de la licencia: <a href="https://github.com/wellfitness/kinesislab/blob/main/LICENSE" target="_blank" rel="noopener">github.com/wellfitness/kinesislab/LICENSE</a></p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+
+      <!-- Columna 1: Tarjeta Elena -->
+      <div class="footer-elena-card">
+        <div class="footer-elena-header">
+          <img src="./assets/mi-foto.webp" alt="Elena Cruces" class="footer-elena-avatar" width="70" height="70">
+          <div>
+            <h4>Elena Cruces</h4>
+            <p class="footer-elena-title">Entrenadora de fuerza para mujeres +40 - Prevenci&oacute;n y salud &oacute;sea</p>
+            <p class="footer-elena-location">Vigo, Galicia - Online y Presencial</p>
+            <span class="footer-elena-badge">
+              <span class="material-symbols-sharp">workspace_premium</span>
+              Certificada N.&ordm; 038020
+            </span>
+          </div>
+        </div>
+        <p class="footer-elena-bio">
+          M&aacute;s de 8 a&ntilde;os ayudando a mujeres +40 a recuperar su fuerza, funcionalidad y confianza.<br>
+          <strong>Metodolog&iacute;a cient&iacute;fica + experiencia personal.</strong>
+        </p>
+        <div class="footer-social">
+          <a href="https://t.me/movimientofuncional" aria-label="Telegram">
+            <span class="material-symbols-sharp">send</span>
+          </a>
+          <a href="https://youtube.com/@movimientofuncional" aria-label="YouTube">
+            <span class="material-symbols-sharp">play_circle</span>
+          </a>
+          <a href="https://www.linkedin.com/in/elena-cruces-movimientofuncional-net/" aria-label="LinkedIn">
+            <span class="material-symbols-sharp">work</span>
+          </a>
+          <a href="https://www.instagram.com/movimientofuncional.es/" aria-label="Instagram">
+            <span class="material-symbols-sharp">photo_camera</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna 2: Navegaci&oacute;n -->
+      <div class="footer-links">
+        <h4>
+          <span class="material-symbols-sharp">link</span>
+          Navegaci&oacute;n
+        </h4>
+        <div class="footer-nav-cards">
+          <a href="https://academia.movimientofuncional.app" class="footer-nav-card footer-nav-card--principal" target="_blank" rel="noopener">
+            <span class="material-symbols-sharp">fitness_center</span>
+            <div>
+              <strong>Odisea Antifr&aacute;gil</strong>
+              <span>Tu academia de entrenamiento funcional</span>
+            </div>
+            <span class="material-symbols-sharp footer-nav-arrow">arrow_forward</span>
+          </a>
+          <a href="https://academia.movimientofuncional.app/entrena-tus-huesos" class="footer-nav-card" target="_blank" rel="noopener">
+            <span class="material-symbols-sharp">directions_run</span>
+            <div>
+              <strong>Entrena tu Hueso</strong>
+              <span>Gu&iacute;a pr&aacute;ctica: impacto progresivo en casa</span>
+            </div>
+            <span class="footer-nav-badge footer-nav-badge--rosa">Gratis</span>
+          </a>
+          <a href="https://academia.movimientofuncional.app/curso-menopausia" class="footer-nav-card" target="_blank" rel="noopener">
+            <span class="material-symbols-sharp">school</span>
+            <div>
+              <strong>Recupera tu Vitalidad</strong>
+              <span>Curso gratuito: menopausia y entrenamiento</span>
+            </div>
+            <span class="footer-nav-badge footer-nav-badge--turquesa">Gratis</span>
+          </a>
+          <a href="https://movimientofuncional.app/proyecto-genesis" class="footer-nav-card" target="_blank" rel="noopener">
+            <span class="material-symbols-sharp">star</span>
+            <div>
+              <strong>Proyecto G&eacute;nesis</strong>
+              <span>Tu punto de partida personalizado</span>
+            </div>
+            <span class="footer-nav-badge footer-nav-badge--dorado">Premium</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna 3: Legal y Proyecto -->
+      <div class="footer-links footer-legal">
+        <h4>Legal</h4>
+        <a href="./legal.html">Aviso Legal</a>
+        <a href="./legal.html#privacidad">Pol&iacute;tica de Privacidad</a>
+        <a href="./legal.html#cookies">Cookies</a>
+        <a href="https://t.me/movimientofuncional" target="_blank" rel="noopener">Contacto</a>
+
+        <h4 style="margin-top: 1.5rem;">Proyecto</h4>
+        <a href="https://github.com/wellfitness/kinesislab" target="_blank" rel="noopener">
+          <span class="material-symbols-sharp" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">code</span>
+          GitHub
+        </a>
+        <a href="https://github.com/wellfitness/kinesislab/blob/main/LICENSE" target="_blank" rel="noopener">
+          <span class="material-symbols-sharp" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">license</span>
+          Licencia MIT
+        </a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 MOVIMIENTO FUNCIONAL. C&oacute;digo abierto bajo Licencia MIT.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

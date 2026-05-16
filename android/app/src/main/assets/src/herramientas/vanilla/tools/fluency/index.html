@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Fluencia Verbal — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    #fluencyText {
+      word-break: normal;
+      overflow-wrap: normal;
+      hyphens: none;
+      max-width: 100%;
+      padding: 0 var(--space-2);
+      font-size: clamp(2rem, 10vw, 8rem);
+      line-height: 1.15;
+    }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: auto; flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Fluencia Verbal</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="8000">Lenta (8s)</option>
+          <option value="6000" selected>Media (6s)</option>
+          <option value="4000">R&aacute;pida (4s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <p class="stimulus-instruction">Di palabras relacionadas con:</p>
+      <div style="flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 0;">
+        <div id="fluencyText" class="text-huge">---</div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Fluencia Verbal</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>velocidad verbal</strong>. Aparece una categor&iacute;a (animales, frutas, ciudades...) o una letra, y tienes que nombrar el mayor n&uacute;mero de palabras posible en voz alta antes de que cambie.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Aparece una categor&iacute;a o letra.</li>
+            <li>Di en voz alta todas las palabras que se te ocurran, lo m&aacute;s r&aacute;pido posible.</li>
+            <li>Cuando cambie la categor&iacute;a, cambia de tema al instante.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Las categor&iacute;as (animales, comidas) son m&aacute;s f&aacute;ciles que las letras (palabras con &ldquo;P&rdquo;).</li>
+            <li>Combina con caminata &mdash; hablar mientras caminas es doble tarea cl&aacute;sica.</li>
+            <li>Cuenta cu&aacute;ntas palabras dices en cada ronda para medir tu progreso.</li>
+            <li>En grupo: cada persona a&ntilde;ade una palabra por turno.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como doble tarea cl&aacute;sica: habla mientras caminas o pedaleas.</li>
+            <li>Para entrenar flexibilidad cognitiva (cambiar de tema r&aacute;pido).</li>
+            <li>Para mantener la agilidad verbal.</li>
+            <li>Como calentamiento verbal antes de actividades en equipo.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="fluency.js?v=2.0.5"></script>
+</body>
+</html>

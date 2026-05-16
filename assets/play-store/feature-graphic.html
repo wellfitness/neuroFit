@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1024px;
+  height: 500px;
+  overflow: hidden;
+  background-color: #000806;
+  background-image: radial-gradient(circle at top, #1f2937 0%, #000806 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Righteous', sans-serif;
+  color: white;
+  position: relative;
+}
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap');
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  padding: 0 60px;
+}
+
+.logo-area {
+  flex-shrink: 0;
+}
+
+.logo-area img {
+  width: 180px;
+  height: 180px;
+  border-radius: 32px;
+  box-shadow: 0 8px 32px rgba(0, 190, 200, 0.3);
+}
+
+.text-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logo-text {
+  height: 96px;
+  width: auto;
+  align-self: flex-start;
+  mix-blend-mode: screen;
+}
+
+.subtitle {
+  font-family: 'ABeeZee', sans-serif;
+  font-size: 20px;
+  color: #94a3b8;
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+.tags {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.tag {
+  font-family: 'ABeeZee', sans-serif;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #e2e8f0;
+  background: rgba(255,255,255,0.05);
+}
+
+.tag.turquesa { border-color: rgba(0,190,200,0.4); color: #00bec8; }
+.tag.amarillo { border-color: rgba(234,179,8,0.4); color: #eab308; }
+.tag.rosa { border-color: rgba(232, 74, 108); color: #e84a6c; }
+
+.dots {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.dot {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.08;
+  background: #00bec8;
+}
+</style>
+</head>
+<body>
+  <div class="dots">
+    <div class="dot" style="width:200px;height:200px;top:-40px;right:-40px;"></div>
+    <div class="dot" style="width:150px;height:150px;bottom:-30px;left:100px;background:#eab308;"></div>
+    <div class="dot" style="width:100px;height:100px;top:60px;left:-20px;"></div>
+  </div>
+  <div class="container">
+    <div class="logo-area">
+      <img src="../icon-512.png" alt="KinesisLab">
+    </div>
+    <div class="text-area">
+      <img class="logo-text" src="../logo-kinesislab-negro-texto.png" alt="KinesisLab">
+      <div class="subtitle">Entrena el cerebro mientras mueves el cuerpo</div>
+      <div class="tags">
+        <span class="tag turquesa">Atenci&oacute;n</span>
+        <span class="tag turquesa">Memoria</span>
+        <span class="tag turquesa">Razonamiento</span>
+        <span class="tag rosa">Temporizadores</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Go / No-Go — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .stimulus-area {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 0;
+      transition: background-color 150ms ease-out;
+      position: relative;
+    }
+    .stimulus-area--go { background-color: rgba(16, 185, 129, 0.15); }
+    .stimulus-area--nogo { background-color: rgba(225, 29, 72, 0.15); }
+    .stimulus-area--nogo-yellow { background-color: rgba(234, 179, 8, 0.12); }
+    .stimulus-area--nogo-blue { background-color: rgba(59, 130, 246, 0.12); }
+    .stimulus-area--flash {
+      animation: area-flash 200ms ease-out;
+    }
+    @keyframes area-flash {
+      0% { filter: brightness(1.8); }
+      100% { filter: brightness(1); }
+    }
+
+    .touch-zone {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      padding: var(--space-2);
+    }
+
+    .go-circle {
+      width: clamp(180px, 35vmin, 320px);
+      height: clamp(180px, 35vmin, 320px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(0,0,0,0.4);
+      transition: transform 100ms ease-out, box-shadow 200ms ease-out;
+    }
+    .go-circle.flash {
+      transform: scale(1.12);
+    }
+    .go-circle .material-symbols-sharp {
+      font-size: clamp(64px, 14vmin, 120px);
+      color: white;
+    }
+
+    .go-label {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      text-transform: uppercase;
+      letter-spacing: 6px;
+      margin-top: var(--space-2);
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2);
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+      flex: 1;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      font-family: var(--font-display);
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--gris-400);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+
+    .feedback-hit .go-circle {
+      box-shadow: 0 0 80px rgba(16, 185, 129, 0.9);
+    }
+    .feedback-false .go-circle {
+      box-shadow: 0 0 80px rgba(225, 29, 72, 0.9);
+    }
+    .feedback-miss .go-circle {
+      box-shadow: 0 0 80px rgba(234, 179, 8, 0.9);
+    }
+
+    @media (min-width: 1280px) {
+      .go-circle {
+        width: clamp(260px, 30vmin, 420px);
+        height: clamp(260px, 30vmin, 420px);
+      }
+      .go-circle .material-symbols-sharp {
+        font-size: clamp(96px, 12vmin, 150px);
+      }
+      .go-label {
+        font-size: 2.4rem;
+        letter-spacing: 6px;
+      }
+      .stat-value { font-size: 2rem; }
+      .stat-label { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Go / No-Go</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Modo:</span>
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="touch" selected>T&aacute;ctil</option>
+          <option value="voice">Voz</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" id="levelSelect" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="basic" selected>B&aacute;sico</option>
+          <option value="distractors">Distractores</option>
+          <option value="inverted">Invertido</option>
+          <option value="sart">Sostenida 80/20</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">Lenta 3s</option>
+          <option value="2000" selected>Media 2s</option>
+          <option value="1200">R&aacute;pida 1.2s</option>
+        </select>
+      </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <div id="goInstruction" class="stimulus-instruction">Verde = toca la pantalla<br>Rojo = no toques</div>
+      <div id="touchZone" class="touch-zone" onclick="tool.handleTap()">
+        <div id="goCircle" class="go-circle" style="background: var(--gris-700);">
+          <span class="material-symbols-sharp">touch_app</span>
+        </div>
+        <div id="goLabel" class="go-label" style="color: var(--gris-500);">Preparado</div>
+      </div>
+    </div>
+    <div class="stats-bar" aria-live="polite" role="status">
+      <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+      <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--tulip-tree-400);">0</span><span class="stat-label">Omisiones</span></div>
+      <div class="stat-item"><span id="statFalse" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Falsos</span></div>
+      <div class="stat-item"><span id="statRT" class="stat-value" style="color: white;">-- ms</span><span class="stat-label">T. Reacci&oacute;n</span></div>
+    </div>
+  </section>
+
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Go / No-Go</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>control inhibitorio</strong>: tienes que reaccionar r&aacute;pido cuando aparece una se&ntilde;al, pero frenar cuando aparece otra. Entrena tu capacidad de decidir bajo presi&oacute;n.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Ir&aacute;n apareciendo c&iacute;rculos de colores.</li>
+            <li><strong>Verde</strong> = toca la pantalla lo m&aacute;s r&aacute;pido posible.</li>
+            <li><strong>Rojo</strong> = no toques nada, frena el impulso.</li>
+            <li>Escuchar&aacute;s un sonido cada vez que cambie el color.</li>
+            <li>Puedes tocar en <strong>cualquier parte</strong> de la pantalla.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
+          <ul>
+            <li><strong>B&aacute;sico:</strong> solo verde (toca) y rojo (frena). Ideal para empezar.</li>
+            <li><strong>Distractores:</strong> aparecen colores extra (amarillo, azul) que NO debes tocar. Solo el verde.</li>
+            <li><strong>Invertido:</strong> las reglas se invierten &mdash; rojo = toca, verde = frena. Rompe el automatismo.</li>
+            <li><strong>Sostenida 80/20:</strong> casi todo verde (80%) y de vez en cuando un rojo (20%). El cerebro se acostumbra a tocar y tiene que romper el impulso cuando aparece el rojo. Mide <strong>inhibici&oacute;n proactiva</strong> y <strong>post-error slowing</strong> (si tras un error te vuelves m&aacute;s prudente). Mejor para bloques largos de 3&minus;5 minutos.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Sentadilla cognitiva:</strong> aguanta abajo en sentadilla isom&eacute;trica. Con verde sube explosivo (plio); con rojo aguanta 3 s m&aacute;s.</li>
+            <li><strong>Ida y vuelta reactiva:</strong> trote en sitio. Verde &rarr; carrera explosiva 3 m; rojo &rarr; quieto inmediato.</li>
+            <li><strong>Saltos en sitio:</strong> bota suave. Verde &rarr; salto vertical m&aacute;ximo (pliom&eacute;trico); rojo &rarr; baja a cuclillas y aguanta.</li>
+            <li><strong>Golpeo con manopla:</strong> golpea con ritmo libre. Verde &rarr; directo potente; rojo &rarr; frena el pu&ntilde;o antes de tocar (control exc&eacute;ntrico).</li>
+            <li><strong>Plancha din&aacute;mica:</strong> mant&eacute;n plancha. Verde &rarr; toca el hombro opuesto; rojo &rarr; aguanta inm&oacute;vil.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna. Verde &rarr; balancea la pierna libre; rojo &rarr; inmoviliza toda la postura.</li>
+            <li><strong>Modo Sostenida 80/20 con trote largo:</strong> 3&minus;5 min de trote continuo. Casi todo verde &mdash; el cliente se va acomodando &mdash; y de vez en cuando rojo. Mide el control sostenido.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">record_voice_over</span> Modo Voz</h4>
+          <p>En este modo la app <strong>anuncia los colores en voz alta</strong> y la pantalla se ilumina, pero NO hay que tocar nada.</p>
+          <ul>
+            <li>El entrenador define la acci&oacute;n: cuando suene <strong>VERDE</strong>, el cliente hace el ejercicio (sentadilla, salto, jab, paso, palmada&hellip;). Con <strong>ROJO</strong>, freeze.</li>
+            <li>Permite trabajar inhibici&oacute;n con tareas motoras de cuerpo entero, lejos del tablet.</li>
+            <li>Se mide cu&aacute;ntas rondas y la duraci&oacute;n. La precisi&oacute;n la observa el entrenador.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza en b&aacute;sico para coger el ritmo.</li>
+            <li>Si puedes, mueve el cuerpo entre toques (sentadillas, desplazamientos).</li>
+            <li>Vigila los &ldquo;falsos&rdquo;: si suben mucho, tu cerebro est&aacute; cansado.</li>
+            <li>El modo invertido es dif&iacute;cil &mdash; no te frustres, es normal fallar.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como calentamiento cognitivo con alta activaci&oacute;n.</li>
+            <li>Para trabajar el control de impulsos bajo presi&oacute;n.</li>
+            <li>Si quieres medir tu fatiga cognitiva (si los falsos suben, est&aacute;s cansado).</li>
+            <li>En grupo: todos tocan la misma pantalla o cada uno la suya.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="go-nogo.js?v=2.0.7"></script>
+</body>
+</html>

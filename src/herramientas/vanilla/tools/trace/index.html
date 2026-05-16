@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Trazado Alfanumérico — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .trace-display {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .trace-instruction {
+      flex-shrink: 0;
+    }
+    .trace-char {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-sans);
+      font-weight: 400;
+      color: white;
+      line-height: 1;
+      letter-spacing: 0;
+      font-size: min(65vw, 60vh);
+      text-shadow: 0 0 40px rgba(255,255,255,0.15);
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Trazado Alfanum&eacute;rico</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Modo:</span>
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="random" selected>Libre</option>
+          <option value="tmtA">N&uacute;meros</option>
+          <option value="tmtB">Alterna n&ordm;/letra</option>
+        </select>
+      </div>
+      <div id="cadenceGroup" class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="10000">Lenta 10s</option>
+          <option value="8000" selected>Media 8s</option>
+          <option value="6000">R&aacute;pida 6s</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="padding: 0;" onclick="tool.runTrace()">
+      <div class="trace-display">
+        <p class="stimulus-instruction trace-instruction">Traza en el aire</p>
+        <div id="traceText" class="trace-char">A</div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Trazado Alfanum&eacute;rico</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>coordinaci&oacute;n visomotora</strong>. Aparece una letra o n&uacute;mero en pantalla y t&uacute; lo trazas en el aire con el brazo extendido. Trabaja la planificaci&oacute;n motora y la coordinaci&oacute;n ojo-mano.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Aparece un s&iacute;mbolo grande en pantalla.</li>
+            <li>Traza ese s&iacute;mbolo en el aire con el brazo extendido, lo m&aacute;s grande que puedas.</li>
+            <li>Cuando cambie el s&iacute;mbolo, traza el nuevo.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Haz trazados grandes &mdash; usa todo el rango de movimiento del hombro.</li>
+            <li>Alterna brazo dominante y no dominante entre series.</li>
+            <li>A&ntilde;ade equilibrio sobre una pierna para m&aacute;s dificultad.</li>
+            <li>Empieza en cadencia lenta y sube cuando te sientas c&oacute;modo.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como calentamiento articular activo con componente cognitivo.</li>
+            <li>En rehabilitaci&oacute;n de hombro (movilidad + atenci&oacute;n).</li>
+            <li>Para trabajar coordinaci&oacute;n ojo-mano.</li>
+            <li>Para prevenci&oacute;n de ca&iacute;das: doble tarea motora-cognitiva.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Sentadilla isom&eacute;trica + trazo:</strong> aguanta abajo. Traza la letra con el brazo dominante. Trabaja fuerza isom&eacute;trica + planificaci&oacute;n motora.</li>
+            <li><strong>Equilibrio unipodal + trazo:</strong> de pie en una pierna trazando con la mano libre. Reta propiocepci&oacute;n + control bilateral.</li>
+            <li><strong>Brazo no dominante:</strong> traza con el brazo &laquo;malo&raquo;. Trabaja patrones motores menos automatizados. Bueno para rehabilitaci&oacute;n de hombro o post-l&eacute;si&oacute;n.</li>
+            <li><strong>Tand&eacute;m + trazo:</strong> de pie en l&iacute;nea (tal&oacute;n-punta) trazando. M&aacute;ximo reto de equilibrio.</li>
+            <li><strong>Modo Alterna n&ordm;/letra + marcha:</strong> caminata mientras alterna las dos secuencias. Reta flexibilidad cognitiva + locomoci&oacute;n.</li>
+            <li><strong>En grupo, en pareja:</strong> A traza, B reconoce y dice qu&eacute; letra es. Trabaja recepci&oacute;n visual + comunicaci&oacute;n.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Modos</h4>
+          <ul>
+            <li><strong>Libre:</strong> aparecen letras y n&uacute;meros aleatorios. Para calentamiento o coordinaci&oacute;n general.</li>
+            <li><strong>N&uacute;meros:</strong> aparecen en orden (1, 2, 3...). Trabaja atenci&oacute;n sostenida y rastreo.</li>
+            <li><strong>Alterna n&ordm;/letra:</strong> 1, A, 2, B, 3, C... El cliente debe mantener dos secuencias y saltar entre ellas. Trabaja flexibilidad cognitiva.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="trace.js?v=2.0.7"></script>
+</body>
+</html>

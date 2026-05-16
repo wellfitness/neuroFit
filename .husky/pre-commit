@@ -1,0 +1,23 @@
+#\!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Type check
+echo "🔍 Running TypeScript check..."
+npx tsc --noEmit || {
+  echo "❌ TypeScript compilation failed. Fix errors before committing."
+  exit 1
+}
+
+# ESLint check (includes custom rule: no-top-level-process-env)
+# Prevents committing code with top-level process.env access that causes build errors
+echo "🔍 Running ESLint (includes process.env pattern validation)..."
+npm run lint || {
+  echo "❌ ESLint failed. Fix errors before committing."
+  echo ""
+  echo "💡 If you see 'no-top-level-process-env' errors:"
+  echo "   Move process.env access inside functions (lazy initialization)"
+  echo "   See docs/ENV-VAR-PATTERNS.md for examples"
+  exit 1
+}
+
+echo "✅ All checks passed\!"

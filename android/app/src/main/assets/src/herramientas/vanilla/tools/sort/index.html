@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>De Menor a Mayor — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    /* === LAYOUT: stimulus-area como columna completa === */
+    #stimulusContainer.stimulus-area {
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: 0;
+    }
+
+    .sort-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      padding: var(--space-2);
+    }
+
+    /* Instruccion superior */
+    .sort-instruction {
+      color: var(--turquesa-400);
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: center;
+      flex-shrink: 0;
+      padding: var(--space-1) 0;
+    }
+
+    /* Area central: ocupa todo el espacio disponible y centra verticalmente */
+    .sort-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+      gap: var(--space-3);
+      position: relative;
+    }
+
+    /* Fases: ocupan ancho completo para centrado correcto */
+    #memPhase,
+    #questionPhase,
+    #feedbackPhase {
+      width: 100%;
+    }
+
+    /* === FASE MEMORIZACIÓN: numeros con separadores === */
+    .sort-numbers {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .sort-item {
+      font-family: var(--font-display);
+      font-weight: bold;
+      color: white;
+      font-size: clamp(3rem, 12vw, 6rem);
+    }
+
+    /* === FASE PREGUNTA: icono interrogación === */
+    .question-prompt {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .question-icon {
+      font-size: clamp(4rem, 12vw, 8rem);
+      color: var(--tulip-tree-400);
+      text-shadow: 0 0 40px rgba(234, 179, 8, 0.3);
+    }
+
+    /* === FASE FEEDBACK ERROR: orden correcto con flechas === */
+    .proposal-numbers {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .prop-item {
+      font-family: var(--font-display);
+      font-weight: bold;
+      color: var(--tulip-tree-400);
+      font-size: clamp(3rem, 12vw, 6rem);
+    }
+    .prop-arrow {
+      color: var(--gris-500);
+      font-size: 1.5rem;
+    }
+
+    /* === BOTONES VERDADERO / FALSO === */
+    .answer-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      width: 100%;
+      padding: 0 var(--space-2);
+    }
+    .answer-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 28px;
+      border-radius: 14px;
+      border: 3px solid;
+      background: var(--gris-800);
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      flex: 1;
+      max-width: 220px;
+      min-height: 56px;
+      justify-content: center;
+      transition: all 150ms;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .answer-btn:active { transform: scale(0.95); }
+    .answer-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+    .answer-btn:focus-visible {
+      outline: 3px solid var(--turquesa-400);
+      outline-offset: 2px;
+    }
+    .btn-true {
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #10b981;
+    }
+    .btn-true:not(:disabled):hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+    .btn-false {
+      border-color: rgba(225, 29, 72, 0.5);
+      color: var(--rosa-400);
+    }
+    .btn-false:not(:disabled):hover {
+      background: rgba(225, 29, 72, 0.1);
+      border-color: var(--rosa-400);
+    }
+
+    /* === FEEDBACK ICON: posicionado absoluto para no desplazar nada === */
+    .feedback-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 5rem;
+      z-index: 5;
+      pointer-events: none;
+      text-shadow: 0 0 40px currentColor;
+    }
+
+    /* === STATS BAR: anclada al fondo === */
+    .stats-bar {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: var(--space-1) var(--space-2);
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-top: auto;
+      flex-shrink: 0;
+      width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 56px; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* === MOBILE (<480px) === */
+    @media (max-width: 480px) {
+      .sort-instruction { font-size: 0.9rem; letter-spacing: 1px; }
+      .sort-item { font-size: clamp(2.5rem, 14vw, 4rem); }
+      .prop-item { font-size: clamp(2.5rem, 14vw, 4rem); }
+      .answer-btn { padding: 14px 16px; font-size: 1rem; min-height: 52px; }
+      .answer-btns { gap: 12px; }
+      .feedback-icon { font-size: 4rem; }
+      .stat-value { font-size: 1.1rem; }
+      .sort-content { padding: var(--space-1); }
+    }
+
+    /* === TABLET (768px+) === */
+    @media (min-width: 768px) {
+      .answer-btn {
+        max-width: 300px;
+        min-height: 72px;
+        padding: 20px 40px;
+        font-size: 1.6rem;
+        border-radius: 16px;
+      }
+      .answer-btns { gap: 28px; }
+      .prop-item { font-size: clamp(4.5rem, 12vw, 7.5rem); }
+      .sort-item { font-size: clamp(4rem, 12vw, 7.5rem); }
+      .sort-instruction { font-size: 1.2rem; }
+      .feedback-icon { font-size: 6rem; }
+    }
+
+    /* === DESKTOP (1024px+) === */
+    @media (min-width: 1024px) {
+      .answer-btn { max-width: 260px; min-height: 72px; font-size: 1.6rem; }
+      .prop-item { font-size: clamp(4.5rem, 8vw, 7rem); }
+      .sort-item { font-size: clamp(4rem, 8vw, 7rem); }
+    }
+
+    /* === LANDSCAPE COMPACTO === */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .sort-content { padding: 0 var(--space-2); }
+      .sort-instruction { padding: 2px 0; font-size: 0.85rem; }
+      .sort-main { gap: var(--space-1); }
+      .sort-item { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+      .prop-item { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+      .sort-numbers, .proposal-numbers { gap: var(--space-1); }
+      .answer-btn { min-height: 44px; padding: 8px 20px; font-size: 1rem; }
+      .answer-btns { gap: 12px; }
+      .feedback-icon { font-size: 2.5rem; }
+      .stats-bar { padding: 4px var(--space-1); margin-top: var(--space-1); }
+      .stat-value { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">De Menor a Mayor</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="easy" selected>N&uacute;meros</option>
+          <option value="medium">Sumas y restas</option>
+          <option value="hard">Multiplicaciones</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">Lenta (4s)</option>
+          <option value="3000" selected>Media (3s)</option>
+          <option value="2000">R&aacute;pida (2s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area">
+      <div class="sort-content">
+        <p id="sortInstruction" class="sort-instruction">Memoriza los n&uacute;meros</p>
+
+        <div class="sort-main">
+          <!-- Fase 1: Memorización — muestra los números -->
+          <div id="memPhase">
+            <div class="sort-numbers">
+              <div id="sort-0" class="sort-item">--</div>
+              <div id="sort-1" class="sort-item">--</div>
+              <div id="sort-2" class="sort-item">--</div>
+            </div>
+          </div>
+
+          <!-- Fase 2: Pregunta — solo botones V/F, SIN números -->
+          <div id="questionPhase" style="display:none;">
+            <div class="question-prompt">
+              <span class="material-symbols-sharp question-icon">help</span>
+            </div>
+          </div>
+
+          <!-- Fase 3: Feedback error — muestra orden correcto -->
+          <div id="feedbackPhase" style="display:none;">
+            <div class="proposal-numbers">
+              <span id="fb-0" class="prop-item">--</span>
+              <span class="prop-arrow material-symbols-sharp">arrow_downward</span>
+              <span id="fb-1" class="prop-item">--</span>
+              <span class="prop-arrow material-symbols-sharp">arrow_downward</span>
+              <span id="fb-2" class="prop-item">--</span>
+            </div>
+          </div>
+
+          <span id="feedbackIcon" class="material-symbols-sharp feedback-icon" style="display:none;"></span>
+
+          <div id="answerBtns" class="answer-btns" style="display:none">
+            <button id="btnTrue" class="answer-btn btn-true" onclick="tool.handleAnswer('true')" disabled>
+              <span class="material-symbols-sharp">check</span> VERDADERO
+            </button>
+            <button id="btnFalse" class="answer-btn btn-false" onclick="tool.handleAnswer('false')" disabled>
+              <span class="material-symbols-sharp">close</span> FALSO
+            </button>
+          </div>
+        </div>
+
+        <div class="stats-bar" aria-live="polite" role="status">
+          <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+          <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Errores</span></div>
+          <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+          <div class="stat-item"><span id="statRT" class="stat-value" style="color: var(--tulip-tree-400);">--</span><span class="stat-label">TR medio</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>De Menor a Mayor</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>memoria de trabajo y c&aacute;lculo mental</strong>. Aparecen 3 valores que tienes que memorizar. Despu&eacute;s desaparecen y tienes que decidir si estaban ordenados de menor a mayor.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
+          <ul>
+            <li><strong>N&uacute;meros:</strong> solo tienes que recordar y comparar n&uacute;meros.</li>
+            <li><strong>Sumas y restas:</strong> tienes que resolver las operaciones, retener los resultados y compararlos.</li>
+            <li><strong>Multiplicaciones:</strong> el m&aacute;s exigente &mdash; c&aacute;lculo r&aacute;pido bajo presi&oacute;n.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Aparecen 3 valores &mdash; mem&oacute;rizalos.</li>
+            <li>Los valores desaparecen. &iquest;Estaban ordenados de menor a mayor?</li>
+            <li>Pulsa <strong>VERDADERO</strong> si s&iacute;, o <strong>FALSO</strong> si no.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza con n&uacute;meros simples para coger el ritmo.</li>
+            <li>Las operaciones son mucho m&aacute;s dif&iacute;ciles &mdash; no te agobies si fallas.</li>
+            <li>Mira tu tiempo de reacci&oacute;n medio para ver si mejoras.</li>
+            <li>Comb&iacute;nalo con ejercicio f&iacute;sico para a&ntilde;adir dificultad.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como doble tarea: calcula mientras haces ejercicio aer&oacute;bico.</li>
+            <li>Para mantener las habilidades num&eacute;ricas.</li>
+            <li>Para entrenar cognitivamente bajo fatiga f&iacute;sica.</li>
+            <li>En grupo: todos responden a la vez con gestos.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="sort.js?v=2.0.5"></script>
+</body>
+</html>

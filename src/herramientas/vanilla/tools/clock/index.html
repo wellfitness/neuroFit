@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Reloj Auditivo — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .clock-answers { display: flex; gap: 24px; justify-content: center; margin-top: var(--space-4); width: 100%; padding: 0 var(--space-2); }
+    .clock-answer-btn {
+      padding: 20px 32px; border-radius: 16px; border: 3px solid var(--gris-600);
+      background: var(--gris-800); color: white; font-family: var(--font-display);
+      font-size: 1.2rem; letter-spacing: 1px; cursor: pointer; flex: 1; max-width: 280px;
+      min-height: 72px; transition: all 150ms; display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+    }
+    @media (min-width: 768px) {
+      .clock-answer-btn { font-size: 1.4rem; min-height: 80px; max-width: 320px; }
+      .clock-answers { gap: 32px; }
+    }
+    .clock-answer-btn:active { transform: scale(0.95); }
+    .clock-answer-btn:disabled { opacity: 0.3; cursor: default; }
+    .clock-answer-btn.correct { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
+    .clock-answer-btn.wrong { border-color: var(--rosa-400); background: rgba(225, 29, 72, 0.2); }
+    .clock-answer-btn[data-answer="mismo"] { border-color: var(--turquesa-600); color: var(--turquesa-400); }
+    .clock-answer-btn[data-answer="opuesto"] { border-color: var(--tulip-tree-500); color: var(--tulip-tree-400); }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: auto; flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Reloj Auditivo</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Modo:</span>
+        <select aria-label="Variante" name="variant" class="speed-select" onchange="tool.changeVariant(this.value)">
+          <option value="lr-text">Texto &#x2194;</option>
+          <option value="tb-text">Texto &#x2195;</option>
+          <option value="lr-24h">24h &#x2194;</option>
+          <option value="tb-24h">24h &#x2195;</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="5000">Lenta (5s)</option>
+          <option value="4000" selected>Media (4s)</option>
+          <option value="3000">R&aacute;pida (3s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0;">
+        <div style="font-size: clamp(3rem, 8vw, 5rem); margin-bottom: 0.5rem; color:var(--turquesa-400);"><span class="material-symbols-sharp" style="font-size: inherit;">volume_up</span></div>
+        <div id="clockText" style="font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 900; text-transform: uppercase; text-align: center; margin-bottom: 0.75rem;">Escucha...</div>
+        <p id="instructionText" class="stimulus-instruction">
+          Imagina el reloj<br>&iquest;Las dos agujas est&aacute;n en el mismo lado o en lados opuestos?
+        </p>
+        <div class="clock-answers">
+          <button class="clock-answer-btn" data-answer="mismo" onclick="tool.handleAnswer('mismo')" disabled>
+            <span id="iconSame1" class="material-symbols-sharp" style="font-size: 2rem;">arrow_forward</span><span id="iconSame2" class="material-symbols-sharp" style="font-size: 2rem;">arrow_forward</span>
+            <span id="labelSame">Mismo lado</span>
+          </button>
+          <button class="clock-answer-btn" data-answer="opuesto" onclick="tool.handleAnswer('opuesto')" disabled>
+            <span id="iconOpp1" class="material-symbols-sharp" style="font-size: 2rem;">arrow_back</span><span id="iconOpp2" class="material-symbols-sharp" style="font-size: 2rem;">arrow_forward</span>
+            <span id="labelOpp">Lados opuestos</span>
+          </button>
+        </div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+        <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Errores</span></div>
+        <div class="stat-item"><span id="statTotal" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+        <div class="stat-item"><span id="statRT" class="stat-value" style="color: var(--tulip-tree-400);">--</span><span class="stat-label">TR medio</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Reloj Auditivo (ACT)</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">record_voice_over</span> Audio por voz</h4>
+          <p>Esta herramienta usa la <strong>voz del sistema</strong>. Si no oyes nada:</p>
+          <ol>
+            <li>Ve a <strong>Ajustes &rarr; Accesibilidad &rarr; Texto a voz</strong>.</li>
+            <li>Instala o activa un motor en <strong>espa&ntilde;ol</strong> (recomendado: &laquo;Motor de texto a voz de Google&raquo;).</li>
+            <li>Sube el volumen de medios.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>razonamiento espacial</strong>. Se anuncia una hora y tienes que imaginar un reloj anal&oacute;gico: &iquest;las dos agujas caen del mismo lado o en lados opuestos? Parece f&aacute;cil, pero es un reto real.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige variante: <strong>Izq/Der</strong> (l&iacute;nea 12-6) o <strong>Arriba/Abajo</strong> (l&iacute;nea 3-9).</li>
+            <li>Pulsa <strong>INICIAR</strong>. Se anuncia una hora aleatoria.</li>
+            <li>Imagina el reloj: &iquest;las agujas est&aacute;n del mismo lado?</li>
+            <li>Pulsa <strong>Mismo lado</strong> u <strong>Opuestos</strong>.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Es m&aacute;s dif&iacute;cil de lo que parece &mdash; empieza en cadencia lenta.</li>
+            <li>Dibuja el reloj con el dedo en el aire si te ayuda a visualizarlo.</li>
+            <li>Necesitas saber leer relojes anal&oacute;gicos para este ejercicio.</li>
+            <li>No te frustres si fallas &mdash; la rotaci&oacute;n mental es exigente.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar razonamiento espacial y rotaci&oacute;n mental.</li>
+            <li>Como doble tarea avanzada mientras haces ejercicio.</li>
+            <li>Para mantener las funciones ejecutivas activas.</li>
+            <li>Para medir la agilidad mental antes y despu&eacute;s de entrenar.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Marcha + reloj:</strong> caminata continua escuchando la hora y respondiendo. Doble tarea de rotaci&oacute;n mental + locomoci&oacute;n.</li>
+            <li><strong>Reloj corporal:</strong> de pie con brazos al lado. Cuando dice una hora, el cliente coloca los brazos como las agujas (corto = hora, largo = minutos). Trabaja rotaci&oacute;n mental con todo el cuerpo.</li>
+            <li><strong>Sentadilla isom&eacute;trica + reloj:</strong> aguanta abajo y responde. Carga muscular + razonamiento espacial bajo esfuerzo.</li>
+            <li><strong>Equilibrio unipodal + reloj:</strong> de pie en una pierna escuchando y respondiendo. Reta vestibular + procesamiento espacial.</li>
+            <li><strong>Tras saltos al m&aacute;ximo:</strong> 30 s de saltos pliom&eacute;tricos. Pausa y responde 5 horas seguidas. Trabaja razonamiento bajo fatiga cardiovascular.</li>
+            <li><strong>Cierra los ojos:</strong> en una postura est&aacute;ble, ojos cerrados. La imagen del reloj es totalmente mental &mdash; m&aacute;ximo desaf&iacute;o de rotaci&oacute;n.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="clock.js?v=2.0.5"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Simon — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .simon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 90vw; max-width: 400px; }
+    @media (min-width: 600px) { .simon-grid { width: 80vw; max-width: 700px; gap: 24px; } }
+    .simon-btn {
+      aspect-ratio: 1/1; border-radius: 20px; opacity: 0.45;
+      transition: all 0.15s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      cursor: pointer; border: none;
+    }
+    .simon-btn.lit { opacity: 1; transform: scale(1.08); box-shadow: 0 0 40px currentColor; }
+    .simon-btn.error { opacity: 1; background-color: #e11d48 !important; box-shadow: 0 0 40px #e11d48; transform: scale(1.08); }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: auto; flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+
+    @media (min-width: 1280px) {
+      .simon-grid { width: 70vw; max-width: min(460px, 48vmin); gap: 24px; margin: 0 auto; }
+      .stat-value { font-size: 2.2rem; }
+      .stat-label { font-size: 0.95rem; }
+      .stimulus-instruction { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Simon Dice</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Sentido:</span>
+        <select aria-label="Sentido" id="directionSelect" class="speed-select" onchange="tool.changeDirection(this.value)">
+          <option value="forward" selected>Adelante</option>
+          <option value="reverse">Atr&aacute;s</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <p id="simonInstruction" class="stimulus-instruction">Pulsa INICIAR para comenzar</p>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0;">
+        <div class="simon-grid">
+          <button id="simon-0" class="simon-btn" style="background-color: var(--turquesa-400); color: var(--turquesa-400);" onclick="tool.handleTap(0)"></button>
+          <button id="simon-1" class="simon-btn" style="background-color: var(--tulip-tree-400); color: var(--tulip-tree-400);" onclick="tool.handleTap(1)"></button>
+          <button id="simon-2" class="simon-btn" style="background-color: var(--rosa-400); color: var(--rosa-400);" onclick="tool.handleTap(2)"></button>
+          <button id="simon-3" class="simon-btn" style="background-color: #3b82f6; color: #3b82f6;" onclick="tool.handleTap(3)"></button>
+        </div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statRound" class="stat-value" style="color: white;">0</span><span class="stat-label">Ronda</span></div>
+        <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+        <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Errores</span></div>
+        <div class="stat-item"><span id="statBest" class="stat-value" style="color: var(--tulip-tree-400);">0</span><span class="stat-label">Record</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Simon Dice</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>El cl&aacute;sico juego de <strong>memoria secuencial</strong>. Se ilumina una secuencia de colores que crece en cada ronda. Tienes que repetir el orden exacto. Entrena tu memoria a corto plazo y tu atenci&oacute;n.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Se ilumina un color.</li>
+            <li>T&oacute;calo. En la siguiente ronda se a&ntilde;ade uno m&aacute;s.</li>
+            <li>Repite toda la secuencia en orden, cada vez m&aacute;s larga.</li>
+            <li>Si fallas, se reinicia. Tu r&eacute;cord queda guardado.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">swap_horiz</span> Modo Atr&aacute;s</h4>
+          <p>El modo <strong>Atr&aacute;s</strong> muestra la secuencia y t&uacute; debes <strong>repetirla al rev&eacute;s</strong>. Es bastante m&aacute;s exigente porque no s&oacute;lo memorizas: tu cerebro tiene que <strong>manipular mentalmente</strong> la secuencia y reordenarla.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Di los colores en voz alta mientras memorizas (&ldquo;turquesa, amarillo, rosa&rdquo;).</li>
+            <li>Combina con marcha en el sitio o equilibrio entre turnos.</li>
+            <li>Intenta batir tu r&eacute;cord en cada sesi&oacute;n.</li>
+            <li>En grupo: cada persona toca un color distinto, colaborando en equipo.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar memoria secuencial de forma divertida.</li>
+            <li>Como actividad l&uacute;dica en grupo (competici&oacute;n amistosa).</li>
+            <li>Para mantener la mente activa (cualquier edad).</li>
+            <li>Como vuelta a la calma con componente cognitivo.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>En grupo, cada persona un color:</strong> el grupo se reparte por colores. La app marca la secuencia y cada persona salta o se agacha cuando le toca su color. Coordinaci&oacute;n grupal.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna mientras observas la secuencia. Responde con la mano libre. Reta vestibular + WM.</li>
+            <li><strong>Sentadilla profunda + observar:</strong> aguanta abajo en sentadilla isom&eacute;trica mientras pasa la secuencia. Sube para responder. Carga muscular durante la codificaci&oacute;n.</li>
+            <li><strong>Modo Atr&aacute;s para reto avanzado:</strong> ya no s&oacute;lo memorizas, manipulas mentalmente. Combina con plancha isom&eacute;trica para doble exigencia.</li>
+            <li><strong>Vuelta a la calma:</strong> al final de la sesi&oacute;n, 5 min de Simon sentado en el suelo respirando profundo. Activaci&oacute;n cognitiva con cuerpo en reposo.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="simon.js?v=2.0.7"></script>
+</body>
+</html>

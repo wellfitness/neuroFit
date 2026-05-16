@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Conflicto Audiovisual — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    @media (min-width: 1280px) {
+      #arrowVisual {
+        font-size: min(50vh, 28rem) !important;
+      }
+      .stimulus-instruction {
+        font-size: 1.6rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Conflicto Audiovisual</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div id="cadenceGroup" class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">Lenta 4s</option>
+          <option value="3000" selected>Media 3s</option>
+          <option value="2000">R&aacute;pida 2s</option>
+        </select>
+      </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="padding: 0; flex-direction: column; align-items: center; justify-content: flex-start;">
+      <p class="stimulus-instruction" style="flex-shrink: 0;">Sigue lo que <strong style="color: var(--turquesa-400);">ESCUCHAS</strong><br>No lo que ves</p>
+      <div style="flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;" onclick="tool.runArrows()">
+        <div id="arrowVisual" class="material-symbols-sharp" style="font-size: min(80vw, 70vh); color: var(--turquesa-400); line-height: 1; filter: drop-shadow(0 0 40px rgba(0, 190, 200, 0.4));">lens</div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Conflicto Audiovisual</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">record_voice_over</span> Audio por voz</h4>
+          <p>Esta herramienta usa la <strong>voz del sistema</strong>. Si no oyes nada:</p>
+          <ol>
+            <li>Ve a <strong>Ajustes &rarr; Accesibilidad &rarr; Texto a voz</strong>.</li>
+            <li>Instala o activa un motor en <strong>espa&ntilde;ol</strong> (recomendado: &laquo;Motor de texto a voz de Google&raquo;).</li>
+            <li>Sube el volumen de medios.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>interferencia audiovisual</strong>. Aparece una flecha en pantalla y a la vez escuchas una direcci&oacute;n por voz. A veces coinciden, a veces no. T&uacute; tienes que seguir lo que <strong>escuchas</strong>, no lo que ves.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Pulsa <strong>INICIAR</strong>. Aparece una flecha y suena una direcci&oacute;n.</li>
+            <li>Mu&eacute;vete hacia donde indica el <strong>audio</strong>, ignora la flecha.</li>
+            <li>Si la flecha y el audio coinciden, f&aacute;cil. Si no, tu cerebro querr&aacute; seguir la flecha &mdash; no le hagas caso.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza en cadencia lenta para pillar la mec&aacute;nica.</li>
+            <li>Combina con desplazamientos laterales o giros.</li>
+            <li>Sube la cadencia cuando te sientas c&oacute;modo.</li>
+            <li>Si fallas mucho, no pasa nada &mdash; es un ejercicio dif&iacute;cil por dise&ntilde;o.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar inhibici&oacute;n y atenci&oacute;n dividida.</li>
+            <li>En deportes: tomar decisiones cuando la informaci&oacute;n es contradictoria.</li>
+            <li>Para prevenci&oacute;n de ca&iacute;das (reaccionar a conflictos sensoriales reales).</li>
+            <li>En grupo: todos ven la pantalla pero deben priorizar el audio.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Desplazamiento lateral:</strong> el cliente mira la pantalla y se desplaza seg&uacute;n el AUDIO (ignora la flecha visual). Trabaja agilidad + inhibici&oacute;n.</li>
+            <li><strong>Giro corporal direccional:</strong> en el centro de un c&iacute;rculo, gira 90&deg; seg&uacute;n el audio. Trabaja propiocepci&oacute;n direccional y orientaci&oacute;n espacial.</li>
+            <li><strong>Pareja en espejo:</strong> A reacciona a la pantalla, B reacciona al rev&eacute;s (sigue lo que ve, no lo que oye). Trabaja inhibici&oacute;n diferenciada en pareja.</li>
+            <li><strong>Ojos cerrados (solo audio):</strong> el cliente con los ojos cerrados, sin conflicto visual. Reacciona &uacute;nicamente al audio. Refuerza confianza en la se&ntilde;al auditiva.</li>
+            <li><strong>Conos en cruz:</strong> 4 conos alrededor del cliente. Tocar el cono que dice el audio aunque la flecha apunte a otro. Carrera explosiva + inhibici&oacute;n.</li>
+            <li><strong>Pesa rusa en mano:</strong> sujeta una pesa rusa. Hace el paso o giro indicado por el audio. Carga unilateral + reactividad cognitiva.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="arrows.js?v=2.0.7"></script>
+</body>
+</html>

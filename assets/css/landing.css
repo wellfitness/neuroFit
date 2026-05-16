@@ -1,0 +1,306 @@
+/* ========================================
+   LANDING PAGE - KinesisLab
+   Usa design-tokens.css como fuente de verdad
+   ======================================== */
+
+:root {
+  /* Aliases semánticos para el landing (mapean a design-tokens) */
+  --bg-deepest: var(--gris-900);
+  --bg-container: var(--gris-800);
+  --bg-interactive: var(--gris-700);
+
+  --turquesa-main: var(--turquesa-600);
+  --turquesa-hover: var(--turquesa-700);
+  --turquesa-glow: rgba(0, 190, 200, 0.3);
+
+  --rosa-accent: var(--rosa-600);
+  --dorado-accent: var(--tulip-tree-500);
+
+  --text-main: var(--gris-50);
+  --text-muted: var(--gris-400);
+
+  --shadow-landing-sm: 0 4px 6px -1px rgba(0,0,0,0.5);
+  --shadow-landing-lg: 0 10px 25px -5px rgba(0,0,0,0.6);
+
+  --font-display: 'Righteous', Arial, sans-serif;
+  --font-sans: 'ABeeZee', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background-color: var(--bg-deepest);
+  color: var(--text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+}
+
+/* Hero Section */
+.hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  background: radial-gradient(circle at top, var(--bg-container) 0%, var(--bg-deepest) 70%);
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--turquesa-main), transparent);
+  opacity: 0.3;
+}
+
+.hero-logo {
+  width: clamp(120px, 25vw, 200px);
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 30px rgba(0, 190, 200, 0.3));
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: rgba(234, 179, 8, 0.1);
+  color: var(--dorado-accent);
+  border: 1px solid var(--dorado-accent);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  font-family: var(--font-sans);
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 span {
+  background: linear-gradient(to right, var(--turquesa-main), #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 800px;
+  margin-bottom: 3rem;
+  font-weight: 300;
+  text-align: left;
+}
+
+.btn-launch {
+  display: inline-block;
+  padding: 1.25rem 3rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: white;
+  background-color: var(--turquesa-main);
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px var(--turquesa-glow);
+}
+
+.btn-launch:hover {
+  background-color: var(--turquesa-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--turquesa-glow);
+}
+
+/* Features Section */
+.features {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.features-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.features-header h2 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.grid-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.feature-card {
+  background-color: var(--bg-container);
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: transform 0.3s ease;
+  box-shadow: var(--shadow-landing-sm);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+.feature-icon {
+  margin-bottom: 1.5rem;
+  color: var(--turquesa-main);
+}
+
+.feature-icon .material-symbols-sharp {
+  font-size: 2.5rem;
+}
+
+.feature-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--turquesa-main);
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Documentation Section */
+.tech-specs {
+  background-color: var(--bg-container);
+  padding: 6rem 2rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.tech-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tech-box {
+  background-color: var(--bg-deepest);
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--turquesa-main);
+  margin-top: 2rem;
+}
+
+.tech-box code {
+  color: var(--dorado-accent);
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+footer a { color: var(--turquesa-main); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .hero { min-height: 70vh; padding-top: 6rem; }
+  .hero h1 { font-size: 2.5rem; }
+  .btn-launch { width: 100%; text-align: center; }
+  .grid-features { grid-template-columns: 1fr; }
+}
+
+/* Science & Evidence Sections */
+.science-section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.science-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .science-grid { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+.evidence-tag {
+  background: rgba(0, 190, 200, 0.1);
+  color: var(--turquesa-main);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.sop-box {
+  background: var(--bg-container);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px dashed var(--turquesa-main);
+}
+
+.bibliography {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.bibliography h4 { color: var(--text-main); margin-bottom: 1rem; }
+.bibliography ul { list-style: none; }
+.bibliography li { margin-bottom: 0.75rem; border-left: 2px solid var(--bg-interactive); padding-left: 1rem; }
+
+/* Neural Efficiency Chart Simulation */
+.chart-box {
+  background: #0d1117;
+  padding: 1.5rem;
+  border-radius: 12px;
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.bar {
+  flex: 1;
+  background: var(--bg-interactive);
+  border-radius: 4px 4px 0 0;
+  transition: height 1s;
+  position: relative;
+}
+.bar.active { background: var(--turquesa-main); box-shadow: 0 0 15px var(--turquesa-glow); }
+.bar::after {
+  content: attr(data-label);
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}

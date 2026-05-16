@@ -1,0 +1,228 @@
+/* ========================================
+   DESIGN TOKENS - System WOD Generator
+   Variables CSS para todo el proyecto
+   ======================================== */
+
+:root {
+  /* ========== TURQUESA - Primary Brand ========== */
+  --turquesa-50: #f0fdfa;
+  --turquesa-100: #cdfffb;
+  --turquesa-200: #9df9f0;
+  --turquesa-300: #5ce1e6;
+  --turquesa-400: #18f8f6;
+  --turquesa-500: #06d6e0;
+  --turquesa-600: #00bec8;    /* PRIMARY - botones principales */
+  --turquesa-700: #088b96;
+  --turquesa-800: #155e75;
+  --turquesa-900: #164e63;
+
+  /* ========== TULIP TREE - Warning/Premium ========== */
+  --tulip-tree-50: #fef9e8;   /* Very soft warning backgrounds */
+  --tulip-tree-100: #fef3c7;  /* Light backgrounds */
+  --tulip-tree-200: #fee28a;  /* Warning backgrounds */
+  --tulip-tree-300: #fdd147;  /* Warning highlights */
+  --tulip-tree-400: #fbbf24;  /* Medium accent */
+  --tulip-tree-500: #eab308;  /* WARNING/PREMIUM - important alerts */
+  --tulip-tree-600: #d97706;  /* Hover states */
+  --tulip-tree-700: #b45309;  /* Active states */
+  --tulip-tree-800: #92400e;  /* Dark contexts */
+  --tulip-tree-900: #78350f;  /* Deep warning */
+
+  /* ========== ROSA - Critical Actions ========== */
+  --rosa-50: #fdf2f8;
+  --rosa-100: #fce7f3;
+  --rosa-200: #fbcfe8;
+  --rosa-300: #f9a8d4;
+  --rosa-400: #f472b6;
+  --rosa-500: #ec4899;
+  --rosa-600: #e11d48;        /* CRITICAL - delete, errors */
+  --rosa-700: #be1238;
+  --rosa-800: #9f1239;
+  --rosa-900: #881337;
+
+  /* ========== GRISES - Neutral System ========== */
+  --gris-50: #f9fafb;
+  --gris-100: #f3f4f6;
+  --gris-200: #e5e7eb;
+  --gris-300: #d1d5db;
+  --gris-400: #9ca3af;
+  --gris-500: #6b7280;
+  --gris-600: #4b5563;
+  --gris-700: #374151;
+  --gris-800: #1f2937;
+  --gris-900: #111827;
+
+  /* ========== SEMANTIC COLORS ========== */
+  --color-primary: var(--turquesa-600);
+  --color-primary-light: var(--turquesa-400);
+  --color-primary-dark: var(--turquesa-700);
+  --color-secondary: var(--gris-600);
+  --color-accent: var(--tulip-tree-500);
+  --color-success: #059669;
+  --color-warning: var(--tulip-tree-500);
+  --color-error: var(--rosa-600);
+  --color-info: var(--turquesa-600);
+
+  /* ========== COLOR LAYERING (Visual Hierarchy) ========== */
+  /* Use estos shades para crear profundidad sin gradientes */
+  /* Shade 1 (Deepest): Page/section backgrounds */
+  --layer-bg-deepest: var(--gris-50);
+  --layer-bg-deepest-dark: var(--gris-100);
+
+  /* Shade 2 (Container): Cards, containers, wrappers */
+  --layer-bg-container: var(--gris-100);
+  --layer-bg-container-hover: var(--gris-200);
+
+  /* Shade 3 (Interactive): Buttons, tabs, inputs, interactive elements */
+  --layer-bg-interactive: var(--gris-200);
+  --layer-bg-interactive-hover: var(--gris-300);
+
+  /* Shade 4 (Active/Selected): Active states, selected items, emphasis */
+  --layer-bg-active: var(--gris-300);
+  --layer-bg-active-hover: var(--gris-400);
+
+  /* Text Compensation: Adjust text lightness when using lighter backgrounds */
+  --layer-text-on-deepest: var(--gris-900);    /* Darkest text on lightest bg */
+  --layer-text-on-container: var(--gris-800);  /* Dark text on light bg */
+  --layer-text-on-interactive: var(--gris-700);/* Medium text on medium bg */
+  --layer-text-on-active: var(--gris-600);     /* Light text on darker bg */
+
+  /* ========== TYPOGRAPHY ========== */
+  --font-family-heading: 'Righteous', cursive;
+  --font-family-body: 'ABeeZee', sans-serif;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+
+  /* Special Sizes - Según DESIGN-SYSTEM.md */
+  --font-size-button: 1.3125rem;    /* 21px - Desktop buttons */
+  --font-size-button-mobile: 1rem;  /* 16px - Mobile buttons */
+  --font-size-tag: 1.0625rem;       /* 17px - Tags, labels */
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ========== SPACING (8px base grid) ========== */
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-5: 1.25rem;    /* 20px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-7: 1.75rem;    /* 28px */
+  --space-8: 2rem;       /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+
+  /* ========== BORDER RADIUS ========== */
+  --radius-sm: 0.25rem;     /* 4px */
+  --radius-base: 0.375rem;  /* 6px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-full: 9999px;    /* Full round */
+
+  /* ========== SHADOWS ========== */
+  /* Basic Single-Layer Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Two-Layer Shadows (Professional Depth) */
+  /* Small: Subtle depth for nav items, small cards, tabs */
+  --shadow-two-layer-sm:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),  /* Top light glow */
+    0 1px 2px rgba(0, 0, 0, 0.1);            /* Bottom dark shadow */
+
+  /* Medium: Standard depth for cards, dropdowns, most components */
+  --shadow-two-layer-md:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15), /* Top light glow */
+    0 3px 6px rgba(0, 0, 0, 0.15);           /* Bottom dark shadow */
+
+  /* Large: Prominent depth for hover states, focused elements, important modals */
+  --shadow-two-layer-lg:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),  /* Top light glow */
+    0 6px 12px rgba(0, 0, 0, 0.2);           /* Bottom dark shadow */
+
+  /* Interactive States - Two-Layer Enhancements */
+  --shadow-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.15);
+
+  --shadow-focus:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 0 3px rgba(0, 190, 200, 0.3),        /* Turquesa focus ring */
+    0 4px 8px rgba(0, 0, 0, 0.1);
+
+  /* ========== Z-INDEX SCALE ========== */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* ========== BREAKPOINTS (for JS) ========== */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* ========== TRANSITIONS ========== */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-base: 0.2s ease-in-out;
+  --transition-slow: 0.3s ease-in-out;
+
+  /* ========== CONTAINER SIZES ========== */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1400px;
+}
+
+/* ========== RESPONSIVE ADJUSTMENTS ========== */
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  :root {
+    --space-4: 0.875rem;      /* 14px instead of 16px */
+    --space-6: 1.25rem;       /* 20px instead of 24px */
+    --space-8: 1.75rem;       /* 28px instead of 32px */
+    --font-size-3xl: 1.5rem;  /* 24px instead of 30px */
+    --font-size-4xl: 1.875rem; /* 30px instead of 36px */
+  }
+}
+
+/* Touch Device Optimizations */
+@media (max-width: 768px) {
+  :root {
+    --min-touch-target: 44px;  /* iOS/Android guidelines */
+  }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  :root {
+    --shadow-sm: 0 0.5px 1px 0 rgb(0 0 0 / 0.05);
+    --shadow-base: 0 0.5px 1.5px 0 rgb(0 0 0 / 0.1), 0 0.5px 1px -0.5px rgb(0 0 0 / 0.1);
+  }
+}

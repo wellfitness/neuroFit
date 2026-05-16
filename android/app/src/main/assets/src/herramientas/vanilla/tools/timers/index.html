@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Temporizadores — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    /* === CONFIG VIEW === */
+    .timer-config-view {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .timer-global-settings {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      padding: var(--space-2) var(--space-3);
+      background: var(--gris-800);
+      border-radius: 12px;
+      border: 1px solid var(--gris-700);
+    }
+
+    .setting-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setting-group label {
+      color: var(--gris-300);
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .setting-input {
+      width: 64px;
+      padding: 8px;
+      background: var(--gris-900);
+      border: 1px solid var(--gris-600);
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: var(--font-sans);
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: var(--turquesa-600);
+      box-shadow: 0 0 0 3px rgba(0, 190, 200, 0.2);
+    }
+
+    .setting-unit {
+      color: var(--gris-400);
+      font-size: 0.85rem;
+    }
+
+    .btn-sound {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 200ms;
+      border: 2px solid transparent;
+      min-height: 44px;
+      font-family: var(--font-sans);
+    }
+
+    .btn-sound--on {
+      background: var(--turquesa-600);
+      color: white;
+      border-color: var(--turquesa-700);
+    }
+
+    .btn-sound--off {
+      background: transparent;
+      color: var(--gris-400);
+      border-color: var(--gris-600);
+    }
+
+    .btn-sound:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+
+    /* === TIMER CARDS GRID === */
+    .timer-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .timer-cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .timer-cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* === TIMER CARD === */
+    .timer-card {
+      background: linear-gradient(168deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.98) 100%);
+      border: 1px solid rgba(55, 65, 81, 0.6);
+      border-radius: 20px;
+      padding: var(--space-3);
+      cursor: pointer;
+      transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Top accent bar with gradient */
+    .timer-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--turquesa-600), var(--turquesa-400));
+      transition: height 350ms cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0.8;
+    }
+
+    /* Ambient glow behind card (top area) */
+    .timer-card::after {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 60%;
+      background: radial-gradient(ellipse, rgba(0, 190, 200, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      transition: opacity 400ms;
+    }
+
+    .timer-card:hover {
+      border-color: rgba(0, 190, 200, 0.4);
+      transform: translateY(-6px);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.35),
+        0 0 60px rgba(0, 190, 200, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .timer-card:hover::before {
+      height: 4px;
+      opacity: 1;
+    }
+
+    .timer-card:hover::after {
+      opacity: 1.5;
+    }
+
+    .timer-card.selected {
+      border-color: rgba(24, 248, 246, 0.35);
+      background: linear-gradient(168deg, rgba(0, 190, 200, 0.1) 0%, rgba(17, 24, 39, 0.98) 100%);
+      box-shadow:
+        0 8px 32px rgba(0, 190, 200, 0.15),
+        0 0 80px rgba(0, 190, 200, 0.05),
+        inset 0 1px 0 rgba(24, 248, 246, 0.1);
+    }
+
+    .timer-card.selected::before {
+      height: 4px;
+      background: linear-gradient(90deg, var(--turquesa-400), var(--turquesa-600), var(--turquesa-400));
+      opacity: 1;
+    }
+
+    .timer-card.selected::after {
+      background: radial-gradient(ellipse, rgba(0, 190, 200, 0.12) 0%, transparent 70%);
+    }
+
+    /* === CARD HEADER === */
+    .timer-card__header {
+      text-align: center;
+      margin-bottom: var(--space-2);
+      padding-top: 12px;
+    }
+
+    .timer-card__icon {
+      font-size: 2.5rem;
+      color: var(--turquesa-400);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(0, 190, 200, 0.15) 0%, rgba(24, 248, 246, 0.05) 100%);
+      border: 1px solid rgba(0, 190, 200, 0.15);
+      position: relative;
+      transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Icon glow effect */
+    .timer-card__icon::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 20px;
+      background: radial-gradient(circle, rgba(0, 190, 200, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+      transition: opacity 350ms;
+      opacity: 0;
+    }
+
+    .timer-card:hover .timer-card__icon {
+      transform: scale(1.08);
+      background: linear-gradient(135deg, rgba(0, 190, 200, 0.22) 0%, rgba(24, 248, 246, 0.08) 100%);
+      border-color: rgba(0, 190, 200, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 190, 200, 0.15);
+    }
+
+    .timer-card:hover .timer-card__icon::after {
+      opacity: 1;
+    }
+
+    .timer-card.selected .timer-card__icon {
+      background: linear-gradient(135deg, rgba(0, 190, 200, 0.25) 0%, rgba(24, 248, 246, 0.1) 100%);
+      border-color: rgba(24, 248, 246, 0.35);
+      box-shadow: 0 4px 24px rgba(0, 190, 200, 0.2);
+    }
+
+    .timer-card__icon .material-symbols-sharp {
+      font-size: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timer-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: white;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .timer-card__subtitle {
+      font-size: 0.82rem;
+      color: var(--gris-400);
+      text-align: center;
+      margin-bottom: var(--space-2);
+      line-height: 1.5;
+    }
+
+    /* === CARD CONFIG === */
+    .timer-card__config {
+      background: rgba(17, 24, 39, 0.6);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: var(--space-2);
+      border: 1px solid rgba(55, 65, 81, 0.5);
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      transition: border-color 300ms, background 300ms;
+    }
+
+    .timer-card:hover .timer-card__config {
+      border-color: rgba(55, 65, 81, 0.7);
+      background: rgba(17, 24, 39, 0.7);
+    }
+
+    .timer-card.selected .timer-card__config {
+      border-color: rgba(0, 190, 200, 0.15);
+      background: rgba(0, 190, 200, 0.04);
+    }
+
+    .config-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .config-row + .config-row {
+      border-top: 1px solid rgba(55, 65, 81, 0.4);
+      margin-top: 2px;
+      padding-top: 10px;
+    }
+
+    .config-row label {
+      color: var(--gris-300);
+      font-size: 0.85rem;
+      font-weight: 500;
+      flex: 1;
+      min-width: 0;
+      letter-spacing: 0.2px;
+    }
+
+    .config-row__right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .config-input {
+      width: 64px;
+      padding: 8px 8px;
+      background: rgba(31, 41, 55, 0.8);
+      border: 1px solid rgba(75, 85, 99, 0.5);
+      border-radius: 8px;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: var(--font-sans);
+      transition: all 250ms;
+    }
+
+    .config-input:focus {
+      outline: none;
+      border-color: var(--turquesa-600);
+      box-shadow: 0 0 0 3px rgba(0, 190, 200, 0.15), 0 0 12px rgba(0, 190, 200, 0.1);
+      background: rgba(31, 41, 55, 1);
+    }
+
+    .config-input:hover:not(:focus) {
+      border-color: rgba(75, 85, 99, 0.8);
+      background: rgba(31, 41, 55, 0.95);
+    }
+
+    .config-unit {
+      color: var(--gris-500);
+      font-size: 0.8rem;
+      width: 28px;
+      text-align: left;
+    }
+
+    /* Reservar espacio de unidad en filas sin unidad para mantener alineacion */
+    .config-row__right::after {
+      content: '';
+      width: 28px;
+      flex-shrink: 0;
+    }
+
+    .config-row__right:has(.config-unit)::after {
+      display: none;
+    }
+
+    /* === START BUTTON === */
+    .timer-card__start {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--rosa-600) 0%, #c2185b 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 44px;
+      box-shadow: 0 4px 16px rgba(225, 29, 72, 0.3);
+      letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-card__start::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .timer-card.selected .timer-card__start {
+      display: flex;
+    }
+
+    .timer-card__start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(225, 29, 72, 0.4);
+      filter: brightness(1.08);
+    }
+
+    .timer-card__start:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3);
+    }
+
+    /* === TIMER EXECUTION VIEW === */
+    .timer-execution-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      text-align: center;
+      gap: var(--space-3);
+    }
+
+    .timer-display__title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      max-width: 100%;
+      width: 100%;
+      padding: 0 var(--space-2);
+      text-align: center;
+      line-height: 1.1;
+      word-break: normal;
+      overflow-wrap: normal;
+      box-sizing: border-box;
+    }
+
+    .timer-display__title--long {
+      font-size: clamp(1.6rem, 7vw, 4rem);
+    }
+
+    .timer-display__title .material-symbols-sharp {
+      font-size: 1em;
+      flex-shrink: 0;
+    }
+
+    .timer-display__title--prep {
+      color: var(--tulip-tree-500);
+    }
+
+    .timer-display__time {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(6rem, 22vw, 14rem);
+      font-weight: 900;
+      color: #fbbf24;
+      text-shadow: 3px 6px 12px rgba(0, 0, 0, 0.3);
+      letter-spacing: -3px;
+      line-height: 1;
+      font-feature-settings: 'tnum';
+    }
+
+    .timer-display__time--prep {
+      color: var(--tulip-tree-500);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .timer-display__info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 700;
+      color: #fbbf24;
+      min-height: 48px;
+    }
+
+    .timer-info__round {
+      font-size: clamp(2rem, 5vw, 3rem);
+    }
+
+    .timer-info__limit {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.2rem;
+    }
+
+    .timer-info__limit .material-symbols-sharp {
+      font-size: 1.2em;
+    }
+
+    .timer-info__label {
+      color: var(--gris-400);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .timer-phase {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .timer-phase--work {
+      background: var(--rosa-600);
+      color: white;
+    }
+
+    .timer-phase--rest {
+      background: var(--turquesa-600);
+      color: white;
+    }
+
+    /* === RUNNING TOOLBAR === */
+    .toolbar-running {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2);
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    .toolbar-running .btn-primary,
+    .toolbar-running .btn-secondary {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      line-height: 1.1;
+      min-width: 0;
+      flex: 1;
+      max-width: 120px;
+      min-height: 56px;
+    }
+
+    .toolbar-running .btn-primary .material-symbols-sharp,
+    .toolbar-running .btn-secondary .material-symbols-sharp {
+      font-size: 1.4rem;
+    }
+
+    @media (min-width: 600px) {
+      .toolbar-running .btn-primary,
+      .toolbar-running .btn-secondary {
+        font-size: 0.95rem;
+        padding: 10px 16px;
+        min-height: 60px;
+      }
+      .toolbar-running .btn-primary .material-symbols-sharp,
+      .toolbar-running .btn-secondary .material-symbols-sharp {
+        font-size: 1.6rem;
+      }
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 480px) {
+      .timer-config-view {
+        padding: var(--space-2);
+      }
+
+      .timer-global-settings {
+        flex-direction: column;
+        gap: var(--space-2);
+        padding: var(--space-2);
+      }
+
+      .timer-execution-view {
+        padding: var(--space-2);
+      }
+
+      .timer-display__info {
+        font-size: 1.1rem;
+      }
+
+      .timer-phase {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .timer-execution-view {
+        padding: var(--space-2);
+        gap: var(--space-1);
+      }
+
+      .timer-display__title {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+      }
+
+      .timer-display__time {
+        font-size: clamp(4rem, 16vw, 8rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+
+    <!-- Header -->
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Temporizadores</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda">
+          <span class="material-symbols-sharp">help_outline</span>
+        </button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver">
+          <span class="material-symbols-sharp">arrow_back</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Toolbar: Config State -->
+    <div id="toolbarConfig" class="exec-toolbar">
+      <div class="timer-global-settings">
+        <div class="setting-group">
+          <label for="cfgPrep">Preparaci&oacute;n:</label>
+          <input type="number" id="cfgPrep" class="setting-input" value="5" min="3" max="20">
+          <span class="setting-unit">seg</span>
+        </div>
+        <button id="btnSound" class="btn-sound btn-sound--on" onclick="tool.toggleSound()">
+          <span class="material-symbols-sharp">volume_up</span>
+          <span>Sonido</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toolbar: Running State -->
+    <div id="toolbarRunning" class="exec-toolbar hidden-view">
+      <div class="toolbar-running">
+        <button id="btnPause" class="btn-primary" onclick="tool.togglePause()">
+          <span class="material-symbols-sharp">pause</span> Pausar
+        </button>
+        <button class="btn-secondary" onclick="tool.stop()">
+          <span class="material-symbols-sharp">stop</span> Detener
+        </button>
+        <button class="btn-secondary" onclick="tool.reset()">
+          <span class="material-symbols-sharp">restart_alt</span> Reiniciar
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW: Config (Timer Cards) -->
+    <div id="viewConfig" class="timer-config-view">
+      <div class="timer-cards-grid">
+
+        <!-- EMOM -->
+        <div class="timer-card" data-timer="EMOM" onclick="tool.selectTimer('EMOM')">
+          <div class="timer-card__header">
+            <div class="timer-card__icon"><span class="material-symbols-sharp">avg_pace</span></div>
+            <h3>EMOM</h3>
+          </div>
+          <p class="timer-card__subtitle">Every Minute On the Minute<br>Ejecuta al inicio de cada intervalo</p>
+          <div class="timer-card__config">
+            <div class="config-row">
+              <label for="cfgEmomInterval">Intervalo</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgEmomInterval" class="config-input" value="60" min="10" max="300" onclick="event.stopPropagation()">
+                <span class="config-unit">seg</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label for="cfgEmomRounds">Rondas</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgEmomRounds" class="config-input" value="10" min="1" max="60" onclick="event.stopPropagation()">
+              </div>
+            </div>
+          </div>
+          <button class="timer-card__start" onclick="event.stopPropagation(); tool.startTimer('EMOM')">
+            <span class="material-symbols-sharp">play_arrow</span> Iniciar EMOM
+          </button>
+        </div>
+
+        <!-- INTERVALOS -->
+        <div class="timer-card" data-timer="INTERVALOS" onclick="tool.selectTimer('INTERVALOS')">
+          <div class="timer-card__header">
+            <div class="timer-card__icon"><span class="material-symbols-sharp">sync</span></div>
+            <h3>Intervalos</h3>
+          </div>
+          <p class="timer-card__subtitle">Trabajo / Descanso<br>Alterna fases con rondas configurables</p>
+          <div class="timer-card__config">
+            <div class="config-row">
+              <label for="cfgIntWork">Trabajo</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgIntWork" class="config-input" value="30" min="5" max="300" onclick="event.stopPropagation()">
+                <span class="config-unit">seg</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label for="cfgIntRest">Descanso</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgIntRest" class="config-input" value="30" min="5" max="300" onclick="event.stopPropagation()">
+                <span class="config-unit">seg</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label for="cfgIntRounds">Rondas</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgIntRounds" class="config-input" value="8" min="1" max="50" onclick="event.stopPropagation()">
+              </div>
+            </div>
+          </div>
+          <button class="timer-card__start" onclick="event.stopPropagation(); tool.startTimer('INTERVALOS')">
+            <span class="material-symbols-sharp">play_arrow</span> Iniciar Intervalos
+          </button>
+        </div>
+
+        <!-- AFAP -->
+        <div class="timer-card" data-timer="AFAP" onclick="tool.selectTimer('AFAP')">
+          <div class="timer-card__header">
+            <div class="timer-card__icon"><span class="material-symbols-sharp">speed</span></div>
+            <h3>AFAP</h3>
+          </div>
+          <p class="timer-card__subtitle">As Fast As Possible<br>Cron&oacute;metro ascendente con l&iacute;mite</p>
+          <div class="timer-card__config">
+            <div class="config-row">
+              <label for="cfgAfapMin">L&iacute;mite</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgAfapMin" class="config-input" value="10" min="1" max="60" onclick="event.stopPropagation()">
+                <span class="config-unit">min</span>
+              </div>
+            </div>
+          </div>
+          <button class="timer-card__start" onclick="event.stopPropagation(); tool.startTimer('AFAP')">
+            <span class="material-symbols-sharp">play_arrow</span> Iniciar AFAP
+          </button>
+        </div>
+
+        <!-- AMRAP -->
+        <div class="timer-card" data-timer="AMRAP" onclick="tool.selectTimer('AMRAP')">
+          <div class="timer-card__header">
+            <div class="timer-card__icon"><span class="material-symbols-sharp">local_fire_department</span></div>
+            <h3>AMRAP</h3>
+          </div>
+          <p class="timer-card__subtitle">As Many Rounds As Possible<br>Completa tantas rondas como puedas</p>
+          <div class="timer-card__config">
+            <div class="config-row">
+              <label for="cfgAmrapMin">Duraci&oacute;n</label>
+              <div class="config-row__right">
+                <input type="number" id="cfgAmrapMin" class="config-input" value="12" min="1" max="60" onclick="event.stopPropagation()">
+                <span class="config-unit">min</span>
+              </div>
+            </div>
+          </div>
+          <button class="timer-card__start" onclick="event.stopPropagation(); tool.startTimer('AMRAP')">
+            <span class="material-symbols-sharp">play_arrow</span> Iniciar AMRAP
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VIEW: Timer Execution (Prep + Running) -->
+    <div id="viewTimer" class="timer-execution-view hidden-view">
+      <div id="timerTitle" class="timer-display__title"></div>
+      <div id="timerTime" class="timer-display__time" aria-live="polite">00:00</div>
+      <div id="timerInfo" class="timer-display__info"></div>
+    </div>
+
+  </section>
+
+  <!-- Help Modal -->
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Temporizadores de Entrenamiento</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')">
+          <span class="material-symbols-sharp">close</span>
+        </button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>4 temporizadores para distintos formatos de entrenamiento. Elige el modo que mejor se adapte a tu sesi&oacute;n.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">avg_pace</span> EMOM</h4>
+          <p><strong>Every Minute On the Minute.</strong> Cuenta atr&aacute;s por intervalo configurable (60s, 90s, 120s...). Al llegar a 0, suena la alerta y comienza la siguiente ronda. Soporta EM90M, EM2M, etc.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sync</span> Intervalos</h4>
+          <p><strong>Trabajo / Descanso.</strong> Alterna fases de trabajo y descanso durante las rondas configuradas. Perfecto para Tabata, HIIT o cualquier formato de intervalos.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">speed</span> AFAP</h4>
+          <p><strong>As Fast As Possible.</strong> Cron&oacute;metro ascendente que mide cu&aacute;nto tardas en completar un WOD. Tiene un l&iacute;mite de tiempo configurable.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">local_fire_department</span> AMRAP</h4>
+          <p><strong>As Many Rounds As Possible.</strong> Cuenta atr&aacute;s desde la duraci&oacute;n configurada. Completa tantas rondas como puedas antes de que termine el tiempo.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Configura el tiempo de preparaci&oacute;n para tener margen antes de empezar.</li>
+            <li>En grupo: pon la tablet donde todos puedan ver el tiempo.</li>
+            <li>La pantalla no se apagar&aacute; mientras el timer est&eacute; activo.</li>
+            <li>Activa o desactiva el sonido seg&uacute;n d&oacute;nde est&eacute;s.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="timers.js?v=2.0.5"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "name": "KinesisLab — Entrenamiento Cognitivo-Motor",
+  "short_name": "KinesisLab",
+  "description": "Herramientas interactivas de entrenamiento cognitivo-motor para prevención de caídas y neuroplasticidad en adultos.",
+  "start_url": "./index.html",
+  "id": "kinesislab-ecm",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#000806",
+  "theme_color": "#00bec8",
+  "orientation": "any",
+  "categories": ["health", "fitness", "medical"],
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/kinesislab_ui1.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "label": "Dashboard de herramientas cognitivo-motoras"
+    },
+    {
+      "src": "assets/kinesislab_ui2.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "label": "Herramienta de entrenamiento en ejecución"
+    }
+  ]
+}

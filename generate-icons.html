@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Generador de Iconos PWA — KinesisLab</title>
+  <style>
+    body { font-family: system-ui; background: #111827; color: #f9fafb; padding: 2rem; text-align: center; }
+    canvas { border: 1px solid #374151; margin: 1rem; }
+    button { padding: 12px 24px; background: #00bec8; color: #111827; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; margin: 0.5rem; font-weight: 700; }
+    button:hover { background: #088b96; }
+    .row { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin: 2rem 0; }
+    h1 { color: #00bec8; }
+    p { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <h1>Generador de Iconos PWA</h1>
+  <p>Haz clic en cada boton para descargar el icono correspondiente.</p>
+
+  <div class="row">
+    <div>
+      <h3>192x192</h3>
+      <canvas id="c192" width="192" height="192"></canvas><br>
+      <button onclick="download('c192','icon-192.png')">Descargar 192</button>
+    </div>
+    <div>
+      <h3>512x512</h3>
+      <canvas id="c512" width="512" height="512"></canvas><br>
+      <button onclick="download('c512','icon-512.png')">Descargar 512</button>
+    </div>
+    <div>
+      <h3>180x180 (Apple)</h3>
+      <canvas id="c180" width="180" height="180"></canvas><br>
+      <button onclick="download('c180','apple-touch-icon.png')">Descargar Apple</button>
+    </div>
+    <div>
+      <h3>32x32 (Favicon)</h3>
+      <canvas id="c32" width="32" height="32"></canvas><br>
+      <button onclick="download('c32','favicon-32x32.png')">Descargar Favicon</button>
+    </div>
+  </div>
+
+  <button onclick="downloadAll()" style="background:#e11d48;color:white;font-size:1.1rem;padding:16px 32px;">Descargar TODOS</button>
+
+  <script>
+    function drawIcon(ctx, s) {
+      const f = s / 512;
+      // Background
+      ctx.fillStyle = '#111827';
+      roundRect(ctx, 0, 0, s, s, 96 * f);
+      ctx.fill();
+      // Circle
+      ctx.strokeStyle = '#00bec8';
+      ctx.lineWidth = 28 * f;
+      ctx.beginPath();
+      ctx.arc(256 * f, 220 * f, 120 * f, 0, Math.PI * 2);
+      ctx.stroke();
+      // Minute hand
+      ctx.strokeStyle = '#00bec8';
+      ctx.lineWidth = 20 * f;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(256 * f, 220 * f);
+      ctx.lineTo(256 * f, 140 * f);
+      ctx.stroke();
+      // Hour hand
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 16 * f;
+      ctx.beginPath();
+      ctx.moveTo(256 * f, 220 * f);
+      ctx.lineTo(316 * f, 250 * f);
+      ctx.stroke();
+      // Center dot
+      ctx.fillStyle = '#00bec8';
+      ctx.beginPath();
+      ctx.arc(256 * f, 220 * f, 14 * f, 0, Math.PI * 2);
+      ctx.fill();
+      // Body (trapezoid)
+      ctx.fillStyle = 'rgba(0,190,200,0.9)';
+      ctx.beginPath();
+      ctx.moveTo(180 * f, 370 * f);
+      ctx.lineTo(332 * f, 370 * f);
+      ctx.lineTo(312 * f, 430 * f);
+      ctx.lineTo(200 * f, 430 * f);
+      ctx.closePath();
+      ctx.fill();
+      // Base
+      ctx.fillStyle = 'rgba(0,190,200,0.6)';
+      roundRect(ctx, 220 * f, 430 * f, 72 * f, 16 * f, 8 * f);
+      ctx.fill();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function download(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadAll() {
+      download('c192', 'icon-192.png');
+      setTimeout(() => download('c512', 'icon-512.png'), 200);
+      setTimeout(() => download('c180', 'apple-touch-icon.png'), 400);
+      setTimeout(() => download('c32', 'favicon-32x32.png'), 600);
+    }
+
+    // Render all
+    ['c192', 'c512', 'c180', 'c32'].forEach(id => {
+      const canvas = document.getElementById(id);
+      const ctx = canvas.getContext('2d');
+      drawIcon(ctx, canvas.width);
+    });
+  </script>
+</body>
+</html>

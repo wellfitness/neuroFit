@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Se&ntilde;ales Reactivas — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .reactive-action {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 14vw, 5rem);
+      line-height: 1.05;
+      letter-spacing: 6px;
+      color: white;
+      text-shadow: 2px 4px 8px rgba(0,0,0,0.6);
+      transition: opacity 300ms ease;
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: calc(100% - var(--space-4));
+      padding: 0 var(--space-2);
+      text-align: center;
+      word-break: normal;
+      overflow-wrap: normal;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .reactive-signal {
+      display: none;
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      align-items: center;
+      justify-content: center;
+    }
+    .legend-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: var(--space-2);
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      max-width: 320px;
+      position: absolute;
+      bottom: var(--space-2);
+      left: var(--space-2);
+      z-index: 2;
+    }
+    @media (max-width: 480px) {
+      .reactive-action {
+        font-size: clamp(1.75rem, 11vw, 3.5rem);
+        letter-spacing: 0.03em;
+      }
+      .legend-panel {
+        max-width: 240px;
+        padding: var(--space-1);
+        gap: 4px;
+      }
+      .legend-action {
+        width: 96px;
+        font-size: 0.75rem;
+        padding: 4px 6px;
+      }
+      .legend-signal {
+        font-size: 0.75rem;
+        min-width: 65px;
+      }
+      .stats-bar {
+        max-width: 100px;
+        text-align: center;
+      }
+      .stats-bar .stat-value {
+        font-size: 1rem;
+      }
+      .stats-bar .stat-label {
+        font-size: 0.6rem;
+      }
+      .legend-panel {
+        max-width: 220px;
+      }
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+    .legend-signal {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      min-width: 80px;
+      text-align: right;
+    }
+    .legend-arrow {
+      color: var(--gris-500);
+      font-size: 1.1rem;
+    }
+    .legend-action {
+      background: var(--gris-800);
+      border: 1px solid var(--gris-600);
+      border-radius: 6px;
+      color: var(--tulip-tree-400);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      width: 132px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .legend-action:focus {
+      border-color: var(--turquesa-400);
+      outline: none;
+    }
+    .stats-bar {
+      display: flex; flex-direction: column; gap: var(--space-2); align-items: center;
+      padding: var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      position: absolute; bottom: var(--space-2); right: var(--space-2);
+      z-index: 2;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; }
+
+    @media (min-width: 1280px) {
+      .reactive-action { font-size: clamp(5rem, 9vw, 7rem); letter-spacing: 8px; }
+      .legend-panel { max-width: 400px; padding: var(--space-3); gap: 12px; }
+      .legend-signal { font-size: 1.1rem; min-width: 110px; }
+      .legend-action { font-size: 1.05rem; width: 180px; padding: 8px 12px; }
+      .legend-arrow { font-size: 1.4rem; }
+      .stat-value { font-size: 2.2rem; }
+      .stat-label { font-size: 0.95rem; }
+      .stats-bar { padding: var(--space-3); }
+      .stimulus-instruction { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Se&ntilde;ales Reactivas</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">Lenta (4s)</option>
+          <option value="3000" selected>Media (3s)</option>
+          <option value="2000">R&aacute;pida (2s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="position: relative;">
+      <div id="reactiveBg" style="position: absolute; top:0; left:0; right:0; bottom:0; background: var(--gris-900); z-index: 0; transition: background 150ms;"></div>
+      <p id="reactiveIntro" class="stimulus-instruction" style="position: relative; z-index: 1; flex-shrink: 0;">Configura las acciones<br>Pulsa INICIAR</p>
+      <div id="reactiveSignal" class="reactive-signal"></div>
+      <div id="reactiveAction" class="reactive-action" style="opacity: 0;"></div>
+      <div id="reactiveLegend" class="legend-panel">
+        <div class="legend-item"><span class="legend-signal" style="color:#ffffff;">AGUDO</span><span class="legend-arrow">&rarr;</span><input name="action-agudo" class="legend-action" value="SALTO" onchange="tool.updateAction(0, this.value)" maxlength="20"></div>
+        <div class="legend-item"><span class="legend-signal" style="color:#ffffff;">GRAVE</span><span class="legend-arrow">&rarr;</span><input name="action-grave" class="legend-action" value="ABAJO" onchange="tool.updateAction(1, this.value)" maxlength="20"></div>
+        <div class="legend-item"><span class="legend-signal" style="color:#18f8f6;">AZUL</span><span class="legend-arrow">&rarr;</span><input name="action-azul" class="legend-action" value="DERECHA" onchange="tool.updateAction(2, this.value)" maxlength="20"></div>
+        <div class="legend-item"><span class="legend-signal" style="color:#e11d48;">ROJO</span><span class="legend-arrow">&rarr;</span><input name="action-rojo" class="legend-action" value="IZQUIERDA" onchange="tool.updateAction(3, this.value)" maxlength="20"></div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+        <div class="stat-item"><span id="statPhase" class="stat-value" style="color: var(--tulip-tree-400); font-size: 0.9rem;">---</span><span class="stat-label">Fase</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Se&ntilde;ales Reactivas</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>agilidad multimodal</strong>. Reacciona a se&ntilde;ales de sonido y de color haciendo el movimiento correcto. Entrena tu capacidad de respuesta a est&iacute;mulos que llegan por distintos canales (ojos y o&iacute;dos).</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Hay 4 se&ntilde;ales: 2 sonidos (agudo y grave) + 2 colores (turquesa y dorado). Cada una tiene un movimiento asignado que puedes personalizar.</li>
+            <li>Pulsa <strong>INICIAR</strong>. Las primeras rondas te muestran qu&eacute; hacer como ayuda.</li>
+            <li>Cuando hayas visto cada se&ntilde;al al menos un par de veces, las instrucciones desaparecen y tendr&aacute;s que recordarlas.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Mueve el cuerpo entre se&ntilde;ales &mdash; no te quedes quieto esperando.</li>
+            <li>Cambia los movimientos entre series para a&ntilde;adir dificultad.</li>
+            <li>Si no recuerdas una acci&oacute;n, mira la leyenda abajo a la izquierda.</li>
+            <li>Son 4 asociaciones &mdash; es normal necesitar pr&aacute;ctica, no te frustres.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar reacci&oacute;n a est&iacute;mulos visuales y auditivos a la vez.</li>
+            <li>En deportes de combate o equipo (reaccionar a lo que ves y oyes).</li>
+            <li>En grupo: todos reaccionan a las mismas se&ntilde;ales.</li>
+            <li>Para prevenci&oacute;n de ca&iacute;das: reaccionar a est&iacute;mulos inesperados.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="reactive.js?v=2.0.6"></script>
+</body>
+</html>

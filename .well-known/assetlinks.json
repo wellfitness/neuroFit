@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "kinesislab.movimientofuncional.app",
+      "sha256_cert_fingerprints": [
+        "7C:A8:A8:D5:26:B4:A2:2A:E8:BC:78:91:71:6E:E1:46:58:84:58:86:39:E7:C3:AC:C0:8E:ED:9E:29:88:23:1B"
+      ]
+    }
+  }
+]

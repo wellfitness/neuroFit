@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Memoria Visual — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .memoria-grid {
+      display: grid;
+      gap: 8px;
+      width: 90vw;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) {
+      .memoria-grid { width: 80vw; max-width: 700px; gap: 12px; }
+    }
+    .memoria-card {
+      aspect-ratio: 1;
+      perspective: 600px;
+      cursor: pointer;
+      min-height: 44px;
+    }
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.4s ease;
+      transform-style: preserve-3d;
+    }
+    .memoria-card.flipped .card-inner,
+    .memoria-card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-front {
+      background: var(--gris-700);
+      border: 2px solid var(--gris-600);
+    }
+    .card-back {
+      background: var(--gris-800);
+      border: 2px solid var(--gris-500);
+      transform: rotateY(180deg);
+    }
+    .memoria-card.matched .card-back {
+      border-color: var(--turquesa-400);
+      background: rgba(0, 190, 200, 0.1);
+    }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: auto; flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+
+    @media (min-width: 1280px) {
+      .memoria-grid { max-width: min(700px, 60vh); }
+      .stat-value { font-size: 2rem; }
+      .stat-label { font-size: 0.9rem; }
+      .stimulus-instruction { font-size: 1.6rem; }
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-content {
+      background: var(--gris-800);
+      border: 2px solid var(--turquesa-400);
+      border-radius: 16px;
+      padding: var(--space-4);
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    }
+    .modal-content h3 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--turquesa-400);
+      margin-bottom: var(--space-2);
+    }
+    .modal-stat {
+      font-size: 1.1rem;
+      color: var(--gris-200);
+      margin: 8px 0;
+    }
+    .modal-stat strong {
+      color: white;
+      font-family: var(--font-display);
+    }
+    .modal-btn {
+      margin-top: var(--space-3);
+      padding: 12px 32px;
+      border-radius: 10px;
+      border: 2px solid var(--turquesa-400);
+      background: transparent;
+      color: var(--turquesa-400);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      cursor: pointer;
+      letter-spacing: 1px;
+      min-height: 48px;
+    }
+    .modal-btn:active {
+      background: var(--turquesa-600);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Memoria Visual</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Nivel:</span>
+        <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="easy" selected>F&aacute;cil (3 parejas)</option>
+          <option value="medium">Medio (6 parejas)</option>
+          <option value="hard">Dif&iacute;cil (10 parejas)</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="tool.start()">
+        <span class="material-symbols-sharp">play_arrow</span><span>COMENZAR</span>
+      </button>
+      <button class="btn-secondary" onclick="tool.reset()">
+        <span class="material-symbols-sharp">refresh</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <p class="stimulus-instruction">Encuentra todas las parejas<br>Voltea 2 cartas por turno</p>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
+        <div class="memoria-grid" id="memoriaGrid"></div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statTime" class="stat-value" style="color: var(--tulip-tree-400);">00:00</span><span class="stat-label">Tiempo</span></div>
+        <div class="stat-item"><span id="statAttempts" class="stat-value" style="color: white;">0</span><span class="stat-label">Intentos</span></div>
+        <div class="stat-item"><span id="statPairs" class="stat-value" style="color: var(--turquesa-400);">0/3</span><span class="stat-label">Parejas</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="memoriaModal">
+    <div class="modal-content">
+      <h3>Completado</h3>
+      <p class="modal-stat">Intentos: <strong id="modalAttempts">0</strong></p>
+      <p class="modal-stat">Tiempo: <strong id="modalTime">00:00</strong></p>
+      <button class="modal-btn" onclick="tool.reset()">JUGAR DE NUEVO</button>
+    </div>
+  </div>
+
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Memoria Visual</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>El cl&aacute;sico juego de <strong>emparejar cartas ocultas</strong>. Voltea dos cartas por turno e intenta encontrar todas las parejas. Entrena tu memoria espacial y tu atenci&oacute;n.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige nivel: f&aacute;cil (3 parejas), medio (6) o dif&iacute;cil (10).</li>
+            <li>Pulsa <strong>COMENZAR</strong>. Las cartas se barajan.</li>
+            <li>Toca una carta para voltearla. Luego toca otra.</li>
+            <li>Si coinciden, quedan descubiertas. Si no, se ocultan de nuevo.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Intenta recordar d&oacute;nde estaba cada carta que ya viste.</li>
+            <li>A&ntilde;ade una regla motora: &ldquo;haz 3 sentadillas entre cada turno&rdquo;.</li>
+            <li>Intenta bajar el n&uacute;mero de intentos en cada partida.</li>
+            <li>10 parejas es un reto real &mdash; no te frustres si tardas.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Como pausa activa entre series de fuerza.</li>
+            <li>En parejas o grupo: cada persona voltea una carta por turno.</li>
+            <li>Para entrenar la memoria de forma divertida (cualquier edad).</li>
+            <li>Como vuelta a la calma con componente l&uacute;dico.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="memoria.js?v=2.0.5"></script>
+</body>
+</html>

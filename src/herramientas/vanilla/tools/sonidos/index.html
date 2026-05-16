@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <link rel="manifest" href="../../../../../manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../../assets/favicon-32x32.png?v=5">
+  <link rel="apple-touch-icon" href="../../../../../assets/apple-touch-icon.png?v=5">
+  <title>Sonidos — KinesisLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=ABeeZee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .sonidos-action {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 14vw, 4.5rem);
+      line-height: 1.05;
+      letter-spacing: 4px;
+      color: var(--tulip-tree-400);
+      margin-top: var(--space-2);
+      transition: opacity 400ms ease;
+      min-height: 3.5rem;
+      max-width: 100%;
+      padding: 0 var(--space-2);
+      text-align: center;
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+    .stimulus-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-2);
+    }
+    .sonidos-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+    }
+    .legend-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+      padding: var(--space-2);
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+    .legend-sound {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--gris-300);
+      min-width: 60px;
+      text-align: right;
+    }
+    .legend-arrow {
+      color: var(--gris-500);
+      font-size: 1.1rem;
+    }
+    .legend-action {
+      background: var(--gris-800);
+      border: 1px solid var(--gris-600);
+      border-radius: 6px;
+      color: var(--tulip-tree-400);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      padding: 4px 8px;
+      width: 120px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .legend-action:focus {
+      border-color: var(--turquesa-400);
+      outline: none;
+    }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: var(--space-1); flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+    @media (max-width: 480px) {
+      .sonidos-action { font-size: clamp(1.75rem, 11vw, 3.5rem); letter-spacing: 0.03em; }
+    }
+
+    @media (min-width: 1280px) {
+      #sonidosIcon { font-size: clamp(10rem, 18vmin, 16rem) !important; }
+      .sonidos-action { font-size: clamp(4.5rem, 8vw, 6.5rem); letter-spacing: 6px; }
+      .legend-panel { max-width: 400px; padding: var(--space-3); gap: 12px; }
+      .legend-sound { font-size: 1.1rem; min-width: 100px; }
+      .legend-action { font-size: 1.05rem; width: 170px; padding: 8px 12px; }
+      .legend-arrow { font-size: 1.4rem; }
+      .stat-value { font-size: 2rem; }
+      .stat-label { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Sonidos Audiomotores</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">Lenta 4s</option>
+          <option value="3000" selected>Media 3s</option>
+          <option value="2000">R&aacute;pida 2s</option>
+        </select>
+      </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area">
+      <div class="sonidos-main">
+         <span id="sonidosIcon" class="material-symbols-sharp" style="font-size: clamp(5rem, 15vw, 10rem); color: var(--turquesa-400); transition: transform 0.2s;">graphic_eq</span>
+         <div id="sonidosText" style="font-size: clamp(2rem, 7vw, 4rem); font-weight: 900; text-transform: uppercase; text-align: center; margin-top: 0.25rem;">Escucha</div>
+         <div id="sonidosAction" class="sonidos-action"></div>
+      </div>
+      <div id="sonidosLegend" class="legend-panel">
+         <div class="legend-item"><span class="legend-sound">GRAVE</span><span class="legend-arrow">&rarr;</span><input name="action-grave" class="legend-action" value="SENTADILLA" onchange="tool.updateAction(0, this.value)" maxlength="20"></div>
+         <div class="legend-item"><span class="legend-sound">AGUDO</span><span class="legend-arrow">&rarr;</span><input name="action-agudo" class="legend-action" value="SALTO" onchange="tool.updateAction(1, this.value)" maxlength="20"></div>
+         <div class="legend-item"><span class="legend-sound">MEDIO</span><span class="legend-arrow">&rarr;</span><input name="action-medio" class="legend-action" value="GIRO" onchange="tool.updateAction(2, this.value)" maxlength="20"></div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+         <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+         <div class="stat-item"><span id="statPhase" class="stat-value" style="color: var(--tulip-tree-400); font-size: 0.9rem;">---</span><span class="stat-label">Fase</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Sonidos Audiomotores</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>reacci&oacute;n auditiva</strong>. Escuchas sonidos de distintas frecuencias (grave, agudo, medio) y tienes que hacer el movimiento asociado a cada uno. Entrena tu o&iacute;do y tu velocidad de reacci&oacute;n.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Cada sonido tiene un movimiento asignado. Puedes cambiarlos editando los campos de texto.</li>
+            <li>Pulsa <strong>INICIAR</strong>. Las primeras rondas te muestran qu&eacute; hacer como ayuda.</li>
+            <li>Despu&eacute;s, el texto desaparece y tendr&aacute;s que recordar las asociaciones.</li>
+            <li>Ajusta la cadencia para subir o bajar la dificultad.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Puedes hacer este ejercicio sin mirar la pantalla &mdash; incluso de espaldas.</li>
+            <li>Cambia los movimientos entre series para a&ntilde;adir dificultad extra.</li>
+            <li>Si fallas mucho, baja la cadencia &mdash; no pasa nada.</li>
+            <li>Cierra los ojos para m&aacute;ximo reto &mdash; solo te queda el sonido.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para trabajar doble tarea: haz ejercicio mientras reaccionas al sonido.</li>
+            <li>Si quieres entrenar sin depender de la vista.</li>
+            <li>En deportes donde las se&ntilde;ales auditivas son clave (silbatos, indicaciones).</li>
+            <li>Como vuelta a la calma con reactividad baja.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Ojos cerrados de pie:</strong> sin mirar la pantalla. Solo escucha y reacciona con la acci&oacute;n. Trabaja propiocepci&oacute;n y atenci&oacute;n auditiva pura.</li>
+            <li><strong>Espalda al tablet:</strong> el cliente est&aacute; de espaldas a la pantalla. M&aacute;xima dependencia auditiva en entorno controlado.</li>
+            <li><strong>Sentadilla isom&eacute;trica + sonido:</strong> aguanta abajo. Reacciona al sonido subiendo, saltando o girando seg&uacute;n el tono. Carga muscular + reacci&oacute;n.</li>
+            <li><strong>Trote suave + sonido:</strong> trote continuo en sitio. La reacci&oacute;n al sonido cambia el patr&oacute;n (sentadilla, salto, giro). Cardio + reactividad auditiva.</li>
+            <li><strong>Equilibrio unipodal + sonido:</strong> de pie en una pierna ojos cerrados. Reta vestibular sin ayuda visual + reacci&oacute;n auditiva.</li>
+            <li><strong>Pareja con vendas:</strong> el cliente con los ojos vendados. Reacciona al sonido. Trabaja confianza en otros sentidos y mejora la conciencia corporal.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="sonidos.js?v=2.0.7"></script>
+</body>
+</html>

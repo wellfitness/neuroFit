@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Boxeo Reactivo — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .status-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 40vh;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* === CONFIG BAR: layout stacked (opción B) === */
+    .config-panel__controls--stacked {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      width: 100%;
+    }
+    .config-panel__row {
+      display: flex;
+      flex-direction: row;
+      gap: var(--space-3);
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .config-panel__row .config-panel__slider-group {
+      flex: 1 1 140px;
+      min-width: 0;
+    }
+    .config-panel__row .config-panel__checkbox {
+      flex: 0 0 auto;
+    }
+    .btn-critical--full {
+      width: 100%;
+      min-height: 52px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-critical--full .material-symbols-sharp {
+      font-size: 1.5rem;
+    }
+    /* Forzar visibilidad del texto en móvil (base oculta los labels de btn-critical en <600px) */
+    .exec-toolbar .btn-critical--full > span:not(.material-symbols-sharp) {
+      display: inline !important;
+      font-size: inherit !important;
+    }
+    @media (max-width: 600px) {
+      .config-panel__row { gap: var(--space-2); }
+      .config-panel__row .config-panel__slider-group { flex: 1 1 110px; }
+    }
+
+    .progress-indicator {
+      color: var(--gris-500);
+      font-family: var(--font-display);
+      font-size: clamp(1rem, 2.8vw, 1.3rem);
+      letter-spacing: 1px;
+      margin-bottom: var(--space-3);
+      text-align: center;
+    }
+    .progress-indicator strong {
+      color: var(--gris-300);
+    }
+
+    .current-punch {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 9vw, 5rem);
+      color: white;
+      background: var(--rosa-600);
+      padding: clamp(1rem, 3vw, 2rem) clamp(1.5rem, 5vw, 3rem);
+      border-radius: 20px;
+      text-align: center;
+      line-height: 1.1;
+      box-shadow: 0 0 40px rgba(225, 29, 72, 0.5);
+      max-width: 90vw;
+      word-break: normal;
+      overflow-wrap: normal;
+      animation: punchPulse 450ms ease-out;
+    }
+    @keyframes punchPulse {
+      0% { transform: scale(0.92); }
+      60% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .next-punch {
+      margin-top: var(--space-3);
+      color: var(--gris-400);
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      text-align: center;
+      max-width: 90vw;
+      min-height: 1.5em;
+    }
+    .next-punch .next-label {
+      font-family: var(--font-display);
+      letter-spacing: 1px;
+      color: var(--gris-500);
+      font-size: 0.9em;
+    }
+    .next-punch .next-value {
+      color: var(--gris-200);
+      font-weight: bold;
+    }
+
+    .pulse-text {
+      animation: pulseOpacity 1.5s infinite;
+    }
+    @keyframes pulseOpacity {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body style="background-color: var(--gris-900); color: white;">
+
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 1px;">
+        Boxeo Reactivo
+      </h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button id="btnVolver" class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver">
+          <span class="material-symbols-sharp">arrow_back</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="exec-toolbar config-panel config-panel--rosa" id="configPanel">
+      <div class="config-panel__controls config-panel__controls--stacked">
+        <div class="config-panel__row">
+          <div class="config-panel__slider-group">
+            <label for="punchCount">Golpes: <span id="lblPunch">4</span></label>
+            <input type="range" id="punchCount" min="2" max="20" value="4">
+          </div>
+          <div class="config-panel__slider-group">
+            <label for="speechRate">Voz: <span id="lblSpeech">1.0x</span></label>
+            <input type="range" id="speechRate" min="0.8" max="1.5" step="0.1" value="1.0">
+          </div>
+          <div class="config-panel__checkbox">
+            <input type="checkbox" id="includeDefensive">
+            <label for="includeDefensive">Defensivos</label>
+          </div>
+        </div>
+
+        <button id="btnPlayPause" class="btn-critical btn-critical--full" onclick="tool.handleStartStop()">
+          <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">EMPEZAR</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL DE ENTRENAMIENTO -->
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+
+      <!-- ESTADO: IDLE -->
+      <div id="stateIdle" class="idle-cta">
+        <p class="stimulus-instruction">Ajusta la configuraci&oacute;n<br>Pulsa EMPEZAR</p>
+      </div>
+
+      <!-- ESTADO: PREPARING -->
+      <div id="statePreparing" class="status-panel" style="display: none;">
+        <span class="material-symbols-sharp" style="font-size: 5rem; color: var(--tulip-tree-400); margin-bottom: 1rem;">timer</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(2.5rem, 8vw, 3.5rem); text-align: center;">Prep&aacute;rate...</h2>
+        <p id="lblPrepCombo" style="color: var(--gris-400); font-size: 1.2rem; margin-top: 1rem;">Combinaci&oacute;n #1</p>
+      </div>
+
+      <!-- ESTADO: COMBOS -->
+      <div id="stateCombos" class="status-panel" style="display: none;">
+        <p id="lblProgress" class="progress-indicator">Combinaci&oacute;n <strong>#1</strong> &middot; <strong>1 / 4</strong></p>
+        <div id="currentPunch" class="current-punch">&mdash;</div>
+        <div id="nextPunch" class="next-punch"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Boxeo Reactivo</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">record_voice_over</span> Audio por voz</h4>
+          <p>Esta herramienta usa la <strong>voz del sistema</strong>. Si no oyes nada:</p>
+          <ol>
+            <li>Ve a <strong>Ajustes &rarr; Accesibilidad &rarr; Texto a voz</strong>.</li>
+            <li>Instala o activa un motor en <strong>espa&ntilde;ol</strong> (recomendado: &laquo;Motor de texto a voz de Google&raquo;).</li>
+            <li>Sube el volumen de medios.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un generador de <strong>combinaciones de boxeo</strong> con indicaciones por voz. Te va diciendo golpes (directo, cruzado, gancho, crochet) y opcionalmente esquivas y bloqueos. Solo tienes que escuchar y golpear.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Configura cu&aacute;ntos golpes por combinaci&oacute;n y la velocidad de voz.</li>
+            <li>Activa &ldquo;movimientos defensivos&rdquo; si quieres esquivas y bloqueos.</li>
+            <li>Pulsa <strong>EMPEZAR</strong>. La voz va anunciando cada golpe.</li>
+            <li>Ejecuta cada golpe al saco o al aire seg&uacute;n lo escuchas.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza con 3-4 golpes por combo para aprender los nombres.</li>
+            <li>Con defensivos: mezcla esquivas entre golpes &mdash; mucho m&aacute;s realista.</li>
+            <li>Sube a 10-20 golpes por combo para un freestyle largo.</li>
+            <li>En parejas: uno golpea, el otro sujeta manoplas.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>En sesiones de boxeo fitness o cardio combat.</li>
+            <li>Para trabajar coordinaci&oacute;n ojo-mano bajo estr&eacute;s.</li>
+            <li>Como descarga emocional: golpeo libre con estructura.</li>
+            <li>Como calentamiento intenso con componente cognitivo.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
+  <script src="boxing.js?v=2.0.5"></script>
+</body>
+</html>

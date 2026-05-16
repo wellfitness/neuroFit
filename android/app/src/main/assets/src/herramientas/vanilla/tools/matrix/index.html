@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Matriz Visoespacial — KinesisLab</title>
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <style>
+    .matrix-grid {
+      display: grid;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 12px;
+    }
+    .matrix-cell {
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.1);
+      transition: all 0.15s;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: white;
+      min-height: 44px;
+      min-width: 44px;
+      aspect-ratio: 1;
+    }
+    .matrix-cell.active {
+      background: var(--rosa-400);
+      box-shadow: 0 0 20px var(--rosa-400);
+    }
+    .matrix-cell.selected {
+      background: var(--turquesa-400);
+      box-shadow: 0 0 15px var(--turquesa-400);
+    }
+    .matrix-cell.wrong {
+      background: var(--tulip-tree-400);
+      box-shadow: 0 0 15px var(--tulip-tree-400);
+    }
+    .ordered-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: var(--space-2);
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+    }
+    .ordered-toggle label {
+      font-size: 0.85rem;
+      color: var(--gris-300);
+      cursor: pointer;
+      user-select: none;
+    }
+    .ordered-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--turquesa-400);
+      cursor: pointer;
+    }
+    .stats-bar {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
+      padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
+      margin-top: auto; flex-shrink: 0; width: 100%;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="view-execution">
+    <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
+      <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Matriz Visoespacial</h2>
+      <div class="exec-header-actions">
+        <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
+        <button class="btn-secondary" onclick="window.location.href='../../dashboard.html'" aria-label="Volver"><span class="material-symbols-sharp">arrow_back</span></button>
+      </div>
+    </header>
+    <div class="exec-toolbar">
+      <div class="control-group">
+        <span class="control-label">Cuadr&iacute;cula:</span>
+        <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
+          <option value="3" selected>3&times;3</option>
+          <option value="4">4&times;4</option>
+          <option value="5">5&times;5</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Cadencia:</span>
+        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="8000">Lenta (8s)</option>
+          <option value="6000" selected>Media (6s)</option>
+          <option value="4000">R&aacute;pida (4s)</option>
+        </select>
+      </div>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+    </div>
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
+      <p class="stimulus-instruction" id="matrixInstruction">Memoriza el patr&oacute;n</p>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
+        <div class="matrix-grid" id="matrixGrid"></div>
+        <div class="ordered-toggle">
+          <input type="checkbox" id="orderedCheck" onchange="tool.toggleOrdered(this.checked)">
+          <label for="orderedCheck">Modo orden (avanzado)</label>
+        </div>
+      </div>
+      <div class="stats-bar" aria-live="polite" role="status">
+        <div class="stat-item"><span id="statHits" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Aciertos</span></div>
+        <div class="stat-item"><span id="statMisses" class="stat-value" style="color: var(--rosa-400);">0</span><span class="stat-label">Errores</span></div>
+        <div class="stat-item"><span id="statTotal" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <h3>Matriz Visoespacial</h3>
+        <button class="info-modal-close" onclick="document.getElementById('infoModal').classList.remove('active')"><span class="material-symbols-sharp">close</span></button>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
+          <p>Un ejercicio de <strong>memoria visoespacial</strong>. Se iluminan celdas en una cuadr&iacute;cula y tienes que recordar cu&aacute;les eran. Entrena tu capacidad de retener posiciones en el espacio.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">play_circle</span> C&oacute;mo funciona</h4>
+          <ol>
+            <li>Elige el tama&ntilde;o de la cuadr&iacute;cula (3x3, 4x4 o 5x5).</li>
+            <li>Pulsa <strong>INICIAR</strong>. Se iluminan varias celdas un momento.</li>
+            <li>Cuando te pida respuesta, toca las celdas que recuerdes.</li>
+            <li>Con &ldquo;Modo orden&rdquo; activado, tienes que tocarlas en el mismo orden en que aparecieron.</li>
+          </ol>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
+          <ul>
+            <li>Empieza en 3x3 sin modo orden para coger el ritmo.</li>
+            <li>El modo orden es mucho m&aacute;s dif&iacute;cil &mdash; pru&eacute;balo cuando domines el b&aacute;sico.</li>
+            <li>Combina con equilibrio o sentadillas durante la memorizaci&oacute;n.</li>
+            <li>5x5 con modo orden es un reto extremo &mdash; no te frustres.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
+          <ul>
+            <li>Para entrenar la memoria espacial (posiciones, ubicaciones).</li>
+            <li>Como doble tarea con carga espacial durante ejercicio f&iacute;sico.</li>
+            <li>En rehabilitaci&oacute;n cognitiva.</li>
+            <li>Para mantener la mente activa (cualquier edad).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
+  <script src="matrix.js?v=2.0.5"></script>
+</body>
+</html>
