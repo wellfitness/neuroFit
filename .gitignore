@@ -4,6 +4,13 @@
 .env*
 deploy.sh
 
+# Node / test tooling
+node_modules/
+coverage/
+test-results/
+playwright-report/
+/playwright/.cache/
+
 # System files
 .DS_Store
 Thumbs.db
