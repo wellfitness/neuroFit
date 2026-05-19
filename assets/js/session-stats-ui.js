@@ -115,6 +115,10 @@
             <span class="material-symbols-sharp">download</span>
             <span>Descargar copia de seguridad</span>
           </button>
+          <button type="button" id="btnShareBackup" style="display:none">
+            <span class="material-symbols-sharp">share</span>
+            <span>Compartir copia (WhatsApp, Drive...)</span>
+          </button>
           <button type="button" id="btnImportBackup">
             <span class="material-symbols-sharp">upload</span>
             <span>Importar copia de seguridad</span>
@@ -142,6 +146,65 @@
       document.getElementById('fileImportBackup').click();
     });
     document.getElementById('fileImportBackup').addEventListener('change', handleImport);
+
+    // Mostrar botón Compartir solo si el navegador soporta Web Share API con
+    // archivos (móviles modernos sí, escritorio normalmente no). En PC el
+    // usuario tiene el botón Descargar y desde ahí comparte manualmente.
+    const shareBtn = document.getElementById('btnShareBackup');
+    if (shareBtn && canShareFiles()) {
+      shareBtn.style.display = '';
+      shareBtn.addEventListener('click', shareBackup);
+    }
+  }
+
+  // ---------- Compartir vía Web Share API (móvil) ----------
+  function canShareFiles() {
+    if (typeof navigator === 'undefined') return false;
+    if (typeof navigator.share !== 'function') return false;
+    if (typeof navigator.canShare !== 'function') return false;
+    try {
+      const probe = new File(['{}'], 'probe.json', { type: 'application/json' });
+      return navigator.canShare({ files: [probe] });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async function shareBackup() {
+    if (!SessionStats || !SessionStats.backup) {
+      showMsg('err', 'SessionStats no disponible');
+      return;
+    }
+    const data = SessionStats.backup.build();
+    const summary = SessionStats.backup.summary(data);
+    const ts = new Date().toISOString().slice(0, 10);
+    const filename = `kineslab-backup-${ts}.json`;
+    const json = JSON.stringify(data, null, 2);
+
+    let file;
+    try {
+      file = new File([json], filename, { type: 'application/json' });
+    } catch (e) {
+      showMsg('err', 'Tu navegador no permite compartir archivos. Usa "Descargar copia".');
+      return;
+    }
+
+    try {
+      const nUsers = summary.ok ? summary.users.length : 0;
+      const nSes = summary.ok ? summary.sessionsTotal : 0;
+      const usersTxt = nUsers === 1 ? '1 usuario' : `${nUsers} usuarios`;
+      const sesTxt = nSes === 1 ? '1 sesión' : `${nSes} sesiones`;
+      await navigator.share({
+        files: [file],
+        title: 'Copia de seguridad KinesisLab',
+        text: `Copia de KinesisLab — ${summary.ok ? usersTxt + ', ' + sesTxt : 'datos de entrenamiento'}.`
+      });
+      showMsg('ok', 'Copia compartida');
+    } catch (err) {
+      // AbortError = el usuario canceló el menú — silencioso, no es error.
+      if (err && err.name === 'AbortError') return;
+      showMsg('err', 'No se pudo compartir: ' + (err && err.message ? err.message : 'error desconocido'));
+    }
   }
 
   function openUserSelector() {
