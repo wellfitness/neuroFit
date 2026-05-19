@@ -21,6 +21,37 @@
       font-size: clamp(2rem, 10vw, 8rem);
       line-height: 1.15;
     }
+    .fluency-tap-area {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 100ms ease;
+      padding: var(--space-2);
+    }
+    .fluency-tap-area.tap-flash {
+      background-color: rgba(0, 190, 200, 0.15);
+    }
+    .fluency-counter {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      color: var(--turquesa-400);
+      margin-top: var(--space-2);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .fluency-hint {
+      color: var(--gris-500);
+      font-size: 0.85rem;
+      margin-top: 8px;
+      text-align: center;
+    }
     .stats-bar {
       display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
       padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
@@ -57,14 +88,21 @@
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
       </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
     </div>
-    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
-      <p class="stimulus-instruction">Di palabras relacionadas con:</p>
-      <div style="flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 0;">
+    <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column; padding: 0;">
+      <p class="stimulus-instruction">Di palabras de la categor&iacute;a · Toca por cada palabra</p>
+      <div id="fluencyTapArea" class="fluency-tap-area" onclick="tool.handleTap()">
         <div id="fluencyText" class="text-huge">---</div>
+        <div id="fluencyCounter" class="fluency-counter">0 palabras</div>
+        <div class="fluency-hint">Toca cualquier punto al decir cada palabra</div>
       </div>
       <div class="stats-bar" aria-live="polite" role="status">
-        <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Rondas</span></div>
+        <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Categor&iacute;as</span></div>
+        <div class="stat-item"><span id="statWords" class="stat-value" style="color: var(--turquesa-400);">0</span><span class="stat-label">Palabras</span></div>
+        <div class="stat-item"><span id="statCurrent" class="stat-value" style="color: var(--tulip-tree-400);">0</span><span class="stat-label">Categor&iacute;a actual</span></div>
       </div>
     </div>
   </section>
@@ -121,7 +159,9 @@
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="fluency.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="fluency.js?v=2.0.7"></script>
 </body>
 </html>

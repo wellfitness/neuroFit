@@ -126,10 +126,6 @@ class SimonTool {
     }
   }
 
-  changeSpeed(ms) {
-    this.currentSpeed = parseInt(ms, 10);
-  }
-
   resetStats() {
     this.sequence = [];
     this.hits = 0;

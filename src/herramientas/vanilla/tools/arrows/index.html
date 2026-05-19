@@ -32,6 +32,13 @@
       </div>
     </header>
     <div class="exec-toolbar">
+      <div class="control-group" data-prefix="Cong">
+        <select aria-label="Ratio congruencia" name="ratio" class="speed-select" onchange="tool.changeRatio(this.value)">
+          <option value="0.5" selected>50/50</option>
+          <option value="0.75">75% cong</option>
+          <option value="0.25">25% cong</option>
+        </select>
+      </div>
       <div id="cadenceGroup" class="control-group" data-prefix="Tiempo">
         <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
           <option value="4000">4s</option>
@@ -120,8 +127,8 @@
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
-  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
   <script src="arrows.js?v=2.0.7"></script>
 </body>
 </html>

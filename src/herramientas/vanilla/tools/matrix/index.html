@@ -47,6 +47,21 @@
       background: var(--tulip-tree-400);
       box-shadow: 0 0 15px var(--tulip-tree-400);
     }
+    .matrix-cell.suppress {
+      background: var(--rosa-600);
+      box-shadow: 0 0 15px var(--rosa-400);
+      border-color: var(--rosa-700);
+      position: relative;
+    }
+    .matrix-cell.suppress::after {
+      content: '×';
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: bold;
+      position: absolute;
+      pointer-events: none;
+    }
     .ordered-toggle {
       display: flex;
       align-items: center;
@@ -126,6 +141,8 @@
             <option value="forward" selected>&#9654; Adelante</option>
             <option value="reverse">&#9664; Atr&aacute;s</option>
           </select>
+          <input type="checkbox" id="suppressCheck" onchange="tool.toggleSuppress(this.checked)" style="margin-left:12px;">
+          <label for="suppressCheck" title="Una celda roja aparece como trampa: memorízala pero NO la pulses">Trampa</label>
         </div>
       </div>
       <div class="stats-bar" aria-live="polite" role="status">
@@ -194,8 +211,8 @@
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/session-stats.js?v=2.0.7"></script>
-  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
   <script src="matrix.js?v=2.0.7"></script>
 </body>
 </html>

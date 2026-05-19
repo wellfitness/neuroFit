@@ -1145,6 +1145,25 @@ h1 {
   .results-kpi span { font-size: 0.6rem; }
 }
 
+.results-derived {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin: -4px 0 var(--space-2);
+  padding: 8px;
+  font-size: 0.85rem;
+  color: var(--gris-300);
+  background: transparent;
+  border-radius: 6px;
+}
+.results-derived strong {
+  color: var(--turquesa-400);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-right: 2px;
+}
+
 .evolution-block {
   background: var(--gris-900);
   border-radius: 8px;

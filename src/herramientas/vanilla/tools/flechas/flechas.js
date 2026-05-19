@@ -92,7 +92,17 @@ class FlechasTool {
     this.sessionActive = false;
     this.stopEngine();
     let result = null;
-    if (window.SessionStats) result = SessionStats.session.end();
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      // Si nivel mezcla, mostrar distribución real de condiciones
+      if (this.level === 'mezcla' && result && result.summary) {
+        const trials = (result.summary && result.summary.config) ? null : null;
+        // No tenemos acceso directo a trials desde aquí, pero podemos usar this.totalTrials
+        // y suponer la distribución teórica 60/20/20.
+        customFeedback = `Mezcla 60/20/20 · ${result.summary.total} estímulos repartidos entre congruente / incongruente / neutral`;
+      }
+    }
     this.setPlayButton('play_arrow', 'INICIAR');
     this.setFinalizeVisible(false);
     this.totalTrials = 0;
@@ -100,7 +110,7 @@ class FlechasTool {
     document.getElementById('arrowIcon').style.color = this.getSpeedColor();
     document.getElementById('conflictText').textContent = '';
     if (result && result.summary && result.summary.total >= 5 && window.SessionStatsUI) {
-      SessionStatsUI.showResults(result.summary, result.comparison);
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
     }
   }
 
@@ -153,6 +163,9 @@ class FlechasTool {
     if (val === 'conflicto') {
       conflictEl.style.display = '';
       instructionEl.textContent = 'Sigue la PALABRA, ignora la flecha';
+    } else if (val === 'mezcla') {
+      conflictEl.style.display = 'none';
+      instructionEl.innerHTML = 'Si aparece palabra: sigue la <strong style="color: var(--rosa-400)">PALABRA</strong>. Si no: sigue la flecha';
     } else {
       conflictEl.style.display = 'none';
       instructionEl.textContent = 'Mueve tu cuerpo en la dirección de la flecha';
@@ -195,6 +208,14 @@ class FlechasTool {
     return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
+  // En nivel "mezcla", selecciona condición según ratio 60/20/20.
+  pickMixedCondition() {
+    const r = Math.random();
+    if (r < 0.6) return 'congruent';   // 60% — flecha + palabra coinciden
+    if (r < 0.8) return 'incongruent'; // 20% — flecha + palabra opuestas
+    return 'neutral';                  // 20% — solo flecha (sin palabra)
+  }
+
   showArrow() {
     const el = document.getElementById('arrowIcon');
     const conflictEl = document.getElementById('conflictText');
@@ -204,19 +225,43 @@ class FlechasTool {
     el.classList.add('flash');
 
     let targetLabel = null;  // qué decir en voz si modo voz
+    let condition = null;    // para logging en mezcla
 
     if (this.level === 'conflicto') {
       const arrow = this.cardinalDirections[Math.floor(Math.random() * this.cardinalDirections.length)];
       const conflict = this.getConflictDirection(arrow.arrow);
       el.textContent = arrow.arrow;
+      conflictEl.style.display = '';
       conflictEl.textContent = conflict.label;
       // En conflicto se sigue la palabra → la voz dice la palabra
       targetLabel = conflict.label.toLowerCase();
+      condition = 'incongruent';
+    } else if (this.level === 'mezcla') {
+      condition = this.pickMixedCondition();
+      const arrow = this.cardinalDirections[Math.floor(Math.random() * this.cardinalDirections.length)];
+      el.textContent = arrow.arrow;
+      if (condition === 'neutral') {
+        conflictEl.style.display = 'none';
+        conflictEl.textContent = '';
+        targetLabel = arrow.label.toLowerCase();
+      } else if (condition === 'congruent') {
+        conflictEl.style.display = '';
+        conflictEl.textContent = arrow.label;
+        targetLabel = arrow.label.toLowerCase();
+      } else {
+        // incongruent: palabra distinta a flecha. Cliente sigue la palabra.
+        const conflict = this.getConflictDirection(arrow.arrow);
+        conflictEl.style.display = '';
+        conflictEl.textContent = conflict.label;
+        targetLabel = conflict.label.toLowerCase();
+      }
     } else {
       const arrow = this.arrows[Math.floor(Math.random() * this.arrows.length)];
       el.textContent = arrow;
+      conflictEl.style.display = 'none';
       conflictEl.textContent = '';
       targetLabel = this.directionVoiceLabels[arrow] || arrow;
+      condition = 'normal';
     }
 
     el.style.color = this.getSpeedColor();
@@ -229,7 +274,7 @@ class FlechasTool {
 
     this.totalTrials++;
     if (window.SessionStats && this.sessionActive) {
-      SessionStats.session.recordTrial({ stimulus: targetLabel });
+      SessionStats.session.recordTrial({ stimulus: targetLabel, condition });
     }
   }
 

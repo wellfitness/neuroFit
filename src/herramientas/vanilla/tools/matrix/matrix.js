@@ -7,6 +7,7 @@ class MatrixTool {
     };
     this.currentLevel = '3';
     this.orderedMode = false;
+    this.suppressMode = false;
     this.direction = 'forward';  // 'forward' | 'reverse'
     this.scheduler = null;
     this.pendingRestart = null;
@@ -15,6 +16,7 @@ class MatrixTool {
     this.currentSpeed = 6000;
     this.hideTimeout = null;
     this.activeCells = [];
+    this.suppressCell = null;   // celda trampa cuando suppressMode = true
     this.playerSelection = [];
     this.phase = 'idle';
     this.hits = 0;
@@ -77,10 +79,20 @@ class MatrixTool {
   }
 
   baseInstruction() {
-    if (!this.orderedMode) return 'Memoriza el patrón';
-    return this.direction === 'reverse'
+    const suffix = this.suppressMode ? ' · ignora la TRAMPA roja' : '';
+    if (!this.orderedMode) return 'Memoriza el patrón' + suffix;
+    return (this.direction === 'reverse'
       ? 'Memoriza · responderás AL REVÉS'
-      : 'Memoriza el patrón Y el orden';
+      : 'Memoriza el patrón Y el orden') + suffix;
+  }
+
+  toggleSuppress(checked) {
+    this.suppressMode = checked;
+    this.abortSessionIfRunning();
+    this.resetStats();
+    this.clearMatrix();
+    document.getElementById('matrixInstruction').textContent = this.baseInstruction();
+    document.getElementById('matrixInstruction').style.color = '';
   }
 
   toggleOrdered(checked) {
@@ -134,6 +146,7 @@ class MatrixTool {
           cellCount: this.cellCount,
           ordered: this.orderedMode,
           direction: this.direction,
+          suppress: this.suppressMode,
           cadence: this.currentSpeed
         });
       }
@@ -266,6 +279,20 @@ class MatrixTool {
       if (!this.activeCells.includes(r)) this.activeCells.push(r);
     }
 
+    // En modo trampa, seleccionar una celda extra distinta de las activas como "suppress"
+    this.suppressCell = null;
+    if (this.suppressMode) {
+      let attempts = 0;
+      while (attempts < 50) {
+        const candidate = Math.floor(Math.random() * this.totalCells);
+        if (!this.activeCells.includes(candidate)) {
+          this.suppressCell = candidate;
+          break;
+        }
+        attempts++;
+      }
+    }
+
     this.activeCells.forEach((idx, order) => {
       const cell = document.getElementById('cell-' + idx);
       cell.classList.add('active');
@@ -273,6 +300,10 @@ class MatrixTool {
         cell.textContent = order + 1;
       }
     });
+
+    if (this.suppressCell != null) {
+      document.getElementById('cell-' + this.suppressCell).classList.add('suppress');
+    }
 
     this.setCellsClickable(false);
 
@@ -310,6 +341,22 @@ class MatrixTool {
     if (cell.classList.contains('selected') || cell.classList.contains('wrong')) return;
 
     if (navigator.vibrate) navigator.vibrate(30);
+
+    // Block-suppression: pulsar la celda trampa es error de comisión inmediato
+    if (this.suppressMode && idx === this.suppressCell) {
+      cell.classList.add('wrong');
+      this.setCellsClickable(false);
+      this.misses++;
+      this.beep(220, 200);
+      if (navigator.vibrate) navigator.vibrate(100);
+      this.revealAnswer();
+      document.getElementById('matrixInstruction').textContent = 'Trampa pulsada';
+      document.getElementById('matrixInstruction').style.color = 'var(--rosa-400)';
+      this.phase = 'feedback';
+      this.recordTrial({ span: this.cellCount, correct: false, errorType: 'commission', stimulus: 'trap' });
+      this.updateStats();
+      return;
+    }
 
     if (this.orderedMode) {
       const expectedIdx = this.expectedActiveAt(this.playerSelection.length);
@@ -380,6 +427,9 @@ class MatrixTool {
         cell.textContent = order + 1;
       }
     });
+    if (this.suppressCell != null) {
+      document.getElementById('cell-' + this.suppressCell).classList.add('suppress');
+    }
   }
 
   setCellsClickable(clickable) {
@@ -393,7 +443,7 @@ class MatrixTool {
   clearMatrix() {
     for (let i = 0; i < this.totalCells; i++) {
       const cell = document.getElementById('cell-' + i);
-      cell.classList.remove('active', 'selected', 'wrong');
+      cell.classList.remove('active', 'selected', 'wrong', 'suppress');
       cell.textContent = '';
     }
   }

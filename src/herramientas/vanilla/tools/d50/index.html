@@ -86,17 +86,20 @@
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
       </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
       <p class="stimulus-instruction">Calcula mentalmente<br>&iquest;Mayor o menor que 50?</p>
       <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0;">
         <div id="d50Text" class="text-giant">? + ?</div>
         <div class="d50-answers">
-          <button class="d50-answer-btn" data-answer="mayor" onclick="tool.handleAnswer('mayor')" disabled>
-            <span class="material-symbols-sharp" style="vertical-align: middle;">arrow_upward</span> Mayor
-          </button>
           <button class="d50-answer-btn" data-answer="menor" onclick="tool.handleAnswer('menor')" disabled>
             <span class="material-symbols-sharp" style="vertical-align: middle;">arrow_downward</span> Menor
+          </button>
+          <button class="d50-answer-btn" data-answer="mayor" onclick="tool.handleAnswer('mayor')" disabled>
+            <span class="material-symbols-sharp" style="vertical-align: middle;">arrow_upward</span> Mayor
           </button>
         </div>
       </div>
@@ -160,7 +163,9 @@
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="d50.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="d50.js?v=2.0.7"></script>
 </body>
 </html>

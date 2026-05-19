@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinesislab-cache-v12';
+const CACHE_NAME = 'kinesislab-cache-v13';
 
 const PRECACHE_URLS = [
   './',
@@ -6,6 +6,10 @@ const PRECACHE_URLS = [
   './manifest.json',
   './assets/js/wake-lock.js',
   './assets/js/sw-updater.js',
+  './assets/js/tts-bridge.js',
+  './assets/js/cadence-scheduler.js',
+  './assets/js/session-stats.js',
+  './assets/js/session-stats-ui.js',
   './assets/css/design-tokens.css',
   './src/herramientas/vanilla/dashboard.html',
   './src/herramientas/vanilla/css/dashboard.css',

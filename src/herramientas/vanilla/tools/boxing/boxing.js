@@ -19,9 +19,11 @@ class BoxingGeneratorVanilla {
 
     // State internals
     this.isRunning = false;
+    this.sessionActive = false;
     this.currentCombo = [];
     this.currentIndex = -1;
     this.comboCount = 0;
+    this.totalPunches = 0;
 
     this.audioCtx = null;
 
@@ -87,17 +89,28 @@ class BoxingGeneratorVanilla {
 
   startEngine() {
     this.isRunning = true;
+    this.sessionActive = true;
+    this.setFinalizeVisible(true);
     ScreenWakeLock.request();
     this.comboCount = 0;
+    this.totalPunches = 0;
     KinesisTTS.warmup();
     this.ensureAudioCtx();
+
+    if (window.SessionStats) {
+      SessionStats.session.start('boxing', {
+        punchCount: this.settings.punchCount,
+        speechRate: this.settings.speechRate,
+        includeDefensive: this.settings.includeDefensive
+      });
+    }
 
     // UI Button Update
     const btn = document.getElementById('btnPlayPause');
     btn.style.backgroundColor = 'var(--gris-700)';
     document.getElementById('playIcon').textContent = 'stop';
     document.getElementById('playText').textContent = 'DETENER';
-    
+
     // Deshabilitar config
     ['punchCount', 'speechRate', 'includeDefensive'].forEach(id => document.getElementById(id).disabled = true);
 
@@ -115,7 +128,11 @@ class BoxingGeneratorVanilla {
     document.getElementById('statePreparing').style.display = 'none';
 
     KinesisTTS.cancel();
-    
+
+    if (this.sessionActive) {
+      this.finalize();
+    }
+
     const btn = document.getElementById('btnPlayPause');
     btn.style.backgroundColor = 'var(--rosa-600)';
     document.getElementById('playIcon').textContent = 'play_arrow';
@@ -123,6 +140,33 @@ class BoxingGeneratorVanilla {
 
     // Habilitar config
     ['punchCount', 'speechRate', 'includeDefensive'].forEach(id => document.getElementById(id).disabled = false);
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.sessionActive = false;
+    this.setFinalizeVisible(false);
+
+    let result = null;
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      if (result && result.summary) {
+        customFeedback = `${this.comboCount} combos · ${this.totalPunches} golpes/movimientos`;
+        result.summary.config = result.summary.config || {};
+        result.summary.config.comboCount = this.comboCount;
+        result.summary.config.totalPunches = this.totalPunches;
+      }
+    }
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
+    }
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
   }
 
   sleep(ms) {
@@ -249,6 +293,11 @@ class BoxingGeneratorVanilla {
         this.currentIndex = i;
         this.renderComboUI();
 
+        this.totalPunches++;
+        if (this.sessionActive && window.SessionStats) {
+          SessionStats.session.recordTrial({ stimulus: this.currentCombo[i] });
+        }
+
         const t0 = performance.now();
         await this.speakAndWait(this.currentCombo[i]);
         if(!this.isRunning) break;
@@ -265,3 +314,13 @@ class BoxingGeneratorVanilla {
 }
 
 const tool = new BoxingGeneratorVanilla();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'boxing',
+    toolName: 'Boxeo Reactivo',
+    primaryMetric: 'rtMedian',
+    onRepeat: () => tool.handleStartStop(),
+    onClose: () => {}
+  });
+}

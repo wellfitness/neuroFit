@@ -5,6 +5,11 @@ class ArrowsTool {
     this.sessionActive = false;
     this.currentSpeed = 3000;
     this.jitter = 0;
+    this.congruentRatio = 0.5;  // proporción de trials congruentes (audio == visual)
+  }
+
+  changeRatio(val) {
+    this.congruentRatio = parseFloat(val);
   }
 
   toggleJitter() {
@@ -92,14 +97,20 @@ class ArrowsTool {
     const visDir = dirs[Math.floor(Math.random() * dirs.length)];
     document.getElementById('arrowVisual').textContent = visDir === 'IZQUIERDA' ? 'arrow_back' : 'arrow_forward';
 
-    let audioDir = visDir;
-    if (Math.random() > 0.5) audioDir = visDir === 'IZQUIERDA' ? 'DERECHA' : 'IZQUIERDA';
+    // Audio congruente con ratio configurable. Por defecto 50/50.
+    const isCongruent = Math.random() < this.congruentRatio;
+    const audioDir = isCongruent ? visDir : (visDir === 'IZQUIERDA' ? 'DERECHA' : 'IZQUIERDA');
 
     KinesisTTS.cancel();
     KinesisTTS.speak(audioDir, 1.3);
 
     if (window.SessionStats && this.sessionActive) {
-      SessionStats.session.recordTrial({ stimulus: audioDir, visual: visDir, congruent: audioDir === visDir });
+      SessionStats.session.recordTrial({
+        stimulus: audioDir,
+        visual: visDir,
+        congruent: isCongruent,
+        condition: isCongruent ? 'congruent' : 'incongruent'
+      });
     }
   }
 }

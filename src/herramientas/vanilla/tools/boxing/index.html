@@ -165,6 +165,9 @@
         <button id="btnPlayPause" class="btn-critical btn-critical--full" onclick="tool.handleStartStop()">
           <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">EMPEZAR</span>
         </button>
+        <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión" style="align-self: center;">
+          <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+        </button>
       </div>
     </div>
 
@@ -258,6 +261,8 @@
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
-  <script src="boxing.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="boxing.js?v=2.0.7"></script>
 </body>
 </html>

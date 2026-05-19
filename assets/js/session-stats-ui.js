@@ -402,6 +402,20 @@
     kpisEl.innerHTML = isPassive ? buildKpisPassive(summary, isVoice) : buildKpis(summary);
     kpisEl.classList.toggle('results-kpis--3col', isPassive);
 
+    // Métricas derivadas opcionales (IES + d'). Solo se muestran cuando aplican.
+    const derivedEl = ensureDerivedBlock();
+    if (derivedEl) {
+      const parts = [];
+      if (summary.ies != null) parts.push(`<span><strong>${summary.ies}</strong> ms·IES</span>`);
+      if (summary.dPrime != null) parts.push(`<span><strong>${summary.dPrime}</strong> d′</span>`);
+      if (parts.length) {
+        derivedEl.innerHTML = parts.join(' · ');
+        derivedEl.style.display = '';
+      } else {
+        derivedEl.style.display = 'none';
+      }
+    }
+
     // Sin RT no tiene sentido la gráfica por tercios
     const evoTitle = document.getElementById('resultsEvolution').previousElementSibling;
     const evoBlock = document.getElementById('resultsEvolution');
@@ -435,6 +449,18 @@
       <div class="results-kpi"><strong>${formatDuration(s.durationSec)}</strong><span>Duración</span></div>
       <div class="results-kpi"><strong style="font-size:1.2rem">${modeLabel}</strong><span>Modo</span></div>
     `;
+  }
+
+  function ensureDerivedBlock() {
+    let el = document.getElementById('resultsDerived');
+    if (el) return el;
+    const kpisEl = document.getElementById('resultsKpis');
+    if (!kpisEl) return null;
+    el = document.createElement('div');
+    el.id = 'resultsDerived';
+    el.className = 'results-derived';
+    kpisEl.parentNode.insertBefore(el, kpisEl.nextSibling);
+    return el;
   }
 
   function buildHistoryPassive(s, isVoice) {

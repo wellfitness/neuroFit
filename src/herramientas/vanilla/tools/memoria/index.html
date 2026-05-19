@@ -152,11 +152,14 @@
           <option value="hard">Dif&iacute;cil (10 parejas)</option>
         </select>
       </div>
-      <button class="btn-primary" onclick="tool.start()">
-        <span class="material-symbols-sharp">play_arrow</span><span>COMENZAR</span>
+      <button id="btnPlayPause" class="btn-primary" onclick="tool.start()">
+        <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">COMENZAR</span>
       </button>
       <button class="btn-secondary" onclick="tool.reset()">
         <span class="material-symbols-sharp">refresh</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -171,15 +174,6 @@
       </div>
     </div>
   </section>
-
-  <div class="modal-overlay" id="memoriaModal">
-    <div class="modal-content">
-      <h3>Completado</h3>
-      <p class="modal-stat">Intentos: <strong id="modalAttempts">0</strong></p>
-      <p class="modal-stat">Tiempo: <strong id="modalTime">00:00</strong></p>
-      <button class="modal-btn" onclick="tool.reset()">JUGAR DE NUEVO</button>
-    </div>
-  </div>
 
   <div class="info-modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="info-modal">
@@ -234,6 +228,8 @@
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="memoria.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="memoria.js?v=2.0.7"></script>
 </body>
 </html>

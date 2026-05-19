@@ -48,6 +48,7 @@ class ListSortingTool {
     this.itemCount = 3;
     this.speed = 2000;
     this.isPlaying = false;
+    this.sessionActive = false;
     this.phase = 'idle';
     this.currentItems = [];
     this.presentationOrder = [];
@@ -84,32 +85,85 @@ class ListSortingTool {
   }
 
   togglePlay() {
-    this.isPlaying = !this.isPlaying;
     const btn = document.getElementById('btnPlayPause');
-    if (this.isPlaying) {
+    if (!this.sessionActive) {
+      this.sessionActive = true;
+      this.setFinalizeVisible(true);
+      this.resetStats();
+      if (window.SessionStats) {
+        SessionStats.session.start('list-sorting', {
+          level: this.level,
+          itemCount: this.itemCount,
+          cadence: this.speed
+        });
+      }
+      this.isPlaying = true;
       btn.classList.add('active');
       document.getElementById('playIcon').textContent = 'pause';
       document.getElementById('playText').textContent = 'PAUSA';
       ScreenWakeLock.request();
       this.startRound();
-    } else {
+    } else if (this.isPlaying) {
+      this.isPlaying = false;
       btn.classList.remove('active');
       document.getElementById('playIcon').textContent = 'play_arrow';
       document.getElementById('playText').textContent = 'REANUDAR';
       ScreenWakeLock.release();
       this.clearTimers();
+    } else {
+      this.isPlaying = true;
+      btn.classList.add('active');
+      document.getElementById('playIcon').textContent = 'pause';
+      document.getElementById('playText').textContent = 'PAUSA';
+      ScreenWakeLock.request();
+      this.startRound();
+    }
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.isPlaying = false;
+    this.sessionActive = false;
+    this.clearTimers();
+    ScreenWakeLock.release();
+    const btn = document.getElementById('btnPlayPause');
+    if (btn) btn.classList.remove('active');
+    this.setFinalizeVisible(false);
+
+    let result = null;
+    if (window.SessionStats) result = SessionStats.session.end();
+
+    document.getElementById('playIcon').textContent = 'play_arrow';
+    document.getElementById('playText').textContent = 'INICIAR';
+    this.showIdle();
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison);
+    }
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
+  }
+
+  abortSessionIfRunning() {
+    if (this.isPlaying || this.sessionActive) {
+      this.clearTimers();
+      if (window.SessionStats) SessionStats.session.abort();
+      this.isPlaying = false;
+      this.sessionActive = false;
+      this.setFinalizeVisible(false);
+      const btn = document.getElementById('btnPlayPause');
+      if (btn) btn.classList.remove('active');
+      document.getElementById('playIcon').textContent = 'play_arrow';
+      document.getElementById('playText').textContent = 'INICIAR';
     }
   }
 
   changeLevel(val) {
     this.level = parseInt(val, 10);
-    if (this.isPlaying) {
-      this.clearTimers();
-      this.isPlaying = false;
-      document.getElementById('btnPlayPause').classList.remove('active');
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'INICIAR';
-    }
+    this.abortSessionIfRunning();
     this.resetStats();
     this.showIdle();
   }
@@ -286,7 +340,7 @@ class ListSortingTool {
     this.phase = 'feedback';
     this.setBtnState(false);
 
-    const rt = performance.now() - this.roundStart;
+    const rt = Math.round(performance.now() - this.roundStart);
     const correct = (answer === 'true') === this.displayedInOrder;
 
     this.rounds++;
@@ -296,6 +350,16 @@ class ListSortingTool {
       this.rtCount++;
     } else {
       this.misses++;
+    }
+
+    if (this.sessionActive && window.SessionStats) {
+      SessionStats.session.recordTrial({
+        stimulus: this.displayedInOrder ? 'ordered' : 'unordered',
+        itemCount: this.itemCount,
+        rt,
+        correct,
+        errorType: correct ? null : 'commission'
+      });
     }
 
     this.showFeedback(correct);
@@ -363,3 +427,13 @@ class ListSortingTool {
 }
 
 const tool = new ListSortingTool();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'list-sorting',
+    toolName: 'Listas de Objetos',
+    primaryMetric: 'rtMedian',
+    onRepeat: () => tool.togglePlay(),
+    onClose: () => tool.showIdle()
+  });
+}

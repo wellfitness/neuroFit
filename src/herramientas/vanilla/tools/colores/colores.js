@@ -195,7 +195,8 @@ class ColoresTool {
   changeLevel(val) {
     this.level = parseInt(val, 10);
     const legend = document.getElementById('coloresLegend');
-    if (legend) legend.style.display = (this.level === 1) ? 'none' : '';
+    // Leyenda visible cuando hay acciones (levels 2, 3, 4). Niveles 1 y 5 son Stroop puro
+    if (legend) legend.style.display = (this.level === 1 || this.level === 5) ? 'none' : '';
     const textEl = document.getElementById('coloresText');
     // El level 2 oculta texto; level 4 (Bérubé) lo gestiona por bloque (no fijar aquí)
     if (textEl) textEl.style.display = this.level === 2 ? 'none' : '';
@@ -251,6 +252,9 @@ class ColoresTool {
     } else if (this.level === 3) {
       intro.innerHTML = 'Ignora la palabra<br>Haz la acción del color de fondo';
       intro.style.display = '';
+    } else if (this.level === 5) {
+      intro.innerHTML = 'Ignora el fondo<br>Di la PALABRA escrita';
+      intro.style.display = '';
     } else if (!this.isPlaying) {
       intro.innerHTML = 'Elige nivel y configura acciones<br>Pulsa INICIAR';
       intro.style.display = '';
@@ -284,8 +288,12 @@ class ColoresTool {
 
     bg.style.backgroundColor = col.hex;
 
-    if (effLevel === 1 || effLevel === 3) {
-      textEl.textContent = this.getDistractorName(colorIndex);
+    // En levels 1 y 3 (Stroop normal/inversa visualmente), texto es distractor (color distinto al fondo).
+    // En level 5 (Stroop inverso), texto distractor sigue siendo distinto al fondo PERO ese texto ES el target.
+    let distractorIndex = null;
+    if (effLevel === 1 || effLevel === 3 || effLevel === 5) {
+      distractorIndex = this.pickDistractorIndex(colorIndex);
+      textEl.textContent = this.coloresData[distractorIndex].name;
       textEl.style.display = '';
     } else {
       textEl.style.display = 'none';
@@ -301,7 +309,8 @@ class ColoresTool {
       else this.berubeExecutiveRounds++;
     }
 
-    if (effLevel === 1) {
+    if (effLevel === 1 || effLevel === 5) {
+      // Niveles Stroop puros (sin acción asignada al color)
       actionEl.classList.remove('visible');
     } else if (!this.learningDone) {
       actionEl.textContent = col.action;
@@ -314,19 +323,32 @@ class ColoresTool {
       this.learningDone = this.colorCounts.every(c => c >= this.minPerColor);
     }
 
-    // Modo voz: anunciar el color de fondo (lo que el cliente debe seguir,
-    // ignorando la palabra distractor en niveles Stroop).
+    // Modo voz: en niveles 1-4 anuncia el COLOR DE FONDO (lo que se sigue).
+    // En level 5 (Stroop inverso) anuncia la PALABRA escrita (lo que se sigue ahí).
     if (this.currentMode === 'voice' && window.KinesisTTS) {
       KinesisTTS.cancel();
-      KinesisTTS.speak(col.name.toLowerCase(), 1.3);
+      const spoken = (effLevel === 5 && distractorIndex != null)
+        ? this.coloresData[distractorIndex].name.toLowerCase()
+        : col.name.toLowerCase();
+      KinesisTTS.speak(spoken, 1.3);
     }
 
     if (window.SessionStats && this.sessionActive) {
       SessionStats.session.recordTrial({
-        stimulus: col.name,
+        stimulus: effLevel === 5 && distractorIndex != null
+          ? this.coloresData[distractorIndex].name
+          : col.name,
+        bgColor: col.name,
         block: this.level === 4 ? (this.berubeBlockLevel === 2 ? 'baseline' : 'ejecutivo') : null
       });
     }
+  }
+
+  pickDistractorIndex(excludeIndex) {
+    let idx;
+    do { idx = Math.floor(Math.random() * this.coloresData.length); }
+    while (idx === excludeIndex);
+    return idx;
   }
 }
 

@@ -4,6 +4,8 @@
 **Alcance:** revisión bibliográfica para optimizar las 20 herramientas existentes (no añadir nuevas) y derivar ejemplos prácticos aplicables en sala con clientes.
 **Fuentes:** PubMed (~30 artículos vía MCP, según PubMed) y Scholar Gateway (4 consultas semánticas, 2018–2026).
 
+> **Estado de implementación (2026-05-19):** ver `auditoria-tools-2026-05-19.md` para la auditoría código-a-código completa. Marcadores ✅/🟡/❌ añadidos en las tablas siguientes. **Hallazgo clave:** 8/21 tools (sort, list-sorting, memoria, clock, d50, fluency, tracking, timers, comba, boxing) NO integran `SessionStats` — bloqueante para verificar el resto.
+
 ---
 
 ## Principio de diseño (transversal a TODO el plan)
@@ -34,16 +36,16 @@ Esto vale para las 20 herramientas y para cualquier futura mejora.
 
 **Recordatorio:** todas las entradas se añaden como modo opt-in junto al comportamiento actual (ver "Principio de diseño" arriba).
 
-| # | Optimización | Tools afectadas | Cita |
-|---|---|---|---|
-| 1 | Modo "Variable" de ISI (jitter 0.7×–1.3×) junto al modo "Constante" actual | go-nogo, flechas, arrows, sonidos, reactive, colores, search | Bérubé 2025 [DOI](https://doi.org/10.14814/phy2.70211); Beu 2018 [DOI](https://doi.org/10.1111/ejn.14323) |
-| 2 | Modo "Adaptativo Jaeggi" sobre N / set-size junto a los niveles fijos actuales | nback, sort, matrix, list-sorting | Lintas 2025 [DOI](https://doi.org/10.3390/brainsci15090998) |
-| 3 | Métrica IES = goRT/accuracy + reportar goRT y noGo-acc separados | go-nogo, flechas, arrows, reactive | Guo 2026 [DOI](https://doi.org/10.1002/brb3.71214); Lin 2023 [DOI](https://doi.org/10.1111/psyp.14489) |
-| 4 | Bloque baseline simple-RT que se resta al ejecutivo | colores, arrows, flechas | Lin 2023 [DOI](https://doi.org/10.1111/psyp.14489) |
-| 5 | Ratios congruente/incongruente parametrizables (75/25 o 50/50) + bloque reverse | colores, arrows, flechas | Aly & Kojima 2020 [DOI](https://doi.org/10.1111/psyp.13674); Bérubé 2025 [DOI](https://doi.org/10.14814/phy2.70211) |
-| 6 | Slope = RT × set-size como índice atencional | search, sort, matrix | Erdogan 2024 [DOI](https://doi.org/10.14814/phy2.70136) |
-| 7 | Variable-priority instruction (alternar "prioriza X") cada bloque | colores, comba, boxing, timers, arrows | Montero-Odasso & Speechley 2018 [DOI](https://doi.org/10.1111/jgs.15219) |
-| 8 | Dose mínima eficaz: ≥20 sesiones ≥30 min o 4–12 sem 2–3×/sem | todas | Thazhakkattu Vasu 2026 [DOI](https://doi.org/10.1155/jare/9242629); Ding 2025 [DOI](https://doi.org/10.1183/16000617.0170-2024) |
+| # | Optimización | Tools afectadas | Estado | Cita |
+|---|---|---|---|---|
+| 1 | Modo "Variable" de ISI (jitter 0.7×–1.3×) junto al modo "Constante" actual | go-nogo, flechas, arrows, sonidos, reactive, colores, search | ✅ go-nogo, flechas, arrows, colores, sonidos, reactive, search, nback | Bérubé 2025 [DOI](https://doi.org/10.14814/phy2.70211); Beu 2018 [DOI](https://doi.org/10.1111/ejn.14323) |
+| 2 | Modo "Adaptativo Jaeggi" sobre N / set-size junto a los niveles fijos actuales | nback, sort, matrix, list-sorting | 🟡 solo nback | Lintas 2025 [DOI](https://doi.org/10.3390/brainsci15090998) |
+| 3 | Métrica IES = goRT/accuracy + reportar goRT y noGo-acc separados | go-nogo, flechas, arrows, reactive | 🟡 datos parciales en go-nogo; arrows/flechas/sonidos/reactive sin RT | Guo 2026 [DOI](https://doi.org/10.1002/brb3.71214); Lin 2023 [DOI](https://doi.org/10.1111/psyp.14489) |
+| 4 | Bloque baseline simple-RT que se resta al ejecutivo | colores, arrows, flechas | ❌ | Lin 2023 [DOI](https://doi.org/10.1111/psyp.14489) |
+| 5 | Ratios congruente/incongruente parametrizables (75/25 o 50/50) + bloque reverse | colores, arrows, flechas | 🟡 colores bloques sí; arrows 50/50 fijo no parametrizable; flechas 100% conflicto | Aly & Kojima 2020 [DOI](https://doi.org/10.1111/psyp.13674); Bérubé 2025 [DOI](https://doi.org/10.14814/phy2.70211) |
+| 6 | Slope = RT × set-size como índice atencional | search, sort, matrix | 🟡 solo search | Erdogan 2024 [DOI](https://doi.org/10.14814/phy2.70136) |
+| 7 | Variable-priority instruction (alternar "prioriza X") cada bloque | colores, comba, boxing, timers, arrows | ❌ | Montero-Odasso & Speechley 2018 [DOI](https://doi.org/10.1111/jgs.15219) |
+| 8 | Dose mínima eficaz: ≥20 sesiones ≥30 min o 4–12 sem 2–3×/sem | todas | ✅ texto en ayudas | Thazhakkattu Vasu 2026 [DOI](https://doi.org/10.1155/jare/9242629); Ding 2025 [DOI](https://doi.org/10.1183/16000617.0170-2024) |
 
 ---
 
@@ -192,30 +194,42 @@ Esto vale para las 20 herramientas y para cualquier futura mejora.
 
 ### 3.1 Quick wins (1–2 días cada uno)
 
-| Orden | Acción | Tools | Coste |
-|---|---|---|---|
-| 1 | Añadir modo "Variable" (ISI jitter) junto al "Constante" actual | go-nogo, flechas, arrows, colores, sonidos, reactive | ~2 h código compartido + toggle UI |
-| 2 | Log RT + accuracy por trial (aplica a ambos modos) | sonidos, reactive, arrows, flechas, colores | ~3 h por tool (estructura común) |
-| 3 | Añadir modo "Adaptativo Jaeggi" junto a los 3 niveles fijos | nback | ~30 líneas + toggle UI |
-| 4 | Modo "Con lures" (20–30% no-targets) junto al modo sin lures | nback | ~1 día |
-| 5 | Slope set-size (12, 24, 48) como modo avanzado de search | search | ~1 día |
+| Orden | Acción | Tools | Estado | Coste |
+|---|---|---|---|---|
+| 1 | Añadir modo "Variable" (ISI jitter) junto al "Constante" actual | go-nogo, flechas, arrows, colores, sonidos, reactive | ✅ | ~2 h código compartido + toggle UI |
+| 2 | Log RT + accuracy por trial (aplica a ambos modos) | sonidos, reactive, arrows, flechas, colores | 🟡 solo colores y go-nogo graban completo; arrows/flechas/sonidos/reactive sin RT (no hay tap) | ~3 h por tool (estructura común) |
+| 3 | Añadir modo "Adaptativo Jaeggi" junto a los 3 niveles fijos | nback | ✅ | ~30 líneas + toggle UI |
+| 4 | Modo "Con lures" (20–30% no-targets) junto al modo sin lures | nback | ✅ (28% en nivel adaptive) | ~1 día |
+| 5 | Slope set-size (12, 24, 48) como modo avanzado de search | search | ✅ | ~1 día |
 
 ### 3.2 Trabajos medianos (~1 semana cada uno)
 
-| Orden | Acción | Tools |
-|---|---|---|
-| 6 | Stepping-TMT digital (parte B alfanumérica) | trace |
-| 7 | Web Speech API + clusters/switches | fluency |
-| 8 | Variable-priority mode con cue cognitivo | timers |
-| 9 | Backward Corsi (modo "reverse") | matrix, simon |
+| Orden | Acción | Tools | Estado |
+|---|---|---|---|
+| 6 | Stepping-TMT digital (parte B alfanumérica) | trace | ✅ |
+| 7 | Web Speech API + clusters/switches | fluency | ❌ |
+| 8 | Variable-priority mode con cue cognitivo | timers | ❌ |
+| 9 | Backward Corsi (modo "reverse") | matrix, simon | ✅ |
 
 ### 3.3 Trabajos mayores (2+ semanas)
 
-| Orden | Acción | Tools |
+| Orden | Acción | Tools | Estado |
+|---|---|---|---|
+| 10 | Bloque ejecutivo Bérubé 75/25 + baseline simple-RT | colores | 🟡 bloques alternan, pero sin baseline simple-RT restable |
+| 11 | Modo SART + post-error slowing | go-nogo | ✅ |
+| 12 | DeviceMotion para timing real golpe/salto vs cue | boxing, comba | ❌ |
+
+### 3.4 Deuda técnica detectada en auditoría (2026-05-19) — bloqueante para 3.2 y siguientes
+
+| Acción | Tools | Coste |
 |---|---|---|
-| 10 | Bloque ejecutivo Bérubé 75/25 + baseline simple-RT | colores |
-| 11 | Modo SART + post-error slowing | go-nogo |
-| 12 | DeviceMotion para timing real golpe/salto vs cue | boxing, comba |
+| Integrar `SessionStats` (cargar scripts + start/end/recordTrial + btnFinalize + SessionStatsUI.init) | sort, list-sorting, memoria, clock, d50, fluency, tracking, timers, comba, boxing | ~1-2 h por tool, ~3 días total |
+| Fix SNARC en `d50` (intercambiar orden botones Mayor/Menor) | d50 | 30 s |
+| Unificar versiones `?v=` de scripts | infra | ~1 h |
+| Stats-bar canónica unificada (patrón sort/list-sorting) | colores, reactive, tracking | ~1 h por tool |
+| Logo header en `sonidos` | sonidos | 30 s |
+| Actualizar contador "20 → 21 herramientas" | acerca.html, CLAUDE.md | 30 s |
+| Eliminar método muerto `changeSpeed` en simon | simon | 30 s |
 
 ---
 
@@ -395,3 +409,18 @@ Otras fuentes citadas en el plan (todas vía PubMed o Scholar Gateway).
 Empezar por los **quick wins 1–3** (jitter ISI, log RT, regla Jaeggi en nback) porque sin métricas en código no es posible verificar el impacto del resto del plan. En paralelo, probar los **5 drills de Erdogan 2024** en sala con clientes esta semana — todos son low-equipment y validados.
 
 **Aviso de uso:** todas las citas provienen de PubMed (vía MCP) y Scholar Gateway. Cualquier afirmación con DOI debe verificarse contra el artículo original antes de comunicarla como evidencia clínica.
+
+---
+
+## 7. Actualización 2026-05-19 — Próximo paso revisado
+
+Tras la auditoría código-a-código (ver `auditoria-tools-2026-05-19.md`), los quick wins 1, 3, 4 y 5 **ya están implementados** en las tools clave. El quick win 2 está parcial (sin RT en tools sin tap). El nuevo cuello de botella es la **fase 1 de deuda técnica (3.4)**: 10 de 21 tools no integran `SessionStats`, lo que impide verificar empíricamente el resto del plan en sala.
+
+**Orden recomendado revisado:**
+
+1. **Fase 1 (~3 días):** integrar `SessionStats` en sort, list-sorting, memoria, clock, d50, fluency, tracking, timers, comba, boxing + fix SNARC d50 + uniformizar UI.
+2. **Fase 2 (~1 semana):** métricas faltantes (slope ángulo en clock, distancia numérica en d50, tap-por-palabra en fluency, 60/20/20 en flechas, reverse-Stroop en colores, helper IES/d′).
+3. **Fase 3 (~2 semanas):** cue cognitivo en timers, DeviceMotion en boxing/comba, STT real en fluency, headshake en tracking, block-suppression en matrix.
+4. **Fase 4 (~2 días):** pulido visual + docs.
+
+Sin fase 1 no se puede medir lo que rendiría fase 2-3 en clientes reales.
