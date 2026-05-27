@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/fonts/local-fonts.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00bec8">
+  <title>Ranking — KinesisLab</title>
+  <link rel="stylesheet" href="css/tool-base.css?v=2.0.9">
+  <style>
+    body {
+      background: var(--gris-900);
+      color: white;
+      min-height: 100vh;
+    }
+    .ranking-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-3);
+    }
+    .ranking-page-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--gris-800);
+    }
+    .ranking-page-header img {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .ranking-page-header h1 {
+      flex: 1;
+      font-family: var(--font-display);
+      color: var(--turquesa-400);
+      font-size: 1.6rem;
+      margin: 0;
+    }
+    .ranking-page-header .btn-secondary {
+      color: var(--gris-300);
+      background: transparent;
+      border: 1px solid var(--gris-600);
+    }
+    @media (max-width: 480px) {
+      .ranking-page-header img { width: 44px; height: 44px; }
+      .ranking-page-header h1 { font-size: 1.2rem; }
+    }
+
+    .ranking-controls {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    .ranking-control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ranking-control label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gris-400);
+    }
+    .ranking-control select {
+      background: var(--gris-800);
+      color: white;
+      border: 1px solid var(--gris-700);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      min-height: 44px;
+    }
+    .ranking-control select:focus {
+      outline: none;
+      border-color: var(--turquesa-400);
+    }
+    .metric-toggle {
+      display: flex;
+      gap: 6px;
+    }
+    .metric-toggle button {
+      flex: 1;
+      background: var(--gris-800);
+      color: var(--gris-300);
+      border: 1px solid var(--gris-700);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      cursor: pointer;
+      min-height: 44px;
+      transition: all 200ms;
+    }
+    .metric-toggle button.active {
+      background: rgba(0, 190, 200, 0.15);
+      border-color: var(--turquesa-400);
+      color: var(--turquesa-400);
+      font-weight: bold;
+    }
+
+    .ranking-podium {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: var(--space-3);
+    }
+    .podium-spot {
+      background: var(--gris-800);
+      border-radius: 12px;
+      padding: var(--space-2) var(--space-1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 120px;
+    }
+    .podium-spot.gold { border: 2px solid var(--tulip-tree-400); min-height: 160px; order: 2; }
+    .podium-spot.silver { border: 2px solid var(--gris-300); min-height: 140px; order: 1; }
+    .podium-spot.bronze { border: 2px solid var(--tulip-tree-600); min-height: 120px; order: 3; }
+    .podium-rank {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .podium-spot.gold .podium-rank { color: var(--tulip-tree-400); }
+    .podium-spot.silver .podium-rank { color: var(--gris-300); }
+    .podium-spot.bronze .podium-rank { color: var(--tulip-tree-600); }
+    .podium-name {
+      font-weight: bold;
+      font-size: 1rem;
+      color: white;
+      word-break: break-word;
+      margin-bottom: 4px;
+    }
+    .podium-value {
+      font-family: var(--font-display);
+      color: var(--turquesa-400);
+      font-size: 1.1rem;
+    }
+    .podium-sessions {
+      font-size: 0.7rem;
+      color: var(--gris-500);
+      margin-top: 4px;
+    }
+
+    .ranking-rest {
+      background: var(--gris-800);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .ranking-rest-row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px var(--space-2);
+      border-bottom: 1px solid var(--gris-900);
+    }
+    .ranking-rest-row:last-child { border-bottom: none; }
+    .ranking-rest-row.me {
+      background: rgba(0, 190, 200, 0.1);
+    }
+    .ranking-rest-row .rank {
+      font-family: var(--font-display);
+      color: var(--gris-500);
+      font-size: 1.2rem;
+    }
+    .ranking-rest-row .name {
+      color: white;
+      font-weight: bold;
+    }
+    .ranking-rest-row.me .name::after {
+      content: ' ← tú';
+      color: var(--turquesa-400);
+      font-weight: normal;
+      font-size: 0.85rem;
+      margin-left: 4px;
+    }
+    .ranking-rest-row .value {
+      font-family: var(--font-display);
+      color: var(--turquesa-400);
+      font-size: 1.05rem;
+    }
+    .ranking-rest-row .sessions {
+      font-size: 0.75rem;
+      color: var(--gris-500);
+    }
+
+    .ranking-empty-state {
+      text-align: center;
+      padding: var(--space-6) var(--space-3);
+      color: var(--gris-400);
+    }
+    .ranking-empty-state .material-symbols-sharp {
+      font-size: 48px;
+      color: var(--gris-600);
+      display: block;
+      margin: 0 auto var(--space-2);
+    }
+    .ranking-empty-state h2 {
+      font-family: var(--font-display);
+      color: var(--gris-300);
+      font-size: 1.2rem;
+      margin-bottom: var(--space-1);
+    }
+    .ranking-empty-state p {
+      font-size: 0.95rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .ranking-meta {
+      text-align: center;
+      color: var(--gris-500);
+      font-size: 0.85rem;
+      margin-top: var(--space-3);
+    }
+  </style>
+</head>
+<body>
+  <div class="ranking-page">
+    <header class="ranking-page-header">
+      <img src="../../../assets/logo-negro.webp" alt="KinesisLab">
+      <h1>Ranking del centro</h1>
+      <button class="btn-secondary" onclick="window.location.href='dashboard.html'" aria-label="Volver">
+        <span class="material-symbols-sharp">arrow_back</span>
+      </button>
+    </header>
+
+    <section class="ranking-controls" id="rankingControls" style="display:none">
+      <div class="ranking-control">
+        <label for="toolSelect">Herramienta</label>
+        <select id="toolSelect"></select>
+      </div>
+      <div class="ranking-control">
+        <label>Métrica</label>
+        <div class="metric-toggle" id="metricToggle">
+          <button type="button" class="active" data-metric="rtMedian">Tiempo de respuesta</button>
+          <button type="button" data-metric="accuracy">Aciertos</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="rankingContent"></section>
+
+    <div class="ranking-meta" id="rankingMeta"></div>
+  </div>
+
+  <script src="../../../assets/js/session-stats.js?v=2.0.6"></script>
+  <script>
+    // Mapa de nombres bonitos por toolId. Las tools no listadas aquí
+    // se muestran con su toolId tal cual (fallback seguro).
+    const TOOL_NAMES = {
+      'go-nogo': 'Go / No-Go',
+      'flechas': 'Flechas Reactivas',
+      'colores': 'Colores Reactivos',
+      'sonidos': 'Sonidos Audiomotores',
+      'reactive': 'Señales Reactivas',
+      'search': 'Búsqueda Visual',
+      'tracking': 'Seguimiento Continuo',
+      'arrows': 'Conflicto Audiovisual',
+      'trace': 'Trazado Alfanumérico',
+      'sort': 'De Menor a Mayor',
+      'list-sorting': 'Listas de Objetos',
+      'nback': 'N-Back Visual',
+      'simon': 'Secuencias Simon',
+      'matrix': 'Matriz Visoespacial',
+      'memoria': 'Memoria Visual',
+      'd50': 'Decisión D50',
+      'fluency': 'Fluencia Verbal',
+      'clock': 'Reloj Auditivo',
+      'timers': 'Temporizador',
+      'comba': 'Comba Reactiva',
+      'boxing': 'Boxeo Reactivo'
+    };
+
+    const state = {
+      tool: null,
+      metric: 'rtMedian'
+    };
+
+    function init() {
+      const activeTools = SessionStats.tools.activeTools();
+      if (!activeTools.length) {
+        renderEmpty();
+        return;
+      }
+      document.getElementById('rankingControls').style.display = 'flex';
+
+      const sel = document.getElementById('toolSelect');
+      sel.innerHTML = activeTools.map(t =>
+        `<option value="${t}">${TOOL_NAMES[t] || t}</option>`
+      ).join('');
+      sel.addEventListener('change', () => {
+        state.tool = sel.value;
+        render();
+      });
+      state.tool = activeTools[0];
+
+      document.getElementById('metricToggle').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-metric]');
+        if (!btn) return;
+        document.querySelectorAll('#metricToggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.metric = btn.dataset.metric;
+        render();
+      });
+
+      render();
+    }
+
+    function render() {
+      const content = document.getElementById('rankingContent');
+      const meta = document.getElementById('rankingMeta');
+      if (!state.tool) {
+        renderEmpty();
+        return;
+      }
+      const top = SessionStats.ranking.getTop(state.tool, state.metric, 10);
+      if (!top.length) {
+        content.innerHTML = '<div class="ranking-empty-state">' +
+          '<span class="material-symbols-sharp">leaderboard</span>' +
+          '<h2>Sin sesiones todavía</h2>' +
+          '<p>Cuando varios usuarios completen sesiones en esta herramienta verás aquí el ranking.</p>' +
+          '</div>';
+        meta.textContent = '';
+        return;
+      }
+      const me = SessionStats.users.active();
+      const unit = state.metric === 'rtMedian' ? ' ms' : '%';
+      const formatVal = (v) => state.metric === 'accuracy' ? Math.round(v * 100) + unit : v + unit;
+
+      // Podio (top 3) + resto
+      const podiumItems = top.slice(0, 3);
+      const rest = top.slice(3);
+
+      let html = '';
+
+      // Podium
+      if (podiumItems.length) {
+        html += '<div class="ranking-podium">';
+        const classes = ['gold', 'silver', 'bronze'];
+        podiumItems.forEach((item, idx) => {
+          html += `
+            <div class="podium-spot ${classes[idx]}">
+              <div class="podium-rank">${idx + 1}</div>
+              <div class="podium-name">${escapeHtml(item.user)}${item.user === me ? ' <span style="color:var(--turquesa-400);font-weight:normal;font-size:0.8em">(tú)</span>' : ''}</div>
+              <div class="podium-value">${formatVal(item.value)}</div>
+              <div class="podium-sessions">${item.sessions} ${item.sessions === 1 ? 'sesión' : 'sesiones'}</div>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+
+      // Resto
+      if (rest.length) {
+        html += '<div class="ranking-rest">';
+        rest.forEach((item, idx) => {
+          const rank = idx + 4;
+          html += `
+            <div class="ranking-rest-row ${item.user === me ? 'me' : ''}">
+              <span class="rank">${rank}</span>
+              <span class="name">${escapeHtml(item.user)}</span>
+              <span class="value">${formatVal(item.value)}</span>
+              <span class="sessions">${item.sessions} ${item.sessions === 1 ? 'sesión' : 'sesiones'}</span>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+
+      content.innerHTML = html;
+
+      // Meta info
+      const myRank = top.findIndex(t => t.user === me);
+      if (me && myRank >= 0) {
+        meta.textContent = `Tu posición: ${myRank + 1} de ${top.length}`;
+      } else if (me) {
+        meta.textContent = `${me} aún no tiene sesiones registradas en esta herramienta`;
+      } else {
+        meta.textContent = '';
+      }
+    }
+
+    function renderEmpty() {
+      document.getElementById('rankingContent').innerHTML =
+        '<div class="ranking-empty-state">' +
+        '<span class="material-symbols-sharp">trophy</span>' +
+        '<h2>Aún no hay datos</h2>' +
+        '<p>Cuando alguien complete una sesión en cualquier herramienta, aparecerá aquí el ranking del centro.</p>' +
+        '</div>';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
+    }
+
+    init();
+  </script>
+</body>
+</html>

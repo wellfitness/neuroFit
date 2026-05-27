@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Sonidos — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .sonidos-action {
       font-family: var(--font-display);
@@ -115,6 +115,7 @@
 <body>
   <section class="view-execution">
     <header class="exec-header">
+      <img src="../../../../../assets/logo-negro.webp" alt="KinesisLab" class="exec-header-logo">
       <h2 style="color: var(--turquesa-400); font-family: var(--font-display); font-size: 1.5rem;">Sonidos Audiomotores</h2>
       <div class="exec-header-actions">
         <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('active')" aria-label="Ayuda"><span class="material-symbols-sharp">help_outline</span></button>
@@ -122,16 +123,21 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="4000">Lenta (4s)</option>
-          <option value="3000" selected>Media (3s)</option>
-          <option value="2000">R&aacute;pida (2s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">4s</option>
+          <option value="3000" selected>3s</option>
+          <option value="2000">2s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area">
@@ -189,12 +195,25 @@
             <li>Como vuelta a la calma con reactividad baja.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Ojos cerrados de pie:</strong> sin mirar la pantalla. Solo escucha y reacciona con la acci&oacute;n. Trabaja propiocepci&oacute;n y atenci&oacute;n auditiva pura.</li>
+            <li><strong>Espalda al tablet:</strong> el cliente est&aacute; de espaldas a la pantalla. M&aacute;xima dependencia auditiva en entorno controlado.</li>
+            <li><strong>Sentadilla isom&eacute;trica + sonido:</strong> aguanta abajo. Reacciona al sonido subiendo, saltando o girando seg&uacute;n el tono. Carga muscular + reacci&oacute;n.</li>
+            <li><strong>Trote suave + sonido:</strong> trote continuo en sitio. La reacci&oacute;n al sonido cambia el patr&oacute;n (sentadilla, salto, giro). Cardio + reactividad auditiva.</li>
+            <li><strong>Equilibrio unipodal + sonido:</strong> de pie en una pierna ojos cerrados. Reta vestibular sin ayuda visual + reacci&oacute;n auditiva.</li>
+            <li><strong>Pareja con vendas:</strong> el cliente con los ojos vendados. Reacciona al sonido. Trabaja confianza en otros sentidos y mejora la conciencia corporal.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="sonidos.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="sonidos.js?v=2.0.7"></script>
 </body>
 </html>

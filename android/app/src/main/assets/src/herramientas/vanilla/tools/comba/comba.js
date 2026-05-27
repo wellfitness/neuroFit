@@ -17,11 +17,13 @@ class CombaTrainerVanilla {
 
     // State internals
     this.isRunning = false;
+    this.sessionActive = false;
     this.trainerState = 'idle'; // idle | preparing | exercising | resting | completed
     this.currentSequence = [];
     this.currentExerciseIndex = 0;
     this.timeRemaining = 0;
     this.sequenceCount = 0;
+    this.totalExercises = 0;
 
     // Anti-repetición: últimos ejercicios usados
     this.recentHistory = [];
@@ -125,10 +127,21 @@ class CombaTrainerVanilla {
 
   startEngine() {
     this.isRunning = true;
+    this.sessionActive = true;
+    this.setFinalizeVisible(true);
     ScreenWakeLock.request();
     this.sequenceCount = 0;
+    this.totalExercises = 0;
     KinesisTTS.warmup();
     this.ensureAudioCtx();
+
+    if (window.SessionStats) {
+      SessionStats.session.start('comba', {
+        exerciseCount: this.settings.exerciseCount,
+        exerciseDuration: this.settings.exerciseDuration,
+        includeAdvanced: this.settings.includeAdvanced
+      });
+    }
 
     // UI Button Update
     const btn = document.getElementById('btnPlayPause');
@@ -148,7 +161,12 @@ class CombaTrainerVanilla {
     this.updateUIState('idle');
     if(this.activeTimer) clearInterval(this.activeTimer);
     KinesisTTS.cancel();
-    
+
+    // Si había sesión activa, finalizarla y mostrar resultados
+    if (this.sessionActive) {
+      this.finalize();
+    }
+
     const btn = document.getElementById('btnPlayPause');
     btn.style.backgroundColor = 'var(--turquesa-600)';
     document.getElementById('playIcon').textContent = 'play_arrow';
@@ -156,6 +174,33 @@ class CombaTrainerVanilla {
 
     // Habilitar config
     ['exerciseCount', 'exerciseDuration', 'includeAdvanced'].forEach(id => document.getElementById(id).disabled = false);
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.sessionActive = false;
+    this.setFinalizeVisible(false);
+
+    let result = null;
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      if (result && result.summary) {
+        customFeedback = `${this.sequenceCount} secuencias · ${this.totalExercises} ejercicios`;
+        result.summary.config = result.summary.config || {};
+        result.summary.config.sequenceCount = this.sequenceCount;
+        result.summary.config.totalExercises = this.totalExercises;
+      }
+    }
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
+    }
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
   }
 
   sleep(ms) {
@@ -276,10 +321,15 @@ class CombaTrainerVanilla {
 
         this.currentExerciseIndex = i;
         this.updateUIState('exercising');
-        
+
         document.getElementById('lblExerciseIndex').textContent = `Ejercicio ${i+1} de ${this.currentSequence.length}`;
         document.getElementById('lblCurrentExercise').textContent = this.currentSequence[i];
         this.renderSequenceUI();
+
+        this.totalExercises++;
+        if (this.sessionActive && window.SessionStats) {
+          SessionStats.session.recordTrial({ stimulus: this.currentSequence[i] });
+        }
 
         await this.speakAndWait(this.currentSequence[i]);
         if(!this.isRunning) break;
@@ -308,3 +358,13 @@ class CombaTrainerVanilla {
 }
 
 const tool = new CombaTrainerVanilla();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'comba',
+    toolName: 'Comba Reactiva',
+    primaryMetric: 'rtMedian',
+    onRepeat: () => tool.handleStartStop(),
+    onClose: () => {}
+  });
+}

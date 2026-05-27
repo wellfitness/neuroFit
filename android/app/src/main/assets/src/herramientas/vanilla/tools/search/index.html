@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>B&uacute;squeda Visual — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .search-grid {
       display: grid;
@@ -86,16 +86,24 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="6000">Lenta (6s)</option>
-          <option value="4500" selected>Media (4.5s)</option>
-          <option value="3000">R&aacute;pida (3s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="6000">6s</option>
+          <option value="4500" selected>4.5s</option>
+          <option value="3000">3s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
+      <button id="btnSlope" class="btn-jitter" onclick="tool.toggleSlope()" aria-label="Modo pendiente" title="Modo pendiente: cicla 12/24/48 estímulos y calcula tu eficiencia de búsqueda (ms por item)">
+        <span class="material-symbols-sharp">query_stats</span><span>Pendiente</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column; align-items: center;">
@@ -149,12 +157,28 @@
             <li>Como calentamiento cognitivo antes de actividades de precisi&oacute;n.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Bici est&aacute;tica + b&uacute;squeda:</strong> pedaleo aerobio moderado. Cada vez que aparece una nueva cuadr&iacute;cula, encuentra la letra distinta. Combina cardio + atenci&oacute;n visual.</li>
+            <li><strong>Sentadilla isom&eacute;trica + b&uacute;squeda:</strong> aguanta abajo con la tablet apoyada. Busca y toca. Sostiene la postura mientras filtra distractores.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna. La b&uacute;squeda visual reta el sistema vestibular bajo carga atencional.</li>
+            <li><strong>Tras esprint:</strong> 30 s de saltos al m&aacute;ximo, luego 4-5 cuadr&iacute;culas seguidas. Trabaja atenci&oacute;n bajo fatiga cardiovascular.</li>
+            <li><strong>Modo Pendiente para evaluaci&oacute;n:</strong> usa este modo al inicio y al final de la sesi&oacute;n. Compara la pendiente. Diferencias claras = se&ntilde;al de fatiga visual o cognitiva.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">query_stats</span> Modo Pendiente</h4>
+          <p>Modo cient&iacute;fico: la app cicla autom&aacute;ticamente entre cuadr&iacute;culas de <strong>12, 24 y 48 estímulos</strong>. Al finalizar, calcula tu <strong>pendiente</strong> (ms por item extra): cu&aacute;nto m&aacute;s tardas por cada estímulo adicional. Pendiente baja = b&uacute;squeda eficiente; pendiente alta = b&uacute;squeda lenta y serial.</p>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="search.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="search.js?v=2.0.7"></script>
 </body>
 </html>

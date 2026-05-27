@@ -211,5 +211,7 @@ Ver `docs/ANDROID.md` para flujo de Play Console (closed testing, release notes,
 
 - Las herramientas cognitivas están basadas en investigación (Perplexity + Gemini Deep Research)
 - Primera beta cerrada publicada en Google Play Store (abril 2026, versionCode 4)
-- Versión actual: `v2.0.8` (versionCode 12) — fix de `setTextZoom` para Realme/ColorOS
+- **Publicada en producción** (mayo 2026, versionCode 13) — disponible para descarga pública
+- Versión actual: `v2.0.8` (versionCode 13) — fix de `setTextZoom` para Realme/ColorOS
 - Package name: `kinesislab.movimientofuncional.app`
+- URL Play Store: https://play.google.com/store/apps/details?id=kinesislab.movimientofuncional.app

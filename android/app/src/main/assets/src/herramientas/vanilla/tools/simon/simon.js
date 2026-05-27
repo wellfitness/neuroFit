@@ -10,7 +10,9 @@ class SimonTool {
     this.playerIndex = 0;
     this.phase = 'idle';
     this.isPlaying = false;
+    this.sessionActive = false;
     this.currentSpeed = 4000;
+    this.direction = 'forward';
     this.hits = 0;
     this.misses = 0;
     this.bestStreak = 0;
@@ -38,25 +40,90 @@ class SimonTool {
   }
 
   togglePlay() {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
-      document.getElementById('playIcon').textContent = 'stop';
-      document.getElementById('playText').textContent = 'DETENER';
+    if (!this.sessionActive) {
+      this.sessionActive = true;
+      this.setFinalizeVisible(true);
+      this.isPlaying = true;
       ScreenWakeLock.request();
       this.resetStats();
+      if (window.SessionStats) {
+        SessionStats.session.start('simon', { direction: this.direction });
+      }
+      this.setPlayButton('pause', 'PAUSA');
       this.nextRound();
-    } else {
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'INICIAR';
+    } else if (this.isPlaying) {
+      this.isPlaying = false;
+      this.setPlayButton('play_arrow', 'REANUDAR');
       ScreenWakeLock.release();
       this.phase = 'idle';
-      this.setInstruction('Pulsa INICIAR para comenzar');
+      this.setInstruction('Pausado — pulsa REANUDAR');
       this.setButtonsClickable(false);
+    } else {
+      this.isPlaying = true;
+      ScreenWakeLock.request();
+      this.setPlayButton('pause', 'PAUSA');
+      // Si estaba esperando input, continúa; si no, sigue con la siguiente ronda
+      if (this.sequence.length === 0) {
+        this.nextRound();
+      } else if (this.phase === 'idle' || this.phase === 'showing') {
+        this.playSequence();
+      }
     }
   }
 
-  changeSpeed(ms) {
-    this.currentSpeed = parseInt(ms, 10);
+  finalize() {
+    if (!this.sessionActive) return;
+    this.isPlaying = false;
+    this.sessionActive = false;
+    this.phase = 'idle';
+    ScreenWakeLock.release();
+    this.setButtonsClickable(false);
+
+    let result = null;
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      if (result && result.summary) {
+        result.summary.config = result.summary.config || {};
+        result.summary.config.maxStreak = this.bestStreak;
+        customFeedback = `Has alcanzado ${this.bestStreak} colores seguidos · ${this.direction === 'reverse' ? 'modo atrás' : 'modo adelante'}`;
+      }
+    }
+
+    this.setPlayButton('play_arrow', 'INICIAR');
+    this.setFinalizeVisible(false);
+    this.setInstruction('Pulsa INICIAR para comenzar');
+    this.resetStats();
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
+    }
+  }
+
+  setPlayButton(icon, text) {
+    document.getElementById('playIcon').textContent = icon;
+    document.getElementById('playText').textContent = text;
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
+  }
+
+  changeDirection(val) {
+    this.direction = val;
+    if (this.isPlaying || this.sessionActive) {
+      this.isPlaying = false;
+      this.sessionActive = false;
+      this.phase = 'idle';
+      ScreenWakeLock.release();
+      this.setButtonsClickable(false);
+      if (window.SessionStats) SessionStats.session.abort();
+      this.setPlayButton('play_arrow', 'INICIAR');
+      this.setFinalizeVisible(false);
+      this.setInstruction('Pulsa INICIAR para comenzar');
+      this.resetStats();
+    }
   }
 
   resetStats() {
@@ -78,7 +145,9 @@ class SimonTool {
 
   async playSequence() {
     this.phase = 'showing';
-    this.setInstruction('Observa la secuencia...');
+    this.setInstruction(this.direction === 'reverse'
+      ? 'Observa — luego replícala AL REVÉS'
+      : 'Observa la secuencia...');
     this.setButtonsClickable(false);
 
     const flashDuration = Math.max(200, 600 - this.sequence.length * 30);
@@ -97,8 +166,17 @@ class SimonTool {
     if (!this.isPlaying) return;
     this.phase = 'input';
     this.playerIndex = 0;
-    this.setInstruction('Tu turno — replica la secuencia');
+    this.setInstruction(this.direction === 'reverse'
+      ? 'Tu turno — replica AL REVÉS'
+      : 'Tu turno — replica la secuencia');
     this.setButtonsClickable(true);
+  }
+
+  expectedIdAt(index) {
+    if (this.direction === 'reverse') {
+      return this.sequence[this.sequence.length - 1 - index];
+    }
+    return this.sequence[index];
   }
 
   handleTap(id) {
@@ -107,12 +185,14 @@ class SimonTool {
     this.flashButton(id, 200);
     this.playTone(this.colors[id].freq, 200);
 
-    if (this.sequence[this.playerIndex] === id) {
+    const expected = this.expectedIdAt(this.playerIndex);
+    if (expected === id) {
       this.playerIndex++;
       if (this.playerIndex === this.sequence.length) {
         this.hits++;
         if (this.sequence.length > this.bestStreak) this.bestStreak = this.sequence.length;
         this.updateStats();
+        this.recordTrial({ span: this.sequence.length, correct: true });
         this.setInstruction('Correcto');
         this.setButtonsClickable(false);
         setTimeout(() => this.nextRound(), 1000);
@@ -120,14 +200,21 @@ class SimonTool {
     } else {
       this.misses++;
       this.updateStats();
+      this.recordTrial({ span: this.sequence.length, correct: false });
       if (navigator.vibrate) navigator.vibrate(200);
       this.setInstruction('Error — secuencia reiniciada');
       this.setButtonsClickable(false);
       this.flashError(id);
-      const correctId = this.sequence[this.playerIndex];
+      const correctId = expected;
       this.sequence = [];
       setTimeout(() => this.highlightCorrect(correctId), 400);
       setTimeout(() => this.nextRound(), 1800);
+    }
+  }
+
+  recordTrial(trial) {
+    if (window.SessionStats && this.sessionActive) {
+      SessionStats.session.recordTrial(trial);
     }
   }
 
@@ -172,3 +259,13 @@ class SimonTool {
 }
 
 const tool = new SimonTool();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'simon',
+    toolName: 'Simon Dice',
+    primaryMetric: 'accuracy',
+    onRepeat: () => tool.togglePlay(),
+    onClose: () => {}
+  });
+}

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Seguimiento Continuo — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     #tracking-dot {
       position: absolute; width: 60px; height: 60px;
@@ -16,13 +16,19 @@
       transition: all 1s ease-in-out;
     }
     .stats-bar {
-      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: nowrap;
       padding: var(--space-1) var(--space-2); background: rgba(0,0,0,0.3); border-radius: 8px;
-      position: absolute; bottom: var(--space-3); left: 50%; transform: translateX(-50%);
+      position: absolute; bottom: 0; left: 0; right: 0; width: 100%;
+      flex-shrink: 0;
     }
-    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+    .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 0; flex: 1; }
     .stat-value { font-size: 1.5rem; font-weight: bold; font-family: var(--font-display); }
-    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; }
+    .stat-label { font-size: 0.7rem; color: var(--gris-400); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .stats-bar { gap: 4px; padding: var(--space-1) 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+    }
 
     @media (min-width: 1280px) {
       #tracking-dot { width: 100px; height: 100px; box-shadow: 0 0 60px var(--rosa-400); }
@@ -44,20 +50,28 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Velocidad:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="1500">Lenta (1.5s)</option>
-          <option value="1000" selected>Media (1s)</option>
-          <option value="600">R&aacute;pida (0.6s)</option>
+      <div class="control-group" data-prefix="Modo">
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="standard" selected>Ocular</option>
+          <option value="headshake">Cabeza</option>
+        </select>
+      </div>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="1500">1.5s</option>
+          <option value="1000" selected>1s</option>
+          <option value="600">0.6s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
       </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="position: relative;">
-        <p class="stimulus-instruction" style="position: absolute; top: 20px; left: 0; right: 0; z-index: 5; margin: 0; pointer-events: none;">Sigue el punto con la vista</p>
+        <p id="trackingInstruction" class="stimulus-instruction" style="position: absolute; top: 20px; left: 0; right: 0; z-index: 5; margin: 0; pointer-events: none;">Sigue el punto con la vista</p>
         <div id="tracking-dot" style="left: 50%; top: 50%;"></div>
         <div class="stats-bar" aria-live="polite" role="status">
           <div class="stat-item"><span id="statRounds" class="stat-value" style="color: white;">0</span><span class="stat-label">Movimientos</span></div>
@@ -102,12 +116,25 @@
             <li>Para adultos mayores: prevenci&oacute;n de ca&iacute;das.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Ojos siguen, cabeza quieta:</strong> el cliente fija la cabeza y solo mueve los ojos para seguir el punto. Trabaja oculomotricidad pura. Esencial en rehabilitaci&oacute;n vestibular.</li>
+            <li><strong>Cabeza sigue, ojos pegados:</strong> al rev&eacute;s, gira la cabeza siguiendo el punto y mantiene los ojos en el centro de la pantalla. Reta el reflejo vestibulo-ocular.</li>
+            <li><strong>Equilibrio unipodal + seguimiento:</strong> de pie en una pierna mirando el punto. Suelo firme primero, luego superficie inestable (colchoneta). Propiocepci&oacute;n + ocular.</li>
+            <li><strong>Marcha tand&eacute;m + seguimiento:</strong> caminata tal&oacute;n-punta en l&iacute;nea, siguiendo el punto con la mirada. Reta equilibrio din&aacute;mico + ocular.</li>
+            <li><strong>Sentadilla isom&eacute;trica + seguimiento:</strong> aguanta abajo en la sentadilla mientras los ojos siguen el punto. Combina fuerza + control ocular.</li>
+            <li><strong>Tras 3 giros sobre s&iacute; mismo:</strong> gira 3 veces (induce desorientaci&oacute;n leve), detente y sigue el punto inmediatamente. Trabajo vestibular adaptativo.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="tracking.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="tracking.js?v=2.0.7"></script>
 </body>
 </html>

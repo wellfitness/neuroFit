@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Se&ntilde;ales Reactivas — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .reactive-action {
       font-family: var(--font-display);
@@ -151,16 +151,21 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="4000">Lenta (4s)</option>
-          <option value="3000" selected>Media (3s)</option>
-          <option value="2000">R&aacute;pida (2s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">4s</option>
+          <option value="3000" selected>3s</option>
+          <option value="2000">2s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="position: relative;">
@@ -217,12 +222,25 @@
             <li>Para prevenci&oacute;n de ca&iacute;das: reaccionar a est&iacute;mulos inesperados.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Cuatro acciones reactivas:</strong> agudo &rarr; salto vertical; grave &rarr; sentadilla profunda con pausa; azul &rarr; zancada derecha; rojo &rarr; zancada izquierda. Combina pliom&eacute;trico, isom&eacute;trico y desplazamiento.</li>
+            <li><strong>Ojos cerrados con base:</strong> sentadilla isom&eacute;trica permanente con ojos cerrados. Solo reacciona al sonido (agudo &rarr; salto pliom&eacute;trico desde abajo; grave &rarr; aguanta 3 s m&aacute;s). Trabaja propiocepci&oacute;n.</li>
+            <li><strong>Plancha multimodal:</strong> mant&eacute;n plancha. Cada est&iacute;mulo &rarr; una acci&oacute;n distinta (toca hombro, levanta pierna, rota cadera, aguanta).</li>
+            <li><strong>Pareja con pelota:</strong> A sostiene la pelota, B reacciona seg&uacute;n el est&iacute;mulo (sonido &rarr; lanzar derecha; color &rarr; lanzar izquierda). Coordinaci&oacute;n + reacci&oacute;n.</li>
+            <li><strong>Equilibrio + reacci&oacute;n:</strong> de pie en una pierna. Cada est&iacute;mulo cambia el patr&oacute;n de brazos. Trabaja propiocepci&oacute;n bajo carga cognitiva.</li>
+            <li><strong>Boxeo en sombra:</strong> golpes al aire. Cada se&ntilde;al &rarr; un tipo de golpe diferente (directo, gancho, uppercut, cruzado).</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="reactive.js?v=2.0.6"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="reactive.js?v=2.0.7"></script>
 </body>
 </html>

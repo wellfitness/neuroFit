@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Boxeo Reactivo — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .status-panel {
       display: flex;
@@ -163,6 +163,9 @@
         <button id="btnPlayPause" class="btn-critical btn-critical--full" onclick="tool.handleStartStop()">
           <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">EMPEZAR</span>
         </button>
+        <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión" style="align-self: center;">
+          <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+        </button>
       </div>
     </div>
 
@@ -232,10 +235,22 @@
         <div class="info-section">
           <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
           <ul>
-            <li>En sesiones de boxeo fitness o cardio combat.</li>
+            <li>En sesiones de boxeo de fitness o combate cardio.</li>
             <li>Para trabajar coordinaci&oacute;n ojo-mano bajo estr&eacute;s.</li>
             <li>Como descarga emocional: golpeo libre con estructura.</li>
             <li>Como calentamiento intenso con componente cognitivo.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Sombra reactiva:</strong> golpeo al aire sin equipamiento. La voz canta combos; el cliente responde con los golpes correctos. Cardio + reacci&oacute;n + coordinaci&oacute;n.</li>
+            <li><strong>Manoplas en pareja:</strong> el entrenador sostiene las manoplas. La voz canta el combo; el cliente lo ejecuta y el entrenador absorbe los golpes.</li>
+            <li><strong>Saco pesado:</strong> golpeo al saco siguiendo las indicaciones. Trabajo de potencia con sistema cognitivo a&ntilde;adido.</li>
+            <li><strong>Solo defensa:</strong> activa el modo defensivo. La voz canta &laquo;esquiva&raquo;, &laquo;bloqueo&raquo;, &laquo;cabeceo&raquo;. Trabaja reactividad sin golpear.</li>
+            <li><strong>Interv&aacute;lico 4&times;4:</strong> bloques de 4 min de combos reactivos + 4 min de descanso ligero (saltos suaves o estiramiento) &times; 4 rondas.</li>
+            <li><strong>Tras carrera explosiva:</strong> el cliente corre 200 m, vuelve sin aliento y hace 30 s de combos. Trabaja la coordinaci&oacute;n cognitiva en fatiga.</li>
+            <li><strong>En equilibrio:</strong> de pie en una pierna, golpea siguiendo el combo. Propiocepci&oacute;n + coordinaci&oacute;n.</li>
           </ul>
         </div>
       </div>
@@ -244,6 +259,8 @@
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
-  <script src="boxing.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="boxing.js?v=2.0.7"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Reloj Auditivo — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .clock-answers { display: flex; gap: 24px; justify-content: center; margin-top: var(--space-4); width: 100%; padding: 0 var(--space-2); }
     .clock-answer-btn {
@@ -53,8 +53,7 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Modo:</span>
+      <div class="control-group" data-prefix="Modo">
         <select aria-label="Variante" name="variant" class="speed-select" onchange="tool.changeVariant(this.value)">
           <option value="lr-text">Texto &#x2194;</option>
           <option value="tb-text">Texto &#x2195;</option>
@@ -62,16 +61,18 @@
           <option value="tb-24h">24h &#x2195;</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="5000">Lenta (5s)</option>
-          <option value="4000" selected>Media (4s)</option>
-          <option value="3000">R&aacute;pida (3s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="5000">5s</option>
+          <option value="4000" selected>4s</option>
+          <option value="3000">3s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -147,13 +148,26 @@
             <li>Para medir la agilidad mental antes y despu&eacute;s de entrenar.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Marcha + reloj:</strong> caminata continua escuchando la hora y respondiendo. Doble tarea de rotaci&oacute;n mental + locomoci&oacute;n.</li>
+            <li><strong>Reloj corporal:</strong> de pie con brazos al lado. Cuando dice una hora, el cliente coloca los brazos como las agujas (corto = hora, largo = minutos). Trabaja rotaci&oacute;n mental con todo el cuerpo.</li>
+            <li><strong>Sentadilla isom&eacute;trica + reloj:</strong> aguanta abajo y responde. Carga muscular + razonamiento espacial bajo esfuerzo.</li>
+            <li><strong>Equilibrio unipodal + reloj:</strong> de pie en una pierna escuchando y respondiendo. Reta vestibular + procesamiento espacial.</li>
+            <li><strong>Tras saltos al m&aacute;ximo:</strong> 30 s de saltos pliom&eacute;tricos. Pausa y responde 5 horas seguidas. Trabaja razonamiento bajo fatiga cardiovascular.</li>
+            <li><strong>Cierra los ojos:</strong> en una postura est&aacute;ble, ojos cerrados. La imagen del reloj es totalmente mental &mdash; m&aacute;ximo desaf&iacute;o de rotaci&oacute;n.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="clock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="clock.js?v=2.0.7"></script>
 </body>
 </html>

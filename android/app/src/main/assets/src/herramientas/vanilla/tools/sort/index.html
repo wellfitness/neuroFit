@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>De Menor a Mayor — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     /* === LAYOUT: stimulus-area como columna completa === */
     #stimulusContainer.stimulus-area {
@@ -248,24 +248,25 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="easy" selected>N&uacute;meros</option>
           <option value="medium">Sumas y restas</option>
           <option value="hard">Multiplicaciones</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="4000">Lenta (4s)</option>
-          <option value="3000" selected>Media (3s)</option>
-          <option value="2000">R&aacute;pida (2s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">4s</option>
+          <option value="3000" selected>3s</option>
+          <option value="2000">2s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area">
@@ -367,11 +368,23 @@
             <li>En grupo: todos responden a la vez con gestos.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Caminata + comparaci&oacute;n:</strong> caminata continua a ritmo c&oacute;modo. El cliente mira la pantalla y responde con la mano (pulgar arriba/abajo). Doble tarea suave.</li>
+            <li><strong>Bici est&aacute;tica:</strong> pedaleo aerobio + comparaciones. Para entrenar c&aacute;lculo mental en zona aerobia c&oacute;moda.</li>
+            <li><strong>Sentadilla isom&eacute;trica + c&aacute;lculo:</strong> aguanta abajo en sentadilla. Mira los n&uacute;meros y responde con la mano libre. Reta el c&aacute;lculo bajo carga muscular.</li>
+            <li><strong>Tras burpees:</strong> 10 burpees al m&aacute;ximo, luego 5 comparaciones. Trabaja c&aacute;lculo bajo fatiga cardiovascular.</li>
+            <li><strong>En grupo con gestos:</strong> todos responden a la vez levantando la mano si est&aacute; ordenado o golpe&aacute;ndose el muslo si no. R&aacute;pido y din&aacute;mico.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="sort.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="sort.js?v=2.0.7"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinesislab-cache-v13';
+const CACHE_NAME = 'kinesislab-cache-v14';
 
 const PRECACHE_URLS = [
   './',

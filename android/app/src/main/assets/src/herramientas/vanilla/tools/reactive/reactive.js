@@ -10,7 +10,9 @@ class ReactiveTool {
     this.pendingTimeout = null;
     this.clearTimeout = null;
     this.isPlaying = false;
+    this.sessionActive = false;
     this.currentSpeed = 3000;
+    this.jitter = 0;
     this.totalTrials = 0;
     this.minPerStimulus = 2;
     this.stimulusCounts = [0, 0, 0, 0];
@@ -53,34 +55,85 @@ class ReactiveTool {
   }
 
   togglePlay() {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
-      document.getElementById('playIcon').textContent = 'pause';
-      document.getElementById('playText').textContent = 'PAUSA';
+    if (!this.sessionActive) {
+      this.sessionActive = true;
+      this.setFinalizeVisible(true);
       this.totalTrials = 0;
       this.stimulusCounts = [0, 0, 0, 0];
       this.learningDone = false;
       this.lastStimIndex = null;
       this.updateStats();
       this.renderLegend();
+      if (window.SessionStats) {
+        SessionStats.session.start('reactive', {
+          cadence: this.currentSpeed,
+          jitter: this.jitter,
+          actions: this.stimuli.map(s => s.action)
+        });
+      }
+      this.isPlaying = true;
+      this.setPlayButton('pause', 'PAUSA');
       this.startEngine();
       ScreenWakeLock.request();
-    } else {
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'REANUDAR';
+    } else if (this.isPlaying) {
+      this.isPlaying = false;
+      this.setPlayButton('play_arrow', 'REANUDAR');
       this.stopEngine();
       ScreenWakeLock.release();
+    } else {
+      this.isPlaying = true;
+      this.setPlayButton('pause', 'PAUSA');
+      this.startEngine();
+      ScreenWakeLock.request();
     }
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.isPlaying = false;
+    this.sessionActive = false;
+    this.stopEngine();
+    ScreenWakeLock.release();
+    let result = null;
+    if (window.SessionStats) result = SessionStats.session.end();
+    this.setPlayButton('play_arrow', 'INICIAR');
+    this.setFinalizeVisible(false);
+    this.totalTrials = 0;
+    this.stimulusCounts = [0, 0, 0, 0];
+    this.learningDone = false;
+    this.lastStimIndex = null;
+    this.updateStats();
+    if (result && result.summary && result.summary.total >= 5 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison);
+    }
+  }
+
+  setPlayButton(icon, text) {
+    document.getElementById('playIcon').textContent = icon;
+    document.getElementById('playText').textContent = text;
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
   }
 
   startEngine() {
     this.runReactive();
     if (!this.scheduler) {
-      this.scheduler = new CadenceScheduler(() => this.runReactive(), this.currentSpeed);
+      this.scheduler = new CadenceScheduler(() => this.runReactive(), this.currentSpeed, this.jitter);
     } else {
       this.scheduler.changeInterval(this.currentSpeed);
+      this.scheduler.setJitter(this.jitter);
     }
     this.scheduler.start();
+  }
+
+  toggleJitter() {
+    this.jitter = this.jitter > 0 ? 0 : 0.3;
+    if (this.scheduler) this.scheduler.setJitter(this.jitter);
+    const btn = document.getElementById('btnJitter');
+    if (btn) btn.classList.toggle('active', this.jitter > 0);
   }
 
   stopEngine() {
@@ -140,6 +193,10 @@ class ReactiveTool {
       this.totalTrials++;
       this.stimulusCounts[stimIndex]++;
 
+      if (window.SessionStats && this.sessionActive) {
+        SessionStats.session.recordTrial({ stimulus: stim.name });
+      }
+
       this.updateStats();
 
       if (stim.type === 'color' && stimIndex === this.lastStimIndex) {
@@ -188,3 +245,13 @@ class ReactiveTool {
 }
 
 const tool = new ReactiveTool();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'reactive',
+    toolName: 'Señales Reactivas',
+    primaryMetric: 'rtMedian',
+    onRepeat: () => tool.togglePlay(),
+    onClose: () => {}
+  });
+}

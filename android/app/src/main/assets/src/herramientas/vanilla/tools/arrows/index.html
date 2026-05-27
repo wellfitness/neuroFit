@@ -7,14 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Conflicto Audiovisual — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     @media (min-width: 1280px) {
       #arrowVisual {
-        font-size: min(70vh, 36rem) !important;
+        font-size: min(50vh, 28rem) !important;
       }
       .stimulus-instruction {
-        font-size: 2rem !important;
+        font-size: 1.6rem !important;
       }
     }
   </style>
@@ -30,19 +30,31 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div id="cadenceGroup" class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="4000">Lenta (4s)</option>
-          <option value="3000" selected>Media (3s)</option>
-          <option value="2000">R&aacute;pida (2s)</option>
+      <div class="control-group" data-prefix="Cong">
+        <select aria-label="Ratio congruencia" name="ratio" class="speed-select" onchange="tool.changeRatio(this.value)">
+          <option value="0.5" selected>50/50</option>
+          <option value="0.75">75% cong</option>
+          <option value="0.25">25% cong</option>
         </select>
       </div>
+      <div id="cadenceGroup" class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">4s</option>
+          <option value="3000" selected>3s</option>
+          <option value="2000">2s</option>
+        </select>
+      </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
       </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+      </button>
     </div>
-    <div id="stimulusContainer" class="stimulus-area" style="padding: 0; flex-direction: column; align-items: center;">
+    <div id="stimulusContainer" class="stimulus-area" style="padding: 0; flex-direction: column; align-items: center; justify-content: flex-start;">
       <p class="stimulus-instruction" style="flex-shrink: 0;">Sigue lo que <strong style="color: var(--turquesa-400);">ESCUCHAS</strong><br>No lo que ves</p>
       <div style="flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;" onclick="tool.runArrows()">
         <div id="arrowVisual" class="material-symbols-sharp" style="font-size: min(80vw, 70vh); color: var(--turquesa-400); line-height: 1; filter: drop-shadow(0 0 40px rgba(0, 190, 200, 0.4));">lens</div>
@@ -95,6 +107,17 @@
             <li>En grupo: todos ven la pantalla pero deben priorizar el audio.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Desplazamiento lateral:</strong> el cliente mira la pantalla y se desplaza seg&uacute;n el AUDIO (ignora la flecha visual). Trabaja agilidad + inhibici&oacute;n.</li>
+            <li><strong>Giro corporal direccional:</strong> en el centro de un c&iacute;rculo, gira 90&deg; seg&uacute;n el audio. Trabaja propiocepci&oacute;n direccional y orientaci&oacute;n espacial.</li>
+            <li><strong>Pareja en espejo:</strong> A reacciona a la pantalla, B reacciona al rev&eacute;s (sigue lo que ve, no lo que oye). Trabaja inhibici&oacute;n diferenciada en pareja.</li>
+            <li><strong>Ojos cerrados (solo audio):</strong> el cliente con los ojos cerrados, sin conflicto visual. Reacciona &uacute;nicamente al audio. Refuerza confianza en la se&ntilde;al auditiva.</li>
+            <li><strong>Conos en cruz:</strong> 4 conos alrededor del cliente. Tocar el cono que dice el audio aunque la flecha apunte a otro. Carrera explosiva + inhibici&oacute;n.</li>
+            <li><strong>Pesa rusa en mano:</strong> sujeta una pesa rusa. Hace el paso o giro indicado por el audio. Carga unilateral + reactividad cognitiva.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -102,6 +125,8 @@
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="arrows.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="arrows.js?v=2.0.7"></script>
 </body>
 </html>

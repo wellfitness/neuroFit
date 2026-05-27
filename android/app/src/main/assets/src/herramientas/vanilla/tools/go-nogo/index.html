@@ -7,12 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Go / No-Go — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .stimulus-area {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       padding: 0;
       transition: background-color 150ms ease-out;
@@ -32,6 +32,7 @@
 
     .touch-zone {
       flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -117,15 +118,15 @@
 
     @media (min-width: 1280px) {
       .go-circle {
-        width: clamp(360px, 40vmin, 520px);
-        height: clamp(360px, 40vmin, 520px);
+        width: clamp(260px, 30vmin, 420px);
+        height: clamp(260px, 30vmin, 420px);
       }
       .go-circle .material-symbols-sharp {
-        font-size: clamp(120px, 16vmin, 180px);
+        font-size: clamp(96px, 12vmin, 150px);
       }
       .go-label {
-        font-size: 3.2rem;
-        letter-spacing: 8px;
+        font-size: 2.4rem;
+        letter-spacing: 6px;
       }
       .stat-value { font-size: 2rem; }
       .stat-label { font-size: 0.9rem; }
@@ -143,24 +144,35 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Modo">
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="touch" selected>T&aacute;ctil</option>
+          <option value="voice">Voz</option>
+        </select>
+      </div>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" id="levelSelect" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="basic" selected>B&aacute;sico</option>
           <option value="distractors">Distractores</option>
           <option value="inverted">Invertido</option>
+          <option value="sart">Sostenida 80/20</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="3000">Lenta (3s)</option>
-          <option value="2000" selected>Media (2s)</option>
-          <option value="1200">R&aacute;pida (1.2s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">3s</option>
+          <option value="2000" selected>2s</option>
+          <option value="1200">1.2s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -207,6 +219,28 @@
             <li><strong>B&aacute;sico:</strong> solo verde (toca) y rojo (frena). Ideal para empezar.</li>
             <li><strong>Distractores:</strong> aparecen colores extra (amarillo, azul) que NO debes tocar. Solo el verde.</li>
             <li><strong>Invertido:</strong> las reglas se invierten &mdash; rojo = toca, verde = frena. Rompe el automatismo.</li>
+            <li><strong>Sostenida 80/20:</strong> casi todo verde (80%) y de vez en cuando un rojo (20%). El cerebro se acostumbra a tocar y tiene que romper el impulso cuando aparece el rojo. Mide <strong>inhibici&oacute;n proactiva</strong> y <strong>post-error slowing</strong> (si tras un error te vuelves m&aacute;s prudente). Mejor para bloques largos de 3&minus;5 minutos.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Sentadilla cognitiva:</strong> aguanta abajo en sentadilla isom&eacute;trica. Con verde sube explosivo (plio); con rojo aguanta 3 s m&aacute;s.</li>
+            <li><strong>Ida y vuelta reactiva:</strong> trote en sitio. Verde &rarr; carrera explosiva 3 m; rojo &rarr; quieto inmediato.</li>
+            <li><strong>Saltos en sitio:</strong> bota suave. Verde &rarr; salto vertical m&aacute;ximo (pliom&eacute;trico); rojo &rarr; baja a cuclillas y aguanta.</li>
+            <li><strong>Golpeo con manopla:</strong> golpea con ritmo libre. Verde &rarr; directo potente; rojo &rarr; frena el pu&ntilde;o antes de tocar (control exc&eacute;ntrico).</li>
+            <li><strong>Plancha din&aacute;mica:</strong> mant&eacute;n plancha. Verde &rarr; toca el hombro opuesto; rojo &rarr; aguanta inm&oacute;vil.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna. Verde &rarr; balancea la pierna libre; rojo &rarr; inmoviliza toda la postura.</li>
+            <li><strong>Modo Sostenida 80/20 con trote largo:</strong> 3&minus;5 min de trote continuo. Casi todo verde &mdash; el cliente se va acomodando &mdash; y de vez en cuando rojo. Mide el control sostenido.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">record_voice_over</span> Modo Voz</h4>
+          <p>En este modo la app <strong>anuncia los colores en voz alta</strong> y la pantalla se ilumina, pero NO hay que tocar nada.</p>
+          <ul>
+            <li>El entrenador define la acci&oacute;n: cuando suene <strong>VERDE</strong>, el cliente hace el ejercicio (sentadilla, salto, jab, paso, palmada&hellip;). Con <strong>ROJO</strong>, freeze.</li>
+            <li>Permite trabajar inhibici&oacute;n con tareas motoras de cuerpo entero, lejos del tablet.</li>
+            <li>Se mide cu&aacute;ntas rondas y la duraci&oacute;n. La precisi&oacute;n la observa el entrenador.</li>
           </ul>
         </div>
         <div class="info-section">
@@ -232,7 +266,10 @@
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="go-nogo.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="go-nogo.js?v=2.0.7"></script>
 </body>
 </html>

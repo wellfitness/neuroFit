@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Comba Reactiva — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .status-panel {
       display: flex;
@@ -139,6 +139,9 @@
         <button id="btnPlayPause" class="btn-primary btn-primary--full" onclick="tool.handleStartStop()">
           <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">EMPEZAR</span>
         </button>
+        <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión" style="align-self: center;">
+          <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
+        </button>
       </div>
     </div>
 
@@ -230,8 +233,19 @@
           <ul>
             <li>Como calentamiento cardiovascular din&aacute;mico.</li>
             <li>Para trabajar coordinaci&oacute;n y ritmo (escuchar + ejecutar).</li>
-            <li>Como entrenamiento HIIT con comba.</li>
+            <li>Como entrenamiento interv&aacute;lico de alta intensidad con comba.</li>
             <li>En grupo: todos cambian de ejercicio sincronizados.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Comba b&aacute;sica con cambios:</strong> salto continuo. La voz indica el tipo (pies juntos, pies alternos, dobles, cruzados). Trabaja coordinaci&oacute;n + cardio + reactividad.</li>
+            <li><strong>Sin comba (saltos en sitio):</strong> si no hay cuerda, mismo ritmo con saltos verticales pliom&eacute;tricos. Cambio de patr&oacute;n seg&uacute;n la voz.</li>
+            <li><strong>Comba con pesa rusa:</strong> sujeta una pesa rusa ligera en una mano mientras saltas. Trabaja equilibrio + carga unilateral.</li>
+            <li><strong>Pareja con cuerda larga:</strong> dos personas mueven la cuerda; un tercero salta dentro reaccionando al cambio anunciado.</li>
+            <li><strong>Estaci&oacute;n en circuito:</strong> 30&minus;45 s de comba reactiva entre estaciones de fuerza. Sirve como descanso activo + componente cognitivo.</li>
+            <li><strong>Comba isom&eacute;trica intermitente:</strong> cuando dice &laquo;cambio&raquo;, deja la comba y aguanta sentadilla isom&eacute;trica 10 s antes de continuar.</li>
           </ul>
         </div>
       </div>
@@ -240,6 +254,8 @@
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
-  <script src="comba.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="comba.js?v=2.0.7"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Colores — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .color-action {
       font-family: var(--font-display);
@@ -107,24 +107,36 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Modo">
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="visual" selected>Visual</option>
+          <option value="voice">Visual + Voz</option>
+        </select>
+      </div>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="1">Stroop</option>
           <option value="2" selected>Color + Acci&oacute;n</option>
           <option value="3">Stroop + Acci&oacute;n</option>
+          <option value="4">Bloques</option>
+          <option value="5">Stroop inverso</option>
         </select>
       </div>
-      <div id="cadenceGroup" class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="4000">Lenta (4s)</option>
-          <option value="3000" selected>Media (3s)</option>
-          <option value="2000">R&aacute;pida (2s)</option>
+      <div id="cadenceGroup" class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">4s</option>
+          <option value="3000" selected>3s</option>
+          <option value="2000">2s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="padding:0; position: relative;">
@@ -155,7 +167,28 @@
       <div class="info-modal-body">
         <div class="info-section">
           <h4><span class="material-symbols-sharp">info</span> Qu&eacute; es</h4>
-          <p>Un ejercicio de <strong>reacci&oacute;n por colores</strong> con 3 niveles. Tienes que responder r&aacute;pido al color que ves en pantalla, ignorando las trampas que intenta ponerte tu cerebro.</p>
+          <p>Un ejercicio de <strong>reacci&oacute;n por colores</strong> con 4 modos. Tienes que responder r&aacute;pido al color que ves en pantalla, ignorando las trampas que intenta ponerte tu cerebro.</p>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Sentadilla por colores:</strong> rojo &rarr; sentadilla isom&eacute;trica abajo 3 s; verde &rarr; salto vertical (pliom&eacute;trico); azul &rarr; zancada lateral derecha; amarillo &rarr; zancada lateral izquierda.</li>
+            <li><strong>Empuje horizontal:</strong> rojo &rarr; flexi&oacute;n con pausa abajo (exc&eacute;ntrico controlado); verde &rarr; flexi&oacute;n explosiva con palmada (pliom&eacute;trico); azul &rarr; flexi&oacute;n con mano elevada derecha; amarillo &rarr; flexi&oacute;n con mano elevada izquierda.</li>
+            <li><strong>Pesa rusa:</strong> rojo &rarr; sentadilla profunda con pesa; verde &rarr; balanceo (swing); azul &rarr; press de hombro derecho; amarillo &rarr; press izquierdo.</li>
+            <li><strong>Equilibrio + carga visual:</strong> de pie en una pierna. Rojo &rarr; cierra los ojos; verde &rarr; brazos en cruz; azul &rarr; brazos arriba; amarillo &rarr; brazos al frente. Trabaja propiocepci&oacute;n + vestibular.</li>
+            <li><strong>Boxeo cuatro golpes:</strong> rojo &rarr; directo; verde &rarr; cruzado; azul &rarr; gancho; amarillo &rarr; uppercut.</li>
+            <li><strong>Saltos en plataforma:</strong> rojo &rarr; salto adelante; verde &rarr; salto atr&aacute;s; azul &rarr; lateral derecha; amarillo &rarr; lateral izquierda. Reactividad + agilidad.</li>
+            <li><strong>Stroop + acci&oacute;n en grupo:</strong> con modo Stroop+Acci&oacute;n, todos hacen la acci&oacute;n del COLOR de fondo (no la palabra). Trabaja inhibici&oacute;n y atenci&oacute;n.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">view_module</span> Modo Bloques</h4>
+          <p>La sesi&oacute;n alterna autom&aacute;ticamente bloques de <strong>1 minuto</strong>:</p>
+          <ul>
+            <li><strong>Baseline:</strong> s&oacute;lo color + acci&oacute;n. Sin texto distractor. Mide tu <em>tiempo de respuesta base</em>.</li>
+            <li><strong>Ejecutivo:</strong> Stroop completo &mdash; texto de un color en fondo de otro. Mide tu <em>capacidad de inhibici&oacute;n</em>.</li>
+          </ul>
+          <p>La app avisa con un banner al cambiar de bloque. Al finalizar puedes ver cu&aacute;ntas rondas hiciste en cada modo y comparar &mdash; la diferencia es tu &laquo;coste de interferencia&raquo; puro.</p>
         </div>
         <div class="info-section">
           <h4><span class="material-symbols-sharp">tune</span> Niveles</h4>
@@ -196,7 +229,10 @@
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="colores.js?v=2.0.6"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="colores.js?v=2.0.7"></script>
 </body>
 </html>

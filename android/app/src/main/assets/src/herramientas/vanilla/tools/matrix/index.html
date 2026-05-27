@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Matriz Visoespacial — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .matrix-grid {
       display: grid;
@@ -43,6 +43,21 @@
     .matrix-cell.wrong {
       background: var(--tulip-tree-400);
       box-shadow: 0 0 15px var(--tulip-tree-400);
+    }
+    .matrix-cell.suppress {
+      background: var(--rosa-600);
+      box-shadow: 0 0 15px var(--rosa-400);
+      border-color: var(--rosa-700);
+      position: relative;
+    }
+    .matrix-cell.suppress::after {
+      content: '×';
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: bold;
+      position: absolute;
+      pointer-events: none;
     }
     .ordered-toggle {
       display: flex;
@@ -91,24 +106,25 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Cuadr&iacute;cula:</span>
+      <div class="control-group" data-prefix="Cuadr&iacute;cula">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="3" selected>3&times;3</option>
           <option value="4">4&times;4</option>
           <option value="5">5&times;5</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="8000">Lenta (8s)</option>
-          <option value="6000" selected>Media (6s)</option>
-          <option value="4000">R&aacute;pida (4s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="8000">8s</option>
+          <option value="6000" selected>6s</option>
+          <option value="4000">4s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -117,7 +133,13 @@
         <div class="matrix-grid" id="matrixGrid"></div>
         <div class="ordered-toggle">
           <input type="checkbox" id="orderedCheck" onchange="tool.toggleOrdered(this.checked)">
-          <label for="orderedCheck">Modo orden (avanzado)</label>
+          <label for="orderedCheck">Modo orden</label>
+          <select id="directionSelect" class="speed-select" onchange="tool.changeDirection(this.value)" style="margin-left:12px; font-size: 0.85rem; padding: 4px 8px; min-height: auto;" disabled>
+            <option value="forward" selected>&#9654; Adelante</option>
+            <option value="reverse">&#9664; Atr&aacute;s</option>
+          </select>
+          <input type="checkbox" id="suppressCheck" onchange="tool.toggleSuppress(this.checked)" style="margin-left:12px;">
+          <label for="suppressCheck" title="Una celda roja aparece como trampa: memorízala pero NO la pulses">Trampa</label>
         </div>
       </div>
       <div class="stats-bar" aria-live="polite" role="status">
@@ -157,6 +179,10 @@
           </ul>
         </div>
         <div class="info-section">
+          <h4><span class="material-symbols-sharp">swap_horiz</span> Modo Atr&aacute;s</h4>
+          <p>Disponible solo con &laquo;Modo orden&raquo; activado. Tienes que tocar las celdas en <strong>orden inverso</strong> al que se mostraron. Es bastante m&aacute;s exigente: no s&oacute;lo memorizas, tu cerebro tiene que <strong>manipular mentalmente</strong> la secuencia y darle la vuelta.</p>
+        </div>
+        <div class="info-section">
           <h4><span class="material-symbols-sharp">fitness_center</span> Cu&aacute;ndo aplicar</h4>
           <ul>
             <li>Para entrenar la memoria espacial (posiciones, ubicaciones).</li>
@@ -165,12 +191,25 @@
             <li>Para mantener la mente activa (cualquier edad).</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Memoriza arriba, responde abajo:</strong> el cliente est&aacute; sentado. Memoriza el patr&oacute;n. Hace 5 sentadillas. Vuelve y toca el patr&oacute;n. Trabaja WM espacial bajo carga.</li>
+            <li><strong>Equilibrio + memoria:</strong> de pie en una pierna mirando la pantalla. Memoriza, mant&eacute;n el equilibrio durante el intervalo, responde. Propiocepci&oacute;n + WM visuoespacial.</li>
+            <li><strong>Patr&oacute;n trasladado al suelo:</strong> en lugar de tocar la pantalla, marca el patr&oacute;n con conos en el suelo (3&times;3) y el cliente recorre las posiciones caminando o saltando.</li>
+            <li><strong>Modo orden directo + plancha:</strong> el cliente est&aacute; en plancha. La tablet est&aacute; debajo de la cabeza. Memoriza y toca con una mano libre. Core + memoria secuencial.</li>
+            <li><strong>Modo Atr&aacute;s con sentadilla isom&eacute;trica:</strong> el cliente memoriza la secuencia mientras aguanta abajo en la sentadilla. Cuando se le pide, sube y responde al rev&eacute;s. Triple desaf&iacute;o.</li>
+            <li><strong>En pareja:</strong> A memoriza, B replica (con instrucci&oacute;n del entrenador). Ambos hacen 10 sentadillas entre intentos. Trabajo cooperativo.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="matrix.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="matrix.js?v=2.0.7"></script>
 </body>
 </html>

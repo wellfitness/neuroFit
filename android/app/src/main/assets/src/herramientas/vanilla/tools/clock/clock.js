@@ -6,13 +6,17 @@ class ClockTool {
     this.scheduler = null;
     this.pendingRestart = null;
     this.isPlaying = false;
+    this.sessionActive = false;
     this.currentSpeed = 4000;
     this.currentAnswer = null;
+    this.currentDeltaAngle = 0;
     this.responded = false;
     this.hits = 0;
     this.misses = 0;
     this.totalTrials = 0;
     this.reactionTimes = [];
+    // Tracking para slope por ángulo
+    this.rtByAngleBin = {}; // bin (0-30, 30-60, 60-90, 90-120, 120-180) -> array de RTs
     this.trialStart = 0;
     this.audioCtx = null;
   }
@@ -27,6 +31,22 @@ class ClockTool {
     }
     if (angle === 90 || angle === 270) return null;
     return (angle < 90 || angle > 270) ? 't' : 'b';
+  }
+
+  // Distancia angular más corta entre dos ángulos (0-180).
+  angularDistance(a, b) {
+    const d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  }
+
+  // Bin de 30° (0-30, 30-60, ..., 150-180)
+  binForAngle(delta) {
+    if (delta < 30) return '0-30';
+    if (delta < 60) return '30-60';
+    if (delta < 90) return '60-90';
+    if (delta < 120) return '90-120';
+    if (delta < 150) return '120-150';
+    return '150-180';
   }
 
   formatTime(hour, min) {
@@ -59,7 +79,10 @@ class ClockTool {
     const mSide = this.getSide(mAngle);
     return {
       text: this.formatDisplay(hour, min),
-      answer: hSide === mSide ? 'mismo' : 'opuesto'
+      answer: hSide === mSide ? 'mismo' : 'opuesto',
+      hAngle,
+      mAngle,
+      deltaAngle: this.angularDistance(hAngle, mAngle)
     };
   }
 
@@ -88,7 +111,7 @@ class ClockTool {
     this.format = format;
     if (mode === 'lr') {
       document.getElementById('instructionText').innerHTML =
-        'Imagina el reloj<br>\u00bfLas dos agujas est\u00e1n en el mismo lado o en lados opuestos?';
+        'Imagina el reloj<br>¿Las dos agujas están en el mismo lado o en lados opuestos?';
       document.getElementById('iconSame1').textContent = 'arrow_forward';
       document.getElementById('iconSame2').textContent = 'arrow_forward';
       document.getElementById('labelSame').textContent = 'Mismo lado';
@@ -97,7 +120,7 @@ class ClockTool {
       document.getElementById('labelOpp').textContent = 'Lados opuestos';
     } else {
       document.getElementById('instructionText').innerHTML =
-        'Imagina el reloj<br>\u00bfLas dos agujas est\u00e1n en la misma mitad o en mitades opuestas?';
+        'Imagina el reloj<br>¿Las dos agujas están en la misma mitad o en mitades opuestas?';
       document.getElementById('iconSame1').textContent = 'arrow_upward';
       document.getElementById('iconSame2').textContent = 'arrow_upward';
       document.getElementById('labelSame').textContent = 'Misma mitad';
@@ -105,28 +128,114 @@ class ClockTool {
       document.getElementById('iconOpp2').textContent = 'arrow_downward';
       document.getElementById('labelOpp').textContent = 'Mitades opuestas';
     }
-    if (this.isPlaying) {
-      this.stopEngine();
-      this.resetStats();
-      this.startEngine();
-    }
+    this.abortSessionIfRunning();
   }
 
   togglePlay() {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
+    if (!this.sessionActive) {
+      this.sessionActive = true;
+      this.setFinalizeVisible(true);
+      this.resetStats();
+      if (window.SessionStats) {
+        SessionStats.session.start('clock', {
+          mode: this.mode,
+          format: this.format,
+          cadence: this.currentSpeed
+        });
+      }
+      KinesisTTS.warmup();
+      this.isPlaying = true;
       document.getElementById('playIcon').textContent = 'pause';
       document.getElementById('playText').textContent = 'PAUSA';
-      KinesisTTS.warmup();
-      this.resetStats();
       this.startEngine();
       this.setButtonsEnabled(true);
-    } else {
+    } else if (this.isPlaying) {
+      this.isPlaying = false;
       document.getElementById('playIcon').textContent = 'play_arrow';
       document.getElementById('playText').textContent = 'REANUDAR';
       this.stopEngine();
       this.setButtonsEnabled(false);
+    } else {
+      this.isPlaying = true;
+      document.getElementById('playIcon').textContent = 'pause';
+      document.getElementById('playText').textContent = 'PAUSA';
+      this.startEngine();
+      this.setButtonsEnabled(true);
     }
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.isPlaying = false;
+    this.sessionActive = false;
+    this.stopEngine();
+    this.setButtonsEnabled(false);
+
+    let result = null;
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      if (result && result.summary) {
+        const slope = this.computeSlope();
+        if (slope !== null) {
+          result.summary.config = result.summary.config || {};
+          result.summary.config.angleSlope = slope;
+          customFeedback = `Rotación mental: +${slope} ms por cada 30° extra entre las agujas`;
+        }
+      }
+    }
+
+    document.getElementById('playIcon').textContent = 'play_arrow';
+    document.getElementById('playText').textContent = 'INICIAR';
+    this.setFinalizeVisible(false);
+
+    if (result && result.summary && result.summary.total >= 5 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
+    }
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
+  }
+
+  abortSessionIfRunning() {
+    if (this.isPlaying || this.sessionActive) {
+      this.stopEngine();
+      if (window.SessionStats) SessionStats.session.abort();
+      this.isPlaying = false;
+      this.sessionActive = false;
+      this.setFinalizeVisible(false);
+      document.getElementById('playIcon').textContent = 'play_arrow';
+      document.getElementById('playText').textContent = 'INICIAR';
+      this.setButtonsEnabled(false);
+      this.resetStats();
+    }
+  }
+
+  // Regresión lineal: RT vs midpoint del bin de ángulo (en grados).
+  // Devuelve pendiente normalizada a "ms por cada 30°" (más legible).
+  computeSlope() {
+    const binCenters = { '0-30': 15, '30-60': 45, '60-90': 75, '90-120': 105, '120-150': 135, '150-180': 165 };
+    const xs = [];
+    const ys = [];
+    Object.keys(this.rtByAngleBin).forEach(bin => {
+      const arr = this.rtByAngleBin[bin];
+      if (arr && arr.length >= 2) {
+        xs.push(binCenters[bin]);
+        ys.push(arr.reduce((a, b) => a + b, 0) / arr.length);
+      }
+    });
+    if (xs.length < 2) return null;
+    const n = xs.length;
+    const sumX = xs.reduce((a, b) => a + b, 0);
+    const sumY = ys.reduce((a, b) => a + b, 0);
+    const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
+    const sumXX = xs.reduce((s, x) => s + x * x, 0);
+    const denom = n * sumXX - sumX * sumX;
+    if (denom === 0) return null;
+    const slopePerDegree = (n * sumXY - sumX * sumY) / denom;
+    return Math.round(slopePerDegree * 30);
   }
 
   startEngine() {
@@ -158,17 +267,19 @@ class ClockTool {
     this.misses = 0;
     this.totalTrials = 0;
     this.reactionTimes = [];
+    this.rtByAngleBin = {};
     this.updateStats();
   }
 
   showTrial() {
     const trial = this.generateTrial();
     this.currentAnswer = trial.answer;
+    this.currentDeltaAngle = trial.deltaAngle;
     this.responded = false;
     this.trialStart = performance.now();
     this.totalTrials++;
 
-    document.getElementById('clockText').textContent = '\u201C' + trial.text + '\u201D';
+    document.getElementById('clockText').textContent = '“' + trial.text + '”';
     document.querySelectorAll('.clock-answer-btn').forEach(btn => btn.classList.remove('correct', 'wrong'));
 
     this.beep(600, 60);
@@ -185,6 +296,7 @@ class ClockTool {
       this.misses++;
       const correctBtn = document.querySelector(`.clock-answer-btn[data-answer="${this.currentAnswer}"]`);
       if (correctBtn) correctBtn.classList.add('correct');
+      this.recordTrial({ stimulus: this.currentAnswer, deltaAngle: this.currentDeltaAngle, correct: false, errorType: 'omission' });
       this.updateStats();
       this.stopEngine();
       this.isPlaying = true;
@@ -205,15 +317,20 @@ class ClockTool {
     if (!this.isPlaying || this.responded) return;
     this.responded = true;
 
-    const rt = performance.now() - this.trialStart;
+    const rt = Math.round(performance.now() - this.trialStart);
     const correct = this.currentAnswer === answer;
     const btn = document.querySelector(`.clock-answer-btn[data-answer="${answer}"]`);
 
     if (correct) {
       this.hits++;
       this.reactionTimes.push(rt);
+      // Tracking del slope por ángulo
+      const bin = this.binForAngle(this.currentDeltaAngle);
+      if (!this.rtByAngleBin[bin]) this.rtByAngleBin[bin] = [];
+      this.rtByAngleBin[bin].push(rt);
       this.beep(880, 80);
       if (btn) btn.classList.add('correct');
+      this.recordTrial({ stimulus: this.currentAnswer, deltaAngle: this.currentDeltaAngle, rt, correct: true });
     } else {
       this.misses++;
       this.beep(220, 200);
@@ -221,8 +338,15 @@ class ClockTool {
       if (navigator.vibrate) navigator.vibrate(100);
       const correctBtn = document.querySelector(`.clock-answer-btn[data-answer="${this.currentAnswer}"]`);
       if (correctBtn) correctBtn.classList.add('correct');
+      this.recordTrial({ stimulus: this.currentAnswer, deltaAngle: this.currentDeltaAngle, rt, correct: false, errorType: 'commission' });
     }
     this.updateStats();
+  }
+
+  recordTrial(trial) {
+    if (window.SessionStats && this.sessionActive) {
+      SessionStats.session.recordTrial(trial);
+    }
   }
 
   setButtonsEnabled(enabled) {
@@ -241,3 +365,13 @@ class ClockTool {
 }
 
 const tool = new ClockTool();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'clock',
+    toolName: 'Reloj Auditivo',
+    primaryMetric: 'rtMedian',
+    onRepeat: () => tool.togglePlay(),
+    onClose: () => {}
+  });
+}

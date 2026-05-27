@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Trazado Alfanumérico — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .trace-display {
       width: 100%;
@@ -47,16 +47,25 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div id="cadenceGroup" class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="10000">Lenta (10s)</option>
-          <option value="8000" selected>Media (8s)</option>
-          <option value="6000">R&aacute;pida (6s)</option>
+      <div class="control-group" data-prefix="Modo">
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="random" selected>Libre</option>
+          <option value="tmtA">N&uacute;meros</option>
+          <option value="tmtB">Alterna n&ordm;/letra</option>
+        </select>
+      </div>
+      <div id="cadenceGroup" class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="10000">10s</option>
+          <option value="8000" selected>8s</option>
+          <option value="6000">6s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="padding: 0;" onclick="tool.runTrace()">
@@ -103,12 +112,33 @@
             <li>Para prevenci&oacute;n de ca&iacute;das: doble tarea motora-cognitiva.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Sentadilla isom&eacute;trica + trazo:</strong> aguanta abajo. Traza la letra con el brazo dominante. Trabaja fuerza isom&eacute;trica + planificaci&oacute;n motora.</li>
+            <li><strong>Equilibrio unipodal + trazo:</strong> de pie en una pierna trazando con la mano libre. Reta propiocepci&oacute;n + control bilateral.</li>
+            <li><strong>Brazo no dominante:</strong> traza con el brazo &laquo;malo&raquo;. Trabaja patrones motores menos automatizados. Bueno para rehabilitaci&oacute;n de hombro o post-l&eacute;si&oacute;n.</li>
+            <li><strong>Tand&eacute;m + trazo:</strong> de pie en l&iacute;nea (tal&oacute;n-punta) trazando. M&aacute;ximo reto de equilibrio.</li>
+            <li><strong>Modo Alterna n&ordm;/letra + marcha:</strong> caminata mientras alterna las dos secuencias. Reta flexibilidad cognitiva + locomoci&oacute;n.</li>
+            <li><strong>En grupo, en pareja:</strong> A traza, B reconoce y dice qu&eacute; letra es. Trabaja recepci&oacute;n visual + comunicaci&oacute;n.</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">tune</span> Modos</h4>
+          <ul>
+            <li><strong>Libre:</strong> aparecen letras y n&uacute;meros aleatorios. Para calentamiento o coordinaci&oacute;n general.</li>
+            <li><strong>N&uacute;meros:</strong> aparecen en orden (1, 2, 3...). Trabaja atenci&oacute;n sostenida y rastreo.</li>
+            <li><strong>Alterna n&ordm;/letra:</strong> 1, A, 2, B, 3, C... El cliente debe mantener dos secuencias y saltar entre ellas. Trabaja flexibilidad cognitiva.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="trace.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="trace.js?v=2.0.7"></script>
 </body>
 </html>

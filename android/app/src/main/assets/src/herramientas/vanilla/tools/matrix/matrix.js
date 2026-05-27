@@ -7,12 +7,16 @@ class MatrixTool {
     };
     this.currentLevel = '3';
     this.orderedMode = false;
+    this.suppressMode = false;
+    this.direction = 'forward';  // 'forward' | 'reverse'
     this.scheduler = null;
     this.pendingRestart = null;
     this.isPlaying = false;
+    this.sessionActive = false;
     this.currentSpeed = 6000;
     this.hideTimeout = null;
     this.activeCells = [];
+    this.suppressCell = null;   // celda trampa cuando suppressMode = true
     this.playerSelection = [];
     this.phase = 'idle';
     this.hits = 0;
@@ -67,46 +71,135 @@ class MatrixTool {
 
   changeLevel(level) {
     this.currentLevel = level;
-    if (this.isPlaying) {
-      this.stopEngine();
-      this.isPlaying = false;
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'INICIAR';
-    }
+    this.abortSessionIfRunning();
     this.buildGrid();
     this.resetStats();
-    document.getElementById('matrixInstruction').textContent = 'Memoriza el patrón';
+    document.getElementById('matrixInstruction').textContent = this.baseInstruction();
+    document.getElementById('matrixInstruction').style.color = '';
+  }
+
+  baseInstruction() {
+    const suffix = this.suppressMode ? ' · ignora la TRAMPA roja' : '';
+    if (!this.orderedMode) return 'Memoriza el patrón' + suffix;
+    return (this.direction === 'reverse'
+      ? 'Memoriza · responderás AL REVÉS'
+      : 'Memoriza el patrón Y el orden') + suffix;
+  }
+
+  toggleSuppress(checked) {
+    this.suppressMode = checked;
+    this.abortSessionIfRunning();
+    this.resetStats();
+    this.clearMatrix();
+    document.getElementById('matrixInstruction').textContent = this.baseInstruction();
     document.getElementById('matrixInstruction').style.color = '';
   }
 
   toggleOrdered(checked) {
     this.orderedMode = checked;
-    if (this.isPlaying) {
-      this.stopEngine();
-      this.isPlaying = false;
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'INICIAR';
+    // Sólo permitir backward cuando ordered esté activo
+    const dirSel = document.getElementById('directionSelect');
+    if (dirSel) {
+      dirSel.disabled = !checked;
+      if (!checked) {
+        dirSel.value = 'forward';
+        this.direction = 'forward';
+      }
     }
+    this.abortSessionIfRunning();
     this.resetStats();
     this.clearMatrix();
-    document.getElementById('matrixInstruction').textContent = checked
-      ? 'Memoriza el patrón Y el orden'
-      : 'Memoriza el patrón';
+    document.getElementById('matrixInstruction').textContent = this.baseInstruction();
     document.getElementById('matrixInstruction').style.color = '';
   }
 
-  togglePlay() {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
-      document.getElementById('playIcon').textContent = 'pause';
-      document.getElementById('playText').textContent = 'PAUSA';
-      this.resetStats();
-      this.startEngine();
-    } else {
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'REANUDAR';
+  changeDirection(val) {
+    this.direction = val;
+    this.abortSessionIfRunning();
+    this.resetStats();
+    this.clearMatrix();
+    document.getElementById('matrixInstruction').textContent = this.baseInstruction();
+    document.getElementById('matrixInstruction').style.color = '';
+  }
+
+  abortSessionIfRunning() {
+    if (this.isPlaying || this.sessionActive) {
       this.stopEngine();
+      if (window.SessionStats) SessionStats.session.abort();
+      this.isPlaying = false;
+      this.sessionActive = false;
+      this.setFinalizeVisible(false);
+      this.setPlayButton('play_arrow', 'INICIAR');
     }
+  }
+
+  togglePlay() {
+    if (!this.sessionActive) {
+      this.sessionActive = true;
+      this.setFinalizeVisible(true);
+      this.isPlaying = true;
+      this.setPlayButton('pause', 'PAUSA');
+      this.resetStats();
+      if (window.SessionStats) {
+        SessionStats.session.start('matrix', {
+          gridSize: this.gridSize,
+          cellCount: this.cellCount,
+          ordered: this.orderedMode,
+          direction: this.direction,
+          suppress: this.suppressMode,
+          cadence: this.currentSpeed
+        });
+      }
+      this.startEngine();
+    } else if (this.isPlaying) {
+      this.isPlaying = false;
+      this.setPlayButton('play_arrow', 'REANUDAR');
+      this.stopEngine();
+    } else {
+      this.isPlaying = true;
+      this.setPlayButton('pause', 'PAUSA');
+      this.startEngine();
+    }
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.isPlaying = false;
+    this.sessionActive = false;
+    this.stopEngine();
+
+    let result = null;
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      if (result && result.summary) {
+        const dirLabel = this.orderedMode ? (this.direction === 'reverse' ? 'orden inverso' : 'orden directo') : 'sin orden';
+        customFeedback = `${this.gridSize}×${this.gridSize} · ${this.cellCount} celdas · ${dirLabel}`;
+        result.summary.config = result.summary.config || {};
+        result.summary.config.gridSize = this.gridSize;
+      }
+    }
+
+    this.setPlayButton('play_arrow', 'INICIAR');
+    this.setFinalizeVisible(false);
+    this.resetStats();
+    this.clearMatrix();
+    document.getElementById('matrixInstruction').textContent = this.baseInstruction();
+    document.getElementById('matrixInstruction').style.color = '';
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
+    }
+  }
+
+  setPlayButton(icon, text) {
+    document.getElementById('playIcon').textContent = icon;
+    document.getElementById('playText').textContent = text;
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
   }
 
   startEngine() {
@@ -128,6 +221,7 @@ class MatrixTool {
       this.revealAnswer();
       this.phase = 'feedback';
       this.updateStats();
+      this.recordTrial({ span: this.cellCount, correct: false, errorType: 'omission' });
       this.beep(220, 200);
       if (navigator.vibrate) navigator.vibrate(100);
       this.stopEngine();
@@ -164,6 +258,12 @@ class MatrixTool {
     this.updateStats();
   }
 
+  recordTrial(trial) {
+    if (window.SessionStats && this.sessionActive) {
+      SessionStats.session.recordTrial(trial);
+    }
+  }
+
   showTrial() {
     this.clearMatrix();
     this.phase = 'memorize';
@@ -179,6 +279,20 @@ class MatrixTool {
       if (!this.activeCells.includes(r)) this.activeCells.push(r);
     }
 
+    // En modo trampa, seleccionar una celda extra distinta de las activas como "suppress"
+    this.suppressCell = null;
+    if (this.suppressMode) {
+      let attempts = 0;
+      while (attempts < 50) {
+        const candidate = Math.floor(Math.random() * this.totalCells);
+        if (!this.activeCells.includes(candidate)) {
+          this.suppressCell = candidate;
+          break;
+        }
+        attempts++;
+      }
+    }
+
     this.activeCells.forEach((idx, order) => {
       const cell = document.getElementById('cell-' + idx);
       cell.classList.add('active');
@@ -186,6 +300,10 @@ class MatrixTool {
         cell.textContent = order + 1;
       }
     });
+
+    if (this.suppressCell != null) {
+      document.getElementById('cell-' + this.suppressCell).classList.add('suppress');
+    }
 
     this.setCellsClickable(false);
 
@@ -195,14 +313,25 @@ class MatrixTool {
       this.clearMatrix();
       this.phase = 'respond';
       this.playerSelection = [];
-      instruction.textContent = this.orderedMode
-        ? 'Toca en ORDEN (' + this.cellCount + ' celdas)'
-        : 'Toca las ' + this.cellCount + ' celdas';
+      if (this.orderedMode) {
+        instruction.textContent = this.direction === 'reverse'
+          ? 'Toca AL REVÉS (' + this.cellCount + ' celdas)'
+          : 'Toca en ORDEN (' + this.cellCount + ' celdas)';
+      } else {
+        instruction.textContent = 'Toca las ' + this.cellCount + ' celdas';
+      }
       instruction.style.color = 'var(--turquesa-400)';
       this.setCellsClickable(true);
     }, this.currentSpeed * 0.25);
 
     this.updateStats();
+  }
+
+  expectedActiveAt(index) {
+    if (this.direction === 'reverse') {
+      return this.activeCells[this.activeCells.length - 1 - index];
+    }
+    return this.activeCells[index];
   }
 
   handleCellTap(idx) {
@@ -213,8 +342,24 @@ class MatrixTool {
 
     if (navigator.vibrate) navigator.vibrate(30);
 
+    // Block-suppression: pulsar la celda trampa es error de comisión inmediato
+    if (this.suppressMode && idx === this.suppressCell) {
+      cell.classList.add('wrong');
+      this.setCellsClickable(false);
+      this.misses++;
+      this.beep(220, 200);
+      if (navigator.vibrate) navigator.vibrate(100);
+      this.revealAnswer();
+      document.getElementById('matrixInstruction').textContent = 'Trampa pulsada';
+      document.getElementById('matrixInstruction').style.color = 'var(--rosa-400)';
+      this.phase = 'feedback';
+      this.recordTrial({ span: this.cellCount, correct: false, errorType: 'commission', stimulus: 'trap' });
+      this.updateStats();
+      return;
+    }
+
     if (this.orderedMode) {
-      const expectedIdx = this.activeCells[this.playerSelection.length];
+      const expectedIdx = this.expectedActiveAt(this.playerSelection.length);
       if (idx === expectedIdx) {
         cell.classList.add('selected');
         cell.textContent = this.playerSelection.length + 1;
@@ -240,11 +385,8 @@ class MatrixTool {
 
   evaluate() {
     const correct = this.playerSelection.every(idx => this.activeCells.includes(idx));
-    if (correct) {
-      this.evaluateSuccess();
-    } else {
-      this.evaluateFail();
-    }
+    if (correct) this.evaluateSuccess();
+    else this.evaluateFail();
   }
 
   evaluateSuccess() {
@@ -254,6 +396,7 @@ class MatrixTool {
     document.getElementById('matrixInstruction').textContent = 'Correcto';
     document.getElementById('matrixInstruction').style.color = '#10b981';
     this.phase = 'feedback';
+    this.recordTrial({ span: this.cellCount, correct: true });
     this.updateStats();
   }
 
@@ -272,6 +415,7 @@ class MatrixTool {
     document.getElementById('matrixInstruction').textContent = 'Incorrecto';
     document.getElementById('matrixInstruction').style.color = 'var(--rosa-400)';
     this.phase = 'feedback';
+    this.recordTrial({ span: this.cellCount, correct: false, errorType: 'commission' });
     this.updateStats();
   }
 
@@ -283,6 +427,9 @@ class MatrixTool {
         cell.textContent = order + 1;
       }
     });
+    if (this.suppressCell != null) {
+      document.getElementById('cell-' + this.suppressCell).classList.add('suppress');
+    }
   }
 
   setCellsClickable(clickable) {
@@ -296,7 +443,7 @@ class MatrixTool {
   clearMatrix() {
     for (let i = 0; i < this.totalCells; i++) {
       const cell = document.getElementById('cell-' + i);
-      cell.classList.remove('active', 'selected', 'wrong');
+      cell.classList.remove('active', 'selected', 'wrong', 'suppress');
       cell.textContent = '';
     }
   }
@@ -310,3 +457,13 @@ class MatrixTool {
 
 const tool = new MatrixTool();
 document.addEventListener('DOMContentLoaded', () => tool.buildGrid());
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'matrix',
+    toolName: 'Matriz Visoespacial',
+    primaryMetric: 'accuracy',
+    onRepeat: () => tool.togglePlay(),
+    onClose: () => tool.clearMatrix()
+  });
+}

@@ -2,6 +2,7 @@ class SortTool {
   constructor() {
     this.currentLevel = 'easy';
     this.isPlaying = false;
+    this.sessionActive = false;
     this.currentSpeed = 3000;
     this.phase = 'idle';
     this.timer = null;
@@ -37,13 +38,7 @@ class SortTool {
 
   changeLevel(level) {
     this.currentLevel = level;
-    if (this.isPlaying) {
-      this.stopEngine();
-      this.isPlaying = false;
-      document.getElementById('btnPlayPause').classList.remove('active');
-      document.getElementById('playIcon').textContent = 'play_arrow';
-      document.getElementById('playText').textContent = 'INICIAR';
-    }
+    this.abortSessionIfRunning();
     this.resetStats();
     this.showIdle();
   }
@@ -52,22 +47,80 @@ class SortTool {
     this.currentSpeed = parseInt(ms, 10);
   }
 
+  abortSessionIfRunning() {
+    if (this.isPlaying || this.sessionActive) {
+      this.stopEngine();
+      if (window.SessionStats) SessionStats.session.abort();
+      this.isPlaying = false;
+      this.sessionActive = false;
+      this.setFinalizeVisible(false);
+      const btn = document.getElementById('btnPlayPause');
+      if (btn) btn.classList.remove('active');
+      document.getElementById('playIcon').textContent = 'play_arrow';
+      document.getElementById('playText').textContent = 'INICIAR';
+    }
+  }
+
   togglePlay() {
-    this.isPlaying = !this.isPlaying;
     const btn = document.getElementById('btnPlayPause');
-    if (this.isPlaying) {
+    if (!this.sessionActive) {
+      this.sessionActive = true;
+      this.setFinalizeVisible(true);
+      this.resetStats();
+      if (window.SessionStats) {
+        SessionStats.session.start('sort', {
+          level: this.currentLevel,
+          cadence: this.currentSpeed
+        });
+      }
+      this.isPlaying = true;
       btn.classList.add('active');
       document.getElementById('playIcon').textContent = 'pause';
       document.getElementById('playText').textContent = 'PAUSA';
       ScreenWakeLock.request();
       this.startRound();
-    } else {
+    } else if (this.isPlaying) {
+      this.isPlaying = false;
       btn.classList.remove('active');
       document.getElementById('playIcon').textContent = 'play_arrow';
       document.getElementById('playText').textContent = 'REANUDAR';
       this.stopEngine();
       ScreenWakeLock.release();
+    } else {
+      this.isPlaying = true;
+      btn.classList.add('active');
+      document.getElementById('playIcon').textContent = 'pause';
+      document.getElementById('playText').textContent = 'PAUSA';
+      ScreenWakeLock.request();
+      this.startRound();
     }
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    this.isPlaying = false;
+    this.sessionActive = false;
+    this.stopEngine();
+    ScreenWakeLock.release();
+    const btn = document.getElementById('btnPlayPause');
+    if (btn) btn.classList.remove('active');
+    this.setFinalizeVisible(false);
+
+    let result = null;
+    if (window.SessionStats) result = SessionStats.session.end();
+
+    document.getElementById('playIcon').textContent = 'play_arrow';
+    document.getElementById('playText').textContent = 'INICIAR';
+    this.showIdle();
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison);
+    }
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
   }
 
   stopEngine() {
@@ -227,7 +280,7 @@ class SortTool {
     this.phase = 'feedback';
     this.setBtnState(false);
 
-    const rt = performance.now() - this.roundStart;
+    const rt = Math.round(performance.now() - this.roundStart);
     const correct = (answer === 'true') === this.displayedAscending;
 
     this.rounds++;
@@ -237,6 +290,15 @@ class SortTool {
       this.rtCount++;
     } else {
       this.misses++;
+    }
+
+    if (this.sessionActive && window.SessionStats) {
+      SessionStats.session.recordTrial({
+        stimulus: this.displayedAscending ? 'ordered' : 'unordered',
+        rt,
+        correct,
+        errorType: correct ? null : 'commission'
+      });
     }
 
     this.showFeedback(correct);
@@ -287,3 +349,13 @@ class SortTool {
 }
 
 const tool = new SortTool();
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'sort',
+    toolName: 'De Menor a Mayor',
+    primaryMetric: 'rtMedian',
+    onRepeat: () => tool.togglePlay(),
+    onClose: () => tool.showIdle()
+  });
+}

@@ -246,71 +246,9 @@ h1 {
   flex-shrink: 0;
 }
 
-@media (max-width: 600px) {
-  .exec-header-logo {
-    display: none;
-  }
-  .exec-header h2 {
-    font-size: 1rem !important;
-    white-space: nowrap;
-  }
-  .exec-header {
-    padding: var(--space-1) var(--space-2);
-  }
-  .exec-toolbar {
-    padding: 6px var(--space-2);
-    gap: 6px;
-    flex-wrap: nowrap;
-    align-items: stretch;
-  }
-  .control-group {
-    padding: 4px 8px;
-    min-height: auto;
-    flex: 1 1 0;
-    min-width: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 2px;
-  }
-  .control-label {
-    font-size: 0.6rem;
-    margin-right: 0;
-    white-space: nowrap;
-    text-align: center;
-  }
-  .speed-select {
-    font-size: 0.8rem;
-    padding: 2px 0;
-    min-height: 28px;
-    min-width: 0;
-    width: 100%;
-  }
-  .btn-primary,
-  .btn-critical {
-    padding: 8px;
-    font-size: 0;
-    min-height: 44px;
-    min-width: 44px;
-    justify-content: center;
-    flex: 0 0 auto;
-  }
-  .btn-primary .material-symbols-sharp,
-  .btn-critical .material-symbols-sharp {
-    font-size: 1.5rem;
-  }
-  .exec-toolbar .btn-primary > span:not(.material-symbols-sharp),
-  .exec-toolbar .btn-critical > span:not(.material-symbols-sharp) {
-    display: none;
-  }
-  .stimulus-area {
-    padding: 0;
-  }
-  .stimulus-instruction {
-    margin-bottom: var(--space-1);
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-}
+/* Reglas mobile movidas al final del archivo para ganar la cascada
+   sobre las reglas base de .exec-toolbar, .control-group, .btn-* que las
+   sobrescribían. Ver bloque "MOBILE — header+toolbar ultra-compactos". */
 
 .btn-secondary {
   background: transparent;
@@ -357,12 +295,17 @@ h1 {
   min-height: 44px;
 }
 
-.control-label {
+.control-group[data-prefix]::before {
+  content: attr(data-prefix) ":";
   color: var(--gris-400);
-  font-size: 0.875rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-right: 8px;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-right: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .speed-select {
@@ -885,4 +828,636 @@ h1 {
   .config-panel__slider-group input[type=range] { width: 60px; min-width: 50px; }
   .idle-cta { min-height: 20vh; gap: 1rem; }
   .idle-cta .btn-start { padding: 0.75rem 2rem; font-size: 1.25rem; min-height: 48px; }
+}
+
+/* ============================================================
+   SESSION STATS — Badge usuario, selector, panel post-sesión
+   ============================================================ */
+
+/* User badge en exec-header */
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gris-800);
+  border: 1px solid var(--gris-700);
+  border-radius: 20px;
+  padding: 6px 12px;
+  color: var(--gris-200);
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-height: 36px;
+  transition: all 200ms;
+  font-family: inherit;
+}
+.user-badge:hover {
+  border-color: var(--turquesa-400);
+  color: white;
+}
+.user-badge .material-symbols-sharp {
+  font-size: 18px;
+  color: var(--turquesa-400);
+}
+@media (max-width: 480px) {
+  .user-badge { padding: 4px 8px; font-size: 0.75rem; min-height: 32px; }
+  .user-badge .user-badge-text { display: none; }
+}
+
+/* Selector de usuario — overlay */
+.user-selector-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 3000;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  overflow-y: auto;
+}
+.user-selector-overlay.active { display: flex; }
+
+.user-selector-modal {
+  background: var(--gris-800);
+  border: 2px solid var(--turquesa-600);
+  border-radius: 16px;
+  padding: var(--space-3);
+  max-width: 480px;
+  width: 100%;
+  color: var(--gris-100);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.user-selector-modal h2 {
+  font-family: var(--font-display);
+  color: var(--turquesa-400);
+  font-size: 1.4rem;
+  margin-bottom: var(--space-2);
+  text-align: center;
+}
+.user-selector-modal h3 {
+  font-family: var(--font-display);
+  color: var(--gris-400);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: var(--space-3) 0 var(--space-1);
+}
+
+.user-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.user-list li {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+.user-list .user-pick {
+  flex: 1;
+  background: var(--gris-700);
+  color: white;
+  border: 1px solid var(--gris-600);
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.user-list .user-pick:hover {
+  background: var(--gris-600);
+  border-color: var(--turquesa-400);
+}
+.user-list .user-pick.active {
+  background: rgba(0, 190, 200, 0.15);
+  border-color: var(--turquesa-400);
+  color: var(--turquesa-400);
+}
+.user-list .user-pick .material-symbols-sharp { font-size: 20px; }
+.user-list .btn-remove-user {
+  flex: 0 0 auto;
+  background: transparent;
+  color: var(--gris-500);
+  border: 1px solid var(--gris-700);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.user-list .btn-remove-user:hover {
+  color: var(--rosa-400);
+  border-color: var(--rosa-700);
+}
+
+.user-selector-new {
+  display: flex;
+  gap: 8px;
+  margin-top: var(--space-2);
+}
+.user-selector-new input {
+  flex: 1;
+  background: var(--gris-900);
+  color: white;
+  border: 1px solid var(--gris-600);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  min-height: 44px;
+}
+.user-selector-new input:focus {
+  outline: none;
+  border-color: var(--turquesa-400);
+}
+.user-selector-new button {
+  background: var(--turquesa-600);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.user-selector-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--gris-700);
+}
+.user-selector-actions button {
+  background: transparent;
+  color: var(--gris-300);
+  border: 1px solid var(--gris-700);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  text-align: left;
+}
+.user-selector-actions button:hover {
+  background: var(--gris-800);
+  border-color: var(--gris-500);
+  color: white;
+}
+.user-selector-actions .material-symbols-sharp { font-size: 18px; }
+
+.user-selector-close {
+  width: 100%;
+  margin-top: var(--space-2);
+  background: var(--turquesa-600) !important;
+  color: white !important;
+  border: none !important;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Mensaje de feedback dentro del modal selector (import OK / error) */
+.user-selector-msg {
+  margin-top: var(--space-2);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.user-selector-msg.ok {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+.user-selector-msg.err {
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.4);
+  color: var(--rosa-400);
+}
+
+/* Panel de resultados post-sesión */
+.results-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 2500;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  overflow-y: auto;
+}
+.results-overlay.active { display: flex; }
+
+.results-modal {
+  background: var(--gris-800);
+  border-radius: 16px;
+  padding: var(--space-3);
+  max-width: 560px;
+  width: 100%;
+  color: white;
+  max-height: 95vh;
+  overflow-y: auto;
+}
+.results-modal h2 {
+  font-family: var(--font-display);
+  color: var(--turquesa-400);
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.results-modal h3 {
+  font-family: var(--font-display);
+  color: var(--gris-300);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: var(--space-3) 0 var(--space-1);
+}
+.results-user-line {
+  text-align: center;
+  color: var(--gris-400);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-2);
+}
+
+.results-feedback {
+  background: rgba(0, 190, 200, 0.12);
+  border: 1px solid var(--turquesa-700);
+  border-radius: 8px;
+  padding: 14px;
+  margin: var(--space-2) 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--turquesa-400);
+  font-weight: 600;
+}
+
+.results-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: var(--space-2);
+}
+.results-kpis--3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+.results-kpi {
+  background: var(--gris-900);
+  border-radius: 8px;
+  padding: 14px 8px;
+  text-align: center;
+}
+.results-kpi strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  color: var(--turquesa-400);
+  line-height: 1;
+}
+.results-kpi span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--gris-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+@media (max-width: 480px) {
+  .results-kpis { gap: 4px; }
+  .results-kpi { padding: 10px 4px; }
+  .results-kpi strong { font-size: 1.3rem; }
+  .results-kpi span { font-size: 0.6rem; }
+}
+
+.results-derived {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin: -4px 0 var(--space-2);
+  padding: 8px;
+  font-size: 0.85rem;
+  color: var(--gris-300);
+  background: transparent;
+  border-radius: 6px;
+}
+.results-derived strong {
+  color: var(--turquesa-400);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-right: 2px;
+}
+
+.evolution-block {
+  background: var(--gris-900);
+  border-radius: 8px;
+  padding: 12px;
+}
+.evolution-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.evolution-row:last-child { margin-bottom: 0; }
+.evolution-row .lbl {
+  font-size: 0.85rem;
+  color: var(--gris-400);
+}
+.evolution-row .bar {
+  background: var(--gris-800);
+  height: 22px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.evolution-row .bar-fill {
+  height: 100%;
+  background: var(--turquesa-700);
+  transition: width 600ms ease-out;
+}
+.evolution-row .bar-fill.final {
+  background: var(--turquesa-400);
+}
+.evolution-row .val {
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-align: right;
+  color: white;
+}
+
+.history-block, .ranking-block {
+  background: var(--gris-900);
+  border-radius: 8px;
+  padding: 12px;
+}
+.history-block p {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: var(--gris-200);
+}
+.history-block p:last-child { margin-bottom: 0; }
+.history-block strong { color: var(--turquesa-400); }
+
+.history-empty, .ranking-empty {
+  color: var(--gris-500);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.ranking-list {
+  list-style: none;
+  counter-reset: rank;
+}
+.ranking-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--gris-800);
+  font-size: 0.95rem;
+  gap: 8px;
+}
+.ranking-list li:last-child { border-bottom: none; }
+.ranking-list li::before {
+  counter-increment: rank;
+  content: counter(rank);
+  font-family: var(--font-display);
+  color: var(--gris-500);
+  font-size: 1.1rem;
+}
+.ranking-list li:nth-child(1)::before { color: var(--tulip-tree-400); }
+.ranking-list li:nth-child(2)::before { color: var(--gris-300); }
+.ranking-list li:nth-child(3)::before { color: var(--tulip-tree-600); }
+.ranking-list li.me {
+  background: rgba(0, 190, 200, 0.12);
+  border-radius: 4px;
+  border-bottom-color: transparent;
+}
+.ranking-list li.me .ranking-user-name::after {
+  content: '  ← tú';
+  color: var(--turquesa-400);
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+.ranking-user-name { color: white; }
+.ranking-value { color: var(--turquesa-400); font-weight: bold; }
+
+.results-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.results-actions .btn-primary,
+.results-actions .btn-secondary { flex: 1; min-width: 120px; justify-content: center; }
+
+/* Botón toggle "Variable" (jitter de cadencia) en la toolbar */
+.btn-jitter {
+  background: transparent;
+  color: var(--gris-400);
+  border: 1px solid var(--gris-600);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-height: 44px;
+  transition: all 200ms;
+}
+.btn-jitter:hover {
+  border-color: var(--turquesa-400);
+  color: white;
+}
+.btn-jitter.active {
+  background: rgba(0, 190, 200, 0.12);
+  border-color: var(--turquesa-400);
+  color: var(--turquesa-400);
+}
+.btn-jitter .material-symbols-sharp {
+  font-size: 18px;
+}
+/* Reglas mobile de btn-jitter consolidadas en el bloque "MOBILE" al final */
+
+/* Botón finalizar (parar sesión) en la toolbar */
+.btn-finalize {
+  background: var(--rosa-600);
+  color: white;
+  border: 2px solid var(--rosa-700);
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  transition: all 250ms ease-out;
+  font-family: inherit;
+}
+.btn-finalize.visible { display: flex; }
+.btn-finalize:hover { background: var(--rosa-700); transform: translateY(-2px); }
+/* Reglas mobile de btn-finalize consolidadas en el bloque "MOBILE" al final */
+
+/* ============================================================
+   MOBILE — header + toolbar ultra-compactos (~90px total)
+   Objetivo: máximo espacio vertical para el área de estímulos.
+   Estas reglas van al final para ganar la cascada CSS sobre las
+   reglas base de .exec-toolbar, .control-group, .btn-* que las
+   sobrescribirían si estuvieran antes.
+
+   Se aplican tanto en mobile portrait (width <= 600) como en
+   cualquier viewport con poca altura (height <= 500) — esto
+   incluye mobile/tablet landscape donde el ancho es grande pero
+   la altura es escasa y necesitamos maximizar el área útil.
+   ============================================================ */
+@media (max-width: 600px), (max-height: 500px) {
+  /* --- Header ~40px --- */
+  .exec-header {
+    padding: 4px 8px;
+  }
+  .exec-header-logo {
+    display: none;
+  }
+  .exec-header h2 {
+    font-size: 1rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .exec-header-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .btn-info,
+  .exec-header .btn-secondary {
+    min-width: 40px;
+    min-height: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 6px;
+  }
+  .user-badge {
+    min-height: 32px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+  .user-badge .material-symbols-sharp {
+    font-size: 16px;
+  }
+
+  /* --- Toolbar ~50px en una sola fila --- */
+  .exec-toolbar {
+    padding: 4px 8px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    justify-content: flex-start;
+    align-items: stretch;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .exec-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .control-group {
+    padding: 0 8px;
+    min-height: 40px;
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+  /* En móvil ocultamos el label "Modo:" / "Nivel:" / "Tiempo:".
+     El propio valor del select es autoexplicativo (Táctil, Básico, 2s).
+     aria-label se conserva para lectores de pantalla. */
+  .control-group[data-prefix]::before {
+    display: none;
+  }
+  .speed-select {
+    font-size: 0.8rem;
+    padding: 0 2px;
+    min-height: 36px;
+    min-width: 0;
+    flex: 1;
+    width: 100%;
+  }
+
+  /* --- Botones de acción: icono puro 40×40 --- */
+  .btn-primary,
+  .btn-critical,
+  .btn-jitter,
+  .btn-finalize {
+    padding: 0;
+    font-size: 0;
+    min-height: 40px;
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
+    border-width: 1px;
+    gap: 0;
+  }
+  .btn-primary .material-symbols-sharp,
+  .btn-critical .material-symbols-sharp,
+  .btn-jitter .material-symbols-sharp,
+  .btn-finalize .material-symbols-sharp {
+    font-size: 1.4rem;
+    margin: 0;
+  }
+  .exec-toolbar .btn-primary > span:not(.material-symbols-sharp),
+  .exec-toolbar .btn-critical > span:not(.material-symbols-sharp),
+  .btn-jitter > span:not(.material-symbols-sharp),
+  .btn-finalize > span:not(.material-symbols-sharp) {
+    display: none;
+  }
+
+  /* --- Stimulus instruction y área --- */
+  .stimulus-area {
+    padding: 0;
+  }
+  .stimulus-instruction {
+    font-size: 1rem;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .control-group[data-prefix]::before {
+    font-size: 0.72rem;
+  }
+  .speed-select {
+    font-size: 0.72rem;
+  }
 }

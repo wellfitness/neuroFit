@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>N-Back — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .nback-stimulus {
       width: clamp(160px, 35vmin, 280px);
@@ -155,24 +155,29 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" id="nbackLevel" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="easy" selected>F&aacute;cil</option>
           <option value="medium">Medio</option>
-          <option value="hard">Dif&iacute;cil (2-Back)</option>
+          <option value="hard">Dif&iacute;cil 2-Back</option>
+          <option value="adaptive">Adaptativo</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="4000">Lenta (4s)</option>
-          <option value="3000" selected>Media (3s)</option>
-          <option value="2000">R&aacute;pida (2s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="4000">4s</option>
+          <option value="3000" selected>3s</option>
+          <option value="2000">2s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -212,6 +217,7 @@
             <li><strong>F&aacute;cil:</strong> 1-Back, solo forma. &iquest;Es igual a la anterior?</li>
             <li><strong>Medio:</strong> 1-Back, forma + color. Dos cosas que recordar.</li>
             <li><strong>Dif&iacute;cil:</strong> 2-Back. &iquest;Es igual a la de hace 2 turnos? Muy exigente.</li>
+            <li><strong>Adaptativo:</strong> empieza en 1-back. Cada 20 estímulos, sube a N+1 si aciertas &ge;90%, baja a N&minus;1 si fallas mucho (&le;70%). Te mantiene siempre en tu l&iacute;mite. Incluye <strong>lures</strong> (est&iacute;mulos que aparecieron hace N&plusmn;1 turnos pero no en la posici&oacute;n N) para que no respondas s&oacute;lo por familiaridad.</li>
           </ul>
         </div>
         <div class="info-section">
@@ -241,12 +247,25 @@
             <li>Para mantener la mente activa (especialmente con la edad).</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Bici est&aacute;tica:</strong> pedalea a intensidad moderada. Mira la pantalla y pulsa COINCIDE cuando toque. La carga aerobia + la WM trabajan juntas.</li>
+            <li><strong>Sentadilla isom&eacute;trica:</strong> mant&eacute;n la sentadilla baja. La pantalla est&aacute; al alcance del brazo. Trabaja WM bajo esfuerzo muscular sostenido.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna mientras juegas. La doble tarea reta al sistema vestibular.</li>
+            <li><strong>Plancha frontal:</strong> mant&eacute;n la plancha con un brazo libre para tocar la pantalla. Trabaja core en fatiga + memoria de trabajo.</li>
+            <li><strong>Caminata en sitio:</strong> marcha lenta continua. Para sesiones largas y modo Adaptativo &mdash; el cuerpo entra en zona aerobia c&oacute;moda mientras el cerebro se exige.</li>
+            <li><strong>Antes y despu&eacute;s de entrenar:</strong> 5 min de Adaptativo al inicio y al final del entrenamiento. Compara el N alcanzado: la fatiga cognitiva se ve clara.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="nback.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.7"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="nback.js?v=2.0.7"></script>
 </body>
 </html>

@@ -38,6 +38,8 @@ class MemoriaTool {
     this.elapsed = 0;
     this.locked = false;
     this.gameStarted = false;
+    this.sessionActive = false;
+    this.firstFlipTime = 0;
   }
 
   changeLevel(level) {
@@ -54,21 +56,66 @@ class MemoriaTool {
     this.flipped = [];
     this.locked = false;
     this.gameStarted = false;
+    if (this.sessionActive && window.SessionStats) {
+      SessionStats.session.abort();
+    }
+    this.sessionActive = false;
+    this.setFinalizeVisible(false);
     ScreenWakeLock.release();
     this.updateStats();
-    document.getElementById('memoriaModal').style.display = 'none';
     this.buildBoard();
   }
 
   start() {
     this.reset();
     this.gameStarted = true;
+    this.sessionActive = true;
+    this.setFinalizeVisible(true);
+    if (window.SessionStats) {
+      SessionStats.session.start('memoria', {
+        level: this.currentLevel,
+        totalPairs: this.totalPairs
+      });
+    }
     ScreenWakeLock.request();
     this.startTime = performance.now();
     this.timer = setInterval(() => {
       this.elapsed = Math.floor((performance.now() - this.startTime) / 1000);
       this.updateStats();
     }, 1000);
+  }
+
+  finalize() {
+    if (!this.sessionActive) return;
+    clearInterval(this.timer);
+    this.timer = null;
+    this.gameStarted = false;
+    this.sessionActive = false;
+    ScreenWakeLock.release();
+    this.setFinalizeVisible(false);
+
+    let result = null;
+    let customFeedback = null;
+    if (window.SessionStats) {
+      result = SessionStats.session.end();
+      if (result && result.summary) {
+        const efficiency = this.attempts > 0 ? (this.matched / this.attempts * 100).toFixed(0) : 0;
+        customFeedback = `${this.matched}/${this.totalPairs} parejas en ${this.attempts} intentos · eficiencia ${efficiency}%`;
+        result.summary.config = result.summary.config || {};
+        result.summary.config.matched = this.matched;
+        result.summary.config.totalPairs = this.totalPairs;
+        result.summary.config.efficiency = efficiency;
+      }
+    }
+
+    if (result && result.summary && result.summary.total >= 3 && window.SessionStatsUI) {
+      SessionStatsUI.showResults(result.summary, result.comparison, customFeedback ? { customFeedback } : {});
+    }
+  }
+
+  setFinalizeVisible(visible) {
+    const btn = document.getElementById('btnFinalize');
+    if (btn) btn.classList.toggle('visible', visible);
   }
 
   buildBoard() {
@@ -117,6 +164,10 @@ class MemoriaTool {
     this.flipped.push(idx);
     document.getElementById('mcard-' + idx).classList.add('flipped');
 
+    if (this.flipped.length === 1) {
+      this.firstFlipTime = performance.now();
+    }
+
     if (this.flipped.length === 2) {
       this.attempts++;
       this.locked = true;
@@ -128,8 +179,18 @@ class MemoriaTool {
     const [a, b] = this.flipped;
     const cardA = this.cards[a];
     const cardB = this.cards[b];
+    const isMatch = cardA.icon === cardB.icon;
+    const rt = Math.round(performance.now() - this.firstFlipTime);
 
-    if (cardA.icon === cardB.icon) {
+    if (this.sessionActive && window.SessionStats) {
+      SessionStats.session.recordTrial({
+        stimulus: 'pair',
+        rt,
+        correct: isMatch
+      });
+    }
+
+    if (isMatch) {
       cardA.isMatched = true;
       cardB.isMatched = true;
       this.matched++;
@@ -159,13 +220,8 @@ class MemoriaTool {
   }
 
   gameWon() {
-    clearInterval(this.timer);
-    this.gameStarted = false;
-    ScreenWakeLock.release();
-    const modal = document.getElementById('memoriaModal');
-    document.getElementById('modalAttempts').textContent = this.attempts;
-    document.getElementById('modalTime').textContent = this.formatTime(this.elapsed);
-    modal.style.display = 'flex';
+    // Auto-finalize cuando se completa todo el tablero
+    this.finalize();
   }
 
   formatTime(s) {
@@ -191,3 +247,13 @@ class MemoriaTool {
 
 const tool = new MemoriaTool();
 document.addEventListener('DOMContentLoaded', () => tool.buildBoard());
+
+if (window.SessionStatsUI) {
+  SessionStatsUI.init({
+    toolId: 'memoria',
+    toolName: 'Memoria Visual',
+    primaryMetric: 'accuracy',
+    onRepeat: () => tool.start(),
+    onClose: () => tool.reset()
+  });
+}

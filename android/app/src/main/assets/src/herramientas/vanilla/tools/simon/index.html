@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Simon — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .simon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 90vw; max-width: 400px; }
     @media (min-width: 600px) { .simon-grid { width: 80vw; max-width: 700px; gap: 24px; } }
@@ -51,8 +51,17 @@
       </div>
     </header>
     <div class="exec-toolbar">
+      <div class="control-group" data-prefix="Sentido">
+        <select aria-label="Sentido" id="directionSelect" class="speed-select" onchange="tool.changeDirection(this.value)">
+          <option value="forward" selected>Adelante</option>
+          <option value="reverse">Atr&aacute;s</option>
+        </select>
+      </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -94,6 +103,10 @@
           </ol>
         </div>
         <div class="info-section">
+          <h4><span class="material-symbols-sharp">swap_horiz</span> Modo Atr&aacute;s</h4>
+          <p>El modo <strong>Atr&aacute;s</strong> muestra la secuencia y t&uacute; debes <strong>repetirla al rev&eacute;s</strong>. Es bastante m&aacute;s exigente porque no s&oacute;lo memorizas: tu cerebro tiene que <strong>manipular mentalmente</strong> la secuencia y reordenarla.</p>
+        </div>
+        <div class="info-section">
           <h4><span class="material-symbols-sharp">lightbulb</span> Consejos</h4>
           <ul>
             <li>Di los colores en voz alta mientras memorizas (&ldquo;turquesa, amarillo, rosa&rdquo;).</li>
@@ -111,11 +124,23 @@
             <li>Como vuelta a la calma con componente cognitivo.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>En grupo, cada persona un color:</strong> el grupo se reparte por colores. La app marca la secuencia y cada persona salta o se agacha cuando le toca su color. Coordinaci&oacute;n grupal.</li>
+            <li><strong>Equilibrio unipodal:</strong> de pie en una pierna mientras observas la secuencia. Responde con la mano libre. Reta vestibular + WM.</li>
+            <li><strong>Sentadilla profunda + observar:</strong> aguanta abajo en sentadilla isom&eacute;trica mientras pasa la secuencia. Sube para responder. Carga muscular durante la codificaci&oacute;n.</li>
+            <li><strong>Modo Atr&aacute;s para reto avanzado:</strong> ya no s&oacute;lo memorizas, manipulas mentalmente. Combina con plancha isom&eacute;trica para doble exigencia.</li>
+            <li><strong>Vuelta a la calma:</strong> al final de la sesi&oacute;n, 5 min de Simon sentado en el suelo respirando profundo. Activaci&oacute;n cognitiva con cuerpo en reposo.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="simon.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="simon.js?v=2.0.7"></script>
 </body>
 </html>

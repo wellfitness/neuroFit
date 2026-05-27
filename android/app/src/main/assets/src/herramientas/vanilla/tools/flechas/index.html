@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Flechas Reactivas — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     .arrow-display {
       font-size: clamp(12rem, 40vw, 22rem);
@@ -73,23 +73,34 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Modo">
+        <select aria-label="Modo" id="modeSelect" class="speed-select" onchange="tool.changeMode(this.value)">
+          <option value="visual" selected>Visual</option>
+          <option value="voice">Visual + Voz</option>
+        </select>
+      </div>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="normal" selected>Normal</option>
           <option value="conflicto">Conflicto</option>
+          <option value="mezcla">Mezcla 60/20/20</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Velocidad:</span>
-        <select aria-label="Cadencia" id="speedSelect" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="3000">Lenta (3s)</option>
-          <option value="2000" selected>Media (2s)</option>
-          <option value="1500">R&aacute;pida (1.5s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" id="speedSelect" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">3s</option>
+          <option value="2000" selected>2s</option>
+          <option value="1500">1.5s</option>
         </select>
       </div>
+      <button id="btnJitter" class="btn-jitter" onclick="tool.toggleJitter()" aria-label="Cadencia variable" title="Cadencia variable (intervalos impredecibles)">
+        <span class="material-symbols-sharp">shuffle</span><span>Variable</span>
+      </button>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area" style="flex-direction: column;">
@@ -145,12 +156,27 @@
             <li>En grupo: todos siguen las flechas a la vez.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Desplazamientos laterales:</strong> en la direcci&oacute;n de la flecha. Con 8 direcciones se trabajan cambios de direcci&oacute;n a alta intensidad cardiovascular.</li>
+            <li><strong>Zancada direccional:</strong> en cada flecha hace una zancada amplia (lunge) en esa direcci&oacute;n + vuelve al centro. Trabajo de cadera + control exc&eacute;ntrico.</li>
+            <li><strong>Salto unipodal:</strong> bota con una sola pierna en la direcci&oacute;n indicada. Pliom&eacute;trico + propiocepci&oacute;n.</li>
+            <li><strong>Conos en estrella:</strong> 4 conos alrededor. La flecha indica cu&aacute;l tocar; vuelve corriendo al centro entre toques.</li>
+            <li><strong>Pareja con pelota:</strong> 4 personas alrededor del cliente. La flecha le indica a qui&eacute;n pasar la pelota. Coordinaci&oacute;n grupal.</li>
+            <li><strong>Sentadilla + paso:</strong> sentadilla isom&eacute;trica abajo. Al ver la flecha sube y da un paso amplio en esa direcci&oacute;n. Vuelve a la isom&eacute;trica.</li>
+            <li><strong>Modo conflicto en circuito de conos:</strong> el cliente se mueve seg&uacute;n la PALABRA del centro, ignorando la flecha. Trabaja inhibici&oacute;n + agilidad.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/tts-bridge.js?v=2.0.5"></script>
   <script src="../../../../../assets/js/cadence-scheduler.js?v=2.0.5"></script>
-  <script src="flechas.js?v=2.0.6"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="flechas.js?v=2.0.7"></script>
 </body>
 </html>

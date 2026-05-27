@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00bec8">
   <title>Listas de Objetos — KinesisLab</title>
-  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.5">
+  <link rel="stylesheet" href="../../css/tool-base.css?v=2.0.9">
   <style>
     /* === LAYOUT === */
     #stimulusContainer.stimulus-area {
@@ -262,32 +262,32 @@
       </div>
     </header>
     <div class="exec-toolbar">
-      <div class="control-group">
-        <span class="control-label">Nivel:</span>
+      <div class="control-group" data-prefix="Nivel">
         <select aria-label="Nivel" name="level" class="speed-select" onchange="tool.changeLevel(this.value)">
           <option value="1" selected>1 Lista</option>
           <option value="2">2 Listas</option>
           <option value="3">Inverso</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">&Iacute;tems:</span>
+      <div class="control-group" data-prefix="&Iacute;tems">
         <select aria-label="Ítems" name="count" class="speed-select" onchange="tool.changeCount(this.value)">
           <option value="3" selected>3</option>
           <option value="4">4</option>
           <option value="5">5</option>
         </select>
       </div>
-      <div class="control-group">
-        <span class="control-label">Cadencia:</span>
-        <select aria-label="Cadencia" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
-          <option value="3000">Lenta (3s)</option>
-          <option value="2000" selected>Media (2s)</option>
-          <option value="1500">R&aacute;pida (1.5s)</option>
+      <div class="control-group" data-prefix="Tiempo">
+        <select aria-label="Tiempo" name="speed" class="speed-select" onchange="tool.changeSpeed(this.value)">
+          <option value="3000">3s</option>
+          <option value="2000" selected>2s</option>
+          <option value="1500">1.5s</option>
         </select>
       </div>
       <button id="btnPlayPause" class="btn-primary" onclick="tool.togglePlay()">
         <span id="playIcon" class="material-symbols-sharp">play_arrow</span><span id="playText">INICIAR</span>
+      </button>
+      <button id="btnFinalize" class="btn-finalize" onclick="tool.finalize()" aria-label="Finalizar sesión">
+        <span class="material-symbols-sharp">stop</span><span>FINALIZAR</span>
       </button>
     </div>
     <div id="stimulusContainer" class="stimulus-area">
@@ -382,11 +382,23 @@
             <li>En rehabilitaci&oacute;n cognitiva: retenci&oacute;n y categorizaci&oacute;n.</li>
           </ul>
         </div>
+        <div class="info-section">
+          <h4><span class="material-symbols-sharp">sports_gymnastics</span> Ejemplos en sala</h4>
+          <ul>
+            <li><strong>Marcha lenta + clasificar:</strong> marcha a ritmo c&oacute;modo. Mira la lista, clasifica mentalmente, responde. Doble tarea ligera ideal para mayores.</li>
+            <li><strong>Equilibrio bipodal con base reducida:</strong> de pie con pies juntos o tand&eacute;m. Mira y responde. Reta el equilibrio mientras categorizas.</li>
+            <li><strong>Pesa rusa en una mano:</strong> caminata cargando una pesa rusa unilateral. La carga as&iacute;mietrica + la categorizaci&oacute;n mental crean exigencia integral.</li>
+            <li><strong>Sentadilla baja con apoyo:</strong> aguanta agachado con la espalda en la pared. Mira la lista, responde. Resistencia muscular + WM categorial.</li>
+            <li><strong>Vuelta a la calma:</strong> sentado en colchoneta, respiraci&oacute;n profunda + lista de objetos. Acabar la sesi&oacute;n bajando activaci&oacute;n con tarea cognitiva ligera.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../../../../assets/js/wake-lock.js?v=2.0.5"></script>
-  <script src="list-sorting.js?v=2.0.5"></script>
+  <script src="../../../../../assets/js/session-stats.js?v=2.0.10"></script>
+  <script src="../../../../../assets/js/session-stats-ui.js?v=2.0.10"></script>
+  <script src="list-sorting.js?v=2.0.7"></script>
 </body>
 </html>
